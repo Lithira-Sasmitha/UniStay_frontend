@@ -12,11 +12,16 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  UserCheck
+  UserCheck,
+  User as UserIcon,
+  ChevronDown,
+  Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
 import Button from '../../components/common/Button';
+import EditProfileModal from '../../components/modals/EditProfileModal';
 import { ROLES } from '../../utils/constants';
 
 const AdminDashboard = () => {
@@ -26,6 +31,11 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState(null); // stores userId currently being updated
   const [message, setMessage] = useState(null);
+  
+  // ── Profile State ────────────────────────────────────────────────
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentUserData, setCurrentUserData] = useState(user);
 
   // ── Fetch Users ──────────────────────────────────────────────────
   const fetchUsers = async () => {
@@ -138,14 +148,60 @@ const AdminDashboard = () => {
             Welcome, <span className="text-slate-800 font-bold">{user?.name || 'Admin'}</span>.
           </p>
         </div>
-        <Button
-          onClick={logout}
-          className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-red-600 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
+        <div className="relative">
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center gap-3 bg-white p-2 pr-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all"
+          >
+            <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-red-600 font-bold">
+              {currentUserData?.name?.[0] || 'A'}
+            </div>
+            <div className="hidden sm:block text-left">
+              <p className="text-xs font-black text-slate-900 leading-none mb-1">{currentUserData?.name || 'Admin'}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Super Admin</p>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-50 p-2 z-[100]"
+              >
+                <button 
+                  onClick={() => {
+                    setIsProfileModalOpen(true);
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors text-slate-600 hover:text-red-600"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span className="text-sm font-bold">Edit Profile</span>
+                </button>
+                <div className="h-px bg-slate-50 my-1"></div>
+                <button 
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-slate-600 hover:text-red-600"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-sm font-bold">Logout</span>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
+
+      {/* ── Edit Profile Modal ─────────────────────────────────────── */}
+      <EditProfileModal 
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        userData={currentUserData}
+        onUpdate={(updated) => setCurrentUserData(updated)}
+      />
 
       {/* ── Stats ──────────────────────────────────────────────────── */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
