@@ -19,6 +19,15 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import authService from '../../services/authService';
 import { ROUTES } from '../../utils/constants';
+import { 
+  validateName, 
+  validateEmail, 
+  validatePassword, 
+  validatePhone, 
+  validateNIC, 
+  validateAge, 
+  validateRequired 
+} from '../../utils/validation';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -60,18 +69,34 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Full name is required';
-    if (!formData.email) newErrors.email = 'Email address is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.university) newErrors.university = 'University is required';
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.age) newErrors.age = 'Age is required';
-    else if (isNaN(formData.age) || formData.age < 16 || formData.age > 100) newErrors.age = 'Enter a valid age (16-100)';
-    if (!formData.nic) newErrors.nic = 'NIC number is required';
-    if (!formData.phonenumber) newErrors.phonenumber = 'Phone number is required';
+
+    const nameError = validateName(formData.name);
+    if (nameError) newErrors.name = nameError;
+
+    const emailError = validateEmail(formData.email);
+    if (emailError) newErrors.email = emailError;
+
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) newErrors.password = passwordError;
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    const uniError = validateRequired(formData.university, 'University');
+    if (uniError) newErrors.university = uniError;
+
+    const addressError = validateRequired(formData.address, 'Address');
+    if (addressError) newErrors.address = addressError;
+
+    const ageError = validateAge(formData.age);
+    if (ageError) newErrors.age = ageError;
+
+    const nicError = validateNIC(formData.nic);
+    if (nicError) newErrors.nic = nicError;
+
+    const phoneError = validatePhone(formData.phonenumber);
+    if (phoneError) newErrors.phonenumber = phoneError;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
