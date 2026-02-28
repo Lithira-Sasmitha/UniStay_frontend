@@ -26,6 +26,13 @@ const adminService = {
     const response = await api.delete(`/users/${userId}`);
     return response.data;
   },
+
+  // ── Update Any User Detials ────────────────────────────────────────
+  // PUT /api/users/:id
+  updateUser: async (userId, data) => {
+    const response = await api.put(`/users/${userId}`, data);
+    return response.data;
+  },
 };
 
 export default adminService;

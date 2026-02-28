@@ -15,18 +15,19 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import authService from '../../services/authService';
+import adminService from '../../services/adminService';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import { 
-  validateName, 
+  validateName,
+  validateEmail,
   validatePhone, 
   validateNIC, 
   validateAge, 
   validateRequired 
 } from '../../utils/validation';
 
-const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
+const AdminEditUserModal = ({ isOpen, onClose, userData, onUpdate }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -35,7 +36,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
     age: '',
     nic: '',
     phonenumber: '',
-    password: '', // optional password update
+    password: '', 
   });
   
   const [loading, setLoading] = useState(false);
@@ -68,6 +69,9 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
     const nameError = validateName(formData.name);
     if (nameError) newErrors.name = nameError;
 
+    const emailError = validateEmail(formData.email);
+    if (emailError) newErrors.email = emailError;
+
     const uniError = validateRequired(formData.university, 'University');
     if (uniError) newErrors.university = uniError;
 
@@ -94,25 +98,19 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
-      // Clean up data before sending
       const updateData = { ...formData };
       if (!updateData.password) delete updateData.password;
       
-      const response = await authService.updateProfile(updateData);
+      const response = await adminService.updateUser(userData._id, updateData);
       
       if (response.success) {
-        setMessage({ type: 'success', text: 'Profile updated successfully!' });
+        setMessage({ type: 'success', text: 'User updated successfully!' });
         
-        // Update local storage data if needed
-        const currentUser = authService.getCurrentUser();
-        const updatedUserData = { ...currentUser, ...response.user };
-        localStorage.setItem('userData', JSON.stringify(updatedUserData));
-        
-        if (onUpdate) onUpdate(updatedUserData);
+        if (onUpdate) onUpdate(response.user);
         
         setTimeout(() => {
           onClose();
@@ -120,7 +118,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
         }, 1500);
       }
     } catch (error) {
-      const msg = error.response?.data?.message || 'Failed to update profile';
+      const msg = error.response?.data?.message || 'Failed to update user';
       setMessage({ type: 'error', text: msg });
     } finally {
       setLoading(false);
@@ -151,8 +149,8 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
           {/* Header */}
           <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
             <div>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Edit Profile</h2>
-              <p className="text-slate-500 text-sm font-medium">Update your account information</p>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Edit User Details</h2>
+              <p className="text-slate-500 text-sm font-medium">Modify identity information for {userData?.name}</p>
             </div>
             <button 
               onClick={onClose}
@@ -193,7 +191,6 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
                 onChange={handleChange}
                 error={errors.email}
                 icon={Mail}
-                disabled
               />
               <Input
                 label="University"
@@ -240,10 +237,10 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
               />
               <div className="md:col-span-2">
                 <Input
-                  label="Update Password (Optional)"
+                  label="Override Password (Optional)"
                   name="password"
                   type="password"
-                  placeholder="Leave blank to keep current"
+                  placeholder="Leave blank to keep user's current password"
                   value={formData.password}
                   onChange={handleChange}
                   error={errors.password}
@@ -260,12 +257,12 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Saving Changes...
+                      Saving Identity Changes...
                     </>
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      Save Changes
+                      Save Identity Changes
                     </>
                   )}
                 </Button>
@@ -278,4 +275,4 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
   );
 };
 
-export default EditProfileModal;
+export default AdminEditUserModal;
