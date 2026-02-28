@@ -13,6 +13,13 @@ const adminService = {
     return response.data;
   },
 
+  // ── List All Users ────────────────────────────────────────────────
+  // GET /api/users
+  getAllUsers: async () => {
+    const response = await api.get('/users');
+    return response.data;
+  },
+
   // ── Delete User ────────────────────────────────────────────────────
   // DELETE /api/users/:id
   deleteUser: async (userId) => {
