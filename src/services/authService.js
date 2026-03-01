@@ -27,16 +27,7 @@ const authService = {
   },
 
   register: async (formData) => {
-    const { role, ...rest } = formData;
-    let endpoint = '/users/register';
-    
-    if (role === 'student') {
-      endpoint = '/users/register/student';
-    } else if (role === 'boardingowner') {
-      endpoint = '/users/register/owner';
-    }
-    
-    const response = await api.post(endpoint, rest);
+    const response = await api.post('/users/register', formData);
     return response.data;
   },
 
