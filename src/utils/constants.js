@@ -8,8 +8,8 @@ export const USER_DATA_KEY = 'userData';
 
 // ─── User Roles ─────────────────────────────────────────────────────
 export const ROLES = {
-  SUPER_ADMIN: 'superadmin',
-  BOARDING_OWNER: 'boardingowner',
+  SUPER_ADMIN: 'super_admin',
+  BOARDING_OWNER: 'boarding_owner',
   STUDENT: 'student',
 };
 
