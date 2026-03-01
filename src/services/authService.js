@@ -26,13 +26,17 @@ const authService = {
     return response.data;
   },
 
-  // ── Register ───────────────────────────────────────────────────────
-  // POST /api/users/register
-  // Body: { name, email, password, university, address, age, nic, phonenumber }
   register: async (formData) => {
-    // Backend requires 'username'. Using email as username to keep UI clean.
-    const payload = { ...formData, username: formData.email };
-    const response = await api.post('/users/register', payload);
+    const { role, ...rest } = formData;
+    let endpoint = '/users/register';
+    
+    if (role === 'student') {
+      endpoint = '/users/register/student';
+    } else if (role === 'boardingowner') {
+      endpoint = '/users/register/owner';
+    }
+    
+    const response = await api.post(endpoint, rest);
     return response.data;
   },
 
