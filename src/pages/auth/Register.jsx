@@ -14,14 +14,16 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Home,
 } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import authService from '../../services/authService';
-import { ROUTES } from '../../utils/constants';
+import { ROUTES, ROLES } from '../../utils/constants';
 
 const Register = () => {
   const navigate = useNavigate();
+  const [role, setRole] = useState(ROLES.STUDENT);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -66,7 +68,11 @@ const Register = () => {
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.university) newErrors.university = 'University is required';
+
+    if (role === ROLES.STUDENT) {
+      if (!formData.university) newErrors.university = 'University is required';
+    }
+
     if (!formData.address) newErrors.address = 'Address is required';
     if (!formData.age) newErrors.age = 'Age is required';
     else if (isNaN(formData.age) || formData.age < 16 || formData.age > 100) newErrors.age = 'Enter a valid age (16-100)';
@@ -83,10 +89,9 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // Send registration data (excluding confirmPassword)
       const { confirmPassword, ...payload } = formData;
-      // Convert age to number
       payload.age = Number(payload.age);
+      payload.role = role;
 
       await authService.register(payload);
       setIsSuccess(true);
@@ -130,8 +135,39 @@ const Register = () => {
           Create Account
         </h2>
         <p className="text-slate-500 font-medium leading-relaxed">
-          Join thousands of students staying smart with UniStay.
+          Join UniStay as a student or boarding owner.
         </p>
+      </motion.div>
+
+      {/* Role Selector */}
+      <motion.div variants={itemVariants} className="mb-6">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">I am a</p>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setRole(ROLES.STUDENT)}
+            className={`p-4 rounded-2xl border-2 text-left transition-all ${
+              role === ROLES.STUDENT
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+            }`}
+          >
+            <GraduationCap className={`w-5 h-5 mb-2 ${role === ROLES.STUDENT ? 'text-blue-600' : 'text-slate-400'}`} />
+            <p className={`text-sm font-bold ${role === ROLES.STUDENT ? 'text-blue-700' : 'text-slate-600'}`}>Student</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole(ROLES.BOARDING_OWNER)}
+            className={`p-4 rounded-2xl border-2 text-left transition-all ${
+              role === ROLES.BOARDING_OWNER
+                ? 'border-indigo-500 bg-indigo-50'
+                : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+            }`}
+          >
+            <Home className={`w-5 h-5 mb-2 ${role === ROLES.BOARDING_OWNER ? 'text-indigo-600' : 'text-slate-400'}`} />
+            <p className={`text-sm font-bold ${role === ROLES.BOARDING_OWNER ? 'text-indigo-700' : 'text-slate-600'}`}>Boarding Owner</p>
+          </button>
+        </div>
       </motion.div>
 
       {/* Form */}
@@ -184,16 +220,18 @@ const Register = () => {
           />
         </div>
 
-        <Input
-          label="University"
-          name="university"
-          placeholder="e.g., University of Colombo"
-          value={formData.university}
-          onChange={handleChange}
-          error={errors.university}
-          icon={GraduationCap}
-          required
-        />
+        {role === ROLES.STUDENT && (
+          <Input
+            label="University"
+            name="university"
+            placeholder="e.g., University of Colombo"
+            value={formData.university}
+            onChange={handleChange}
+            error={errors.university}
+            icon={GraduationCap}
+            required
+          />
+        )}
 
         <Input
           label="Address"
