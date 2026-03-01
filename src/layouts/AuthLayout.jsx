@@ -1,55 +1,64 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Home } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
-      {/* Dynamic Branding Side (Left Side) - Premium Dark Mode */}
-      <div className="hidden lg:flex flex-col w-1/2 bg-slate-900 px-16 lg:px-24 pt-12 relative overflow-hidden select-none border-r border-white/5">
-        {/* Deep Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-slate-900 to-indigo-950 opacity-90"></div>
+    <div className="min-h-screen flex bg-white font-sans overflow-hidden">
+      {/* ─── LEFT PANEL (Marketing) ─────────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-[42%] bg-[#081121] relative overflow-hidden p-16 flex-col justify-between select-none">
+        {/* Background Accents / Glows */}
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary-600/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full" />
         
-        <div className="max-w-xl relative z-10 animate-in fade-in slide-in-from-left-10 duration-1000 text-left">
-           <div className="mb-10 inline-flex items-center gap-4">
-              <div className="w-16 h-16 bg-primary-600 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-primary-500/20 transform -rotate-12 hover:rotate-0 transition-transform duration-500">
-                <Home className="w-8 h-8" />
-              </div>
-              <h2 className="text-3xl font-black text-white tracking-tighter uppercase">UniStay<span className="text-primary-500">.</span></h2>
-           </div>
-           
-           <h1 className="text-5xl lg:text-8xl font-black text-white leading-[1] mb-8 tracking-tighter">
-             Find your <br/>
-             <span className="text-primary-400">perfect</span> stay.
-           </h1>
-           
-           <p className="text-xl text-slate-400 font-medium leading-relaxed mb-16 max-w-md">
-             Sri Lanka's most advanced student housing network. Designed for students, trusted by hosts.
-           </p>
-           
-           <div className="grid grid-cols-2 gap-12 justify-items-start">
-              <div className="flex flex-col gap-3">
-                 <span className="text-4xl font-black text-white">100%</span>
-                 <span className="text-[10px] font-black text-primary-500 uppercase tracking-[0.4em] opacity-80">Verified Stays</span>
-              </div>
-              <div className="flex flex-col gap-3">
-                 <span className="text-4xl font-black text-white">12k+</span>
-                 <span className="text-[10px] font-black text-primary-500 uppercase tracking-[0.4em] opacity-80">Monthly Users</span>
-              </div>
-           </div>
+        {/* Logo Section */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-900/40">
+            <Home className="text-white w-6 h-6" />
+          </div>
+          <span className="text-white text-3xl font-black tracking-tight">
+            UNISTAY<span className="text-primary-500 text-5xl leading-[0]">.</span>
+          </span>
+        </div>
+
+        {/* Branding Content */}
+        <div className="relative z-10 max-w-lg">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-white text-7xl font-black mb-8 leading-[1.05] tracking-tight"
+          >
+            Find your <br />
+            <span className="text-primary-400">perfect stay.</span>
+          </motion.h1>
+          <p className="text-xl font-medium leading-relaxed mb-12 text-slate-400">
+            Sri Lanka's most advanced student housing network. Designed for students, trusted by hosts.
+          </p>
+
+          <div className="grid grid-cols-2 gap-12">
+            <div>
+              <div className="text-4xl font-black text-white mb-2 tracking-tight">100%</div>
+              <div className="text-primary-500 text-xs font-black tracking-[0.2em] uppercase">Verified Stays</div>
+            </div>
+            <div>
+              <div className="text-4xl font-black text-white mb-2 tracking-tight">12k+</div>
+              <div className="text-primary-500 text-xs font-black tracking-[0.2em] uppercase">Monthly Users</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="relative z-10 text-slate-500 text-sm font-medium">
+          © {new Date().getFullYear()} UniStay Advanced Platform
         </div>
       </div>
 
-      {/* Main Auth Form Area (Right Side) */}
-      <div className="flex-1 flex flex-col items-center px-6 pt-12 relative bg-white overflow-y-auto custom-scrollbar">
-        <div className="w-full max-w-[460px] animate-in fade-in slide-in-from-right-5 duration-700 pb-20">
+      {/* ─── RIGHT PANEL (Content) ──────────────────────────────────── */}
+      <div className="flex-1 flex flex-col items-center p-8 md:p-12 lg:p-20 overflow-y-auto max-h-screen custom-scrollbar relative bg-white">
+        <div className="w-full max-w-[620px] mx-auto animate-in fade-in slide-in-from-right-5 duration-700">
           <Outlet />
-          
-          <div className="mt-16 pt-10 border-t border-slate-50 flex justify-center opacity-40">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
-              © {new Date().getFullYear()} UniStay Advanced Platform
-            </p>
-          </div>
         </div>
       </div>
     </div>
