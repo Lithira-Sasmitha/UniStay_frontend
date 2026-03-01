@@ -1,28 +1,38 @@
 import api from './api';
 import { AUTH_TOKEN_KEY, USER_ROLE_KEY, USER_DATA_KEY } from '../utils/constants';
 
+// ─── AUTH SERVICE ────────────────────────────────────────────────────
+// Handles login, register, logout, and profile retrieval
+// Endpoints match Postman collection: POST /users/login, POST /users/register
+
 const authService = {
   // ── Login ──────────────────────────────────────────────────────────
-  // POST /api/auth/login
+  // POST /api/users/login
+  // Body: { email, password }
+  // Response: { accessToken, role, ... }
   login: async ({ email, password }) => {
-    const response = await api.post('/auth/login', { email, password });
-    const { token, role, _id, name, email: userEmail } = response.data.data;
+    const response = await api.post('/users/login', { email, password });
+    const { accessToken, role, ...userData } = response.data;
 
-    if (token) {
-      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    // Store token, role, and user data in localStorage
+    if (accessToken) {
+      localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
     }
     if (role) {
       localStorage.setItem(USER_ROLE_KEY, role);
     }
-    localStorage.setItem(USER_DATA_KEY, JSON.stringify({ _id, name, email: userEmail }));
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
 
-    return { token, role, _id, name, email: userEmail };
+    return response.data;
   },
 
   // ── Register ───────────────────────────────────────────────────────
-  // POST /api/auth/register
+  // POST /api/users/register
+  // Body: { name, email, password, university, address, age, nic, phonenumber }
   register: async (formData) => {
-    const response = await api.post('/auth/register', formData);
+    // Backend requires 'username'. Using email as username to keep UI clean.
+    const payload = { ...formData, username: formData.email };
+    const response = await api.post('/users/register', payload);
     return response.data;
   },
 
@@ -34,8 +44,16 @@ const authService = {
   },
 
   // ── Get Profile ────────────────────────────────────────────────────
+  // GET /api/users/profile (requires Bearer token)
   getProfile: async () => {
-    const response = await api.get('/auth/me');
+    const response = await api.get('/users/profile');
+    return response.data;
+  },
+
+  // ── Update Profile ─────────────────────────────────────────────────
+  // PUT /api/users/profile (requires Bearer token)
+  updateProfile: async (data) => {
+    const response = await api.put('/users/profile', data);
     return response.data;
   },
 
@@ -54,7 +72,7 @@ const authService = {
     if (!token || !role) return null;
 
     return {
-      ...(userData ? JSON.parse(userData) : {}),
+      ...( userData ? JSON.parse(userData) : {} ),
       role,
       token,
     };
