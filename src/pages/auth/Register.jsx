@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   Mail,
@@ -14,6 +14,9 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Home,
+  Building2,
+  ArrowRight
 } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -31,6 +34,7 @@ import {
 
 const Register = () => {
   const navigate = useNavigate();
+  const [role, setRole] = useState('student'); // 'student' or 'boardingowner'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,22 +47,7 @@ const Register = () => {
     phonenumber: '',
   });
   const [errors, setErrors] = useState({});
-  const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut', staggerChildren: 0.05 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0 },
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,8 +72,10 @@ const Register = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    const uniError = validateRequired(formData.university, 'University');
-    if (uniError) newErrors.university = uniError;
+    if (role === 'student') {
+      const uniError = validateRequired(formData.university, 'University');
+      if (uniError) newErrors.university = uniError;
+    }
 
     const addressError = validateRequired(formData.address, 'Address');
     if (addressError) newErrors.address = addressError;
@@ -108,18 +99,20 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // Send registration data (excluding confirmPassword)
       const { confirmPassword, ...payload } = formData;
-      // Convert age to number
       payload.age = Number(payload.age);
+      payload.role = role;
+
+      // Only include university for students
+      if (role !== 'student') {
+        delete payload.university;
+      }
 
       await authService.register(payload);
-      setIsSuccess(true);
-      setTimeout(() => navigate(ROUTES.LOGIN), 2500);
+      navigate(ROUTES.LOGIN);
     } catch (error) {
       const message =
         error.response?.data?.message ||
-        error.response?.data?.error ||
         'Registration failed. Please try again.';
       setErrors({ form: message });
     } finally {
@@ -127,142 +120,179 @@ const Register = () => {
     }
   };
 
-  // ─── Success View ─────────────────────────────────────────────────
-  if (isSuccess) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-10 text-center"
-      >
-        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-green-100 border border-green-200">
-          <CheckCircle className="w-10 h-10" />
-        </div>
-        <h2 className="text-3xl font-black text-slate-900 mb-2">Registration Successful!</h2>
-        <p className="text-slate-500 font-medium leading-relaxed max-w-[320px]">
-          Your account has been created. Redirecting you to login...
-        </p>
-      </motion.div>
-    );
-  }
 
-  // ─── Registration Form ────────────────────────────────────────────
+
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="w-full">
+    <div className="w-full py-4">
       {/* Header */}
-      <motion.div variants={itemVariants} className="mb-8">
-        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">
+      <div className="mb-10">
+        <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
           Create Account
         </h2>
-        <p className="text-slate-500 font-medium leading-relaxed">
-          Join thousands of students staying smart with UniStay.
+        <p className="text-slate-500 text-lg font-medium leading-relaxed">
+          Join UniStay as a {role === 'student' ? 'student' : 'boarding owner'}.
         </p>
-      </motion.div>
+      </div>
 
-      {/* Form */}
-      <motion.form variants={itemVariants} onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          label="Full Name"
-          name="name"
-          placeholder="e.g., Alex Johnson"
-          value={formData.name}
-          onChange={handleChange}
-          error={errors.name}
-          icon={User}
-          required
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {/* Role Switcher - Compact & Professional Segmented Control */}
+        <div className="flex flex-col gap-3 mb-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Join as a</label>
+          <div className="flex p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100 relative w-full overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setRole('student')}
+              className={`
+                flex-1 flex items-center justify-center gap-3 py-3 rounded-xl transition-all duration-500 relative z-10
+                ${role === 'student' ? 'text-primary-700' : 'text-slate-500 hover:text-slate-700'}
+              `}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${role === 'student' ? 'bg-primary-100 text-primary-600' : 'bg-transparent text-slate-400'}`}>
+                <GraduationCap className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold tracking-tight">Student</span>
+            </button>
 
-        <Input
-          label="Email Address"
-          name="email"
-          type="email"
-          placeholder="email@university.com"
-          value={formData.email}
-          onChange={handleChange}
-          error={errors.email}
-          icon={Mail}
-          required
-        />
+            <button
+              type="button"
+              onClick={() => setRole('boardingowner')}
+              className={`
+                flex-1 flex items-center justify-center gap-3 py-3 rounded-xl transition-all duration-500 relative z-10
+                ${role === 'boardingowner' ? 'text-primary-700' : 'text-slate-500 hover:text-slate-700'}
+              `}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${role === 'boardingowner' ? 'bg-primary-100 text-primary-600' : 'bg-transparent text-slate-400'}`}>
+                <Building2 className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold tracking-tight">Boarding Owner</span>
+            </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            placeholder="Create password"
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-            icon={Lock}
-            required
-          />
-          <Input
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            icon={Lock}
-            required
-          />
+            {/* Sliding Active Indicator */}
+            <motion.div
+              layout
+              transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+              animate={{ x: role === 'student' ? '0%' : '100%' }}
+              className="absolute inset-y-1.5 left-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-xl shadow-primary-500/5 border border-slate-100 pointer-events-none"
+            />
+          </div>
         </div>
 
-        <Input
-          label="University"
-          name="university"
-          placeholder="e.g., University of Colombo"
-          value={formData.university}
-          onChange={handleChange}
-          error={errors.university}
-          icon={GraduationCap}
-          required
-        />
+        <div className="grid grid-cols-1 gap-5">
+          <Input
+            label="Full Name"
+            name="name"
+            placeholder="e.g., Alex Johnson"
+            value={formData.name}
+            onChange={handleChange}
+            error={errors.name}
+            icon={User}
+            required
+          />
 
-        <Input
-          label="Address"
-          name="address"
-          placeholder="e.g., 789 Street, Colombo"
-          value={formData.address}
-          onChange={handleChange}
-          error={errors.address}
-          icon={MapPin}
-          required
-        />
+          <Input
+            label="Email Address"
+            name="email"
+            type="email"
+            placeholder={role === 'student' ? 'email@university.com' : 'email@example.com'}
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+            icon={Mail}
+            required
+          />
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              placeholder="Create password"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              icon={Lock}
+              required
+            />
+            <Input
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              icon={Lock}
+              required
+            />
+          </div>
+
+          <AnimatePresence mode="wait">
+            {role === 'student' && (
+              <motion.div
+                key="uni-field"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <Input
+                  label="University"
+                  name="university"
+                  placeholder="e.g., University of Colombo"
+                  value={formData.university}
+                  onChange={handleChange}
+                  error={errors.university}
+                  icon={GraduationCap}
+                  required
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <Input
-            label="Age"
-            name="age"
-            type="number"
-            placeholder="22"
-            value={formData.age}
+            label="Address"
+            name="address"
+            placeholder="e.g., 789 Street, Colombo"
+            value={formData.address}
             onChange={handleChange}
-            error={errors.age}
-            icon={Calendar}
+            error={errors.address}
+            icon={MapPin}
             required
           />
-          <Input
-            label="NIC Number"
-            name="nic"
-            placeholder="200298765432"
-            value={formData.nic}
-            onChange={handleChange}
-            error={errors.nic}
-            icon={CreditCard}
-            required
-          />
-          <Input
-            label="Phone Number"
-            name="phonenumber"
-            placeholder="0770000000"
-            value={formData.phonenumber}
-            onChange={handleChange}
-            error={errors.phonenumber}
-            icon={Phone}
-            required
-          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <Input
+              label="Age"
+              name="age"
+              type="number"
+              placeholder="e.g., 22"
+              value={formData.age}
+              onChange={handleChange}
+              error={errors.age}
+              icon={Calendar}
+              required
+            />
+            <Input
+              label="NIC Number"
+              name="nic"
+              placeholder="200298765432"
+              value={formData.nic}
+              onChange={handleChange}
+              error={errors.nic}
+              icon={CreditCard}
+              required
+            />
+            <Input
+              label="Phone Number"
+              name="phonenumber"
+              placeholder="0770000000"
+              value={formData.phonenumber}
+              onChange={handleChange}
+              error={errors.phonenumber}
+              icon={Phone}
+              required
+            />
+          </div>
         </div>
 
         {/* Error Banner */}
@@ -270,39 +300,40 @@ const Register = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3"
+            className="p-4 bg-red-50 border border-red-200 rounded-3xl flex items-center gap-3"
           >
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-            <p className="text-sm font-semibold text-red-700">{errors.form}</p>
+            <p className="text-sm font-bold text-red-700">{errors.form}</p>
           </motion.div>
         )}
 
         <Button
           type="submit"
-          className="w-full py-3.5 rounded-2xl text-sm font-bold shadow-xl shadow-primary-200/50 mt-2"
+          className="w-full py-4 rounded-[1.5rem] text-base font-black shadow-2xl shadow-primary-200/50 mt-4 h-16"
           disabled={loading}
         >
           {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="flex items-center justify-center gap-3">
+              <Loader2 className="w-5 h-5 animate-spin" />
               Creating Account...
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-5 h-5 stroke-[2.5]" />
               Create Account
+              <ArrowRight className="w-4 h-4 ml-1 opacity-50" />
             </span>
           )}
         </Button>
-      </motion.form>
+      </form>
 
-      <p className="mt-6 text-center text-sm font-medium text-slate-500">
+      <p className="mt-12 text-center text-lg font-medium text-slate-500 pb-10">
         Already have an account?{' '}
-        <Link to={ROUTES.LOGIN} className="text-primary-600 font-bold hover:text-primary-700 transition-colors">
+        <Link to={ROUTES.LOGIN} className="text-primary-600 font-black hover:text-primary-700 transition-all hover:underline underline-offset-8">
           Sign In
         </Link>
       </p>
-    </motion.div>
+    </div>
   );
 };
 
