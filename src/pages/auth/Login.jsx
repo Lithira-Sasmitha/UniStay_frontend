@@ -6,6 +6,7 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import useAuth from '../../hooks/useAuth';
 import { ROUTES } from '../../utils/constants';
+import { validateEmail, validatePassword } from '../../utils/validation';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,9 +38,12 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email) newErrors.email = 'Email address is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-    if (!formData.password) newErrors.password = 'Password is required';
+    const emailError = validateEmail(formData.email);
+    if (emailError) newErrors.email = emailError;
+
+    const passwordError = validatePassword(formData.password, true);
+    if (passwordError) newErrors.password = passwordError;
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
