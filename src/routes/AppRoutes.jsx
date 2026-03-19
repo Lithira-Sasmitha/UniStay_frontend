@@ -6,6 +6,10 @@ import Register from '../pages/auth/Register';
 import AdminDashboard from '../pages/dashboard/AdminDashboard';
 import OwnerDashboard from '../pages/dashboard/OwnerDashboard';
 import StudentDashboard from '../pages/dashboard/StudentDashboard';
+import ListingsPage from '../pages/listings/ListingsPage';
+import PropertyDetailPage from '../pages/listings/PropertyDetailPage';
+import CreateListingPage from '../pages/listings/CreateListingPage';
+import PaymentPage from '../pages/payment/PaymentPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -17,6 +21,10 @@ const AppRoutes = () => {
         <Route path={ROUTES.LOGIN} element={<Login />} />
         <Route path={ROUTES.REGISTER} element={<Register />} />
       </Route>
+
+      {/* ── Public Listing Routes ──────────────────────────────────── */}
+      <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
+      <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
       <Route
@@ -37,6 +45,14 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path={ROUTES.CREATE_LISTING}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <CreateListingPage />
+          </PrivateRoute>
+        }
+      />
 
       {/* ── Protected: Student ─────────────────────────────────────── */}
       <Route
@@ -44,6 +60,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <StudentDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_PAY}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <PaymentPage />
           </PrivateRoute>
         }
       />
