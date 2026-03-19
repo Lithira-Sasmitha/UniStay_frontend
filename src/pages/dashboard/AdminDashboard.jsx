@@ -19,6 +19,8 @@ import {
   Award,
   ExternalLink,
   FileText,
+  X,
+  Eye,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
@@ -121,6 +123,7 @@ const AdminDashboard = () => {
   const [pendingProperties, setPendingProperties] = useState([]);
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [badgeLoading, setBadgeLoading] = useState('');
+  const [docPreview, setDocPreview] = useState(null); // { url, label }
 
   const fetchUsers = async () => {
     try {
@@ -337,6 +340,60 @@ const AdminDashboard = () => {
           }}
         />
 
+        {/* Document Preview Modal */}
+        <AnimatePresence>
+          {docPreview && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+              onClick={() => setDocPreview(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between p-4 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-800">{docPreview.label}</h3>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={docPreview.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-500 hover:text-slate-800 p-1"
+                      title="Open in new tab"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                    <button onClick={() => setDocPreview(null)} className="text-slate-500 hover:text-slate-800 p-1">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-auto p-4 flex items-center justify-center min-h-[400px]">
+                  {docPreview.url.match(/\.pdf/i) || docPreview.url.includes('/raw/upload/') ? (
+                    <iframe
+                      src={`https://docs.google.com/gview?url=${encodeURIComponent(docPreview.url)}&embedded=true`}
+                      title={docPreview.label}
+                      className="w-full h-[70vh] rounded-lg border border-slate-200"
+                    />
+                  ) : (
+                    <img
+                      src={docPreview.url}
+                      alt={docPreview.label}
+                      className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                    />
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ── Tab Switcher ──────────────────────────────────── */}
         <motion.div variants={itemVariants} className="flex gap-2 bg-white/60 backdrop-blur-xl rounded-2xl p-1.5 border border-white/60 w-fit shadow-sm">
           {[
@@ -447,9 +504,13 @@ const AdminDashboard = () => {
                               <FileText className="w-4 h-4 flex-shrink-0" />
                               <span className="flex-1 truncate">{label}</span>
                               {docs[key]?.url ? (
-                                <a href={docs[key].url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800">
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
+                                <button
+                                  onClick={() => setDocPreview({ url: docs[key].url, label })}
+                                  className="text-emerald-600 hover:text-emerald-800"
+                                  title={`View ${label}`}
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                </button>
                               ) : (
                                 <span className="text-[10px]">{required ? 'MISSING' : 'Optional'}</span>
                               )}
