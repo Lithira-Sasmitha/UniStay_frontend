@@ -375,19 +375,26 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="flex-1 overflow-auto p-4 flex items-center justify-center min-h-[400px]">
-                  {docPreview.url.match(/\.pdf/i) || docPreview.url.includes('/raw/upload/') ? (
-                    <iframe
-                      src={`https://docs.google.com/gview?url=${encodeURIComponent(docPreview.url)}&embedded=true`}
-                      title={docPreview.label}
-                      className="w-full h-[70vh] rounded-lg border border-slate-200"
-                    />
-                  ) : (
-                    <img
-                      src={docPreview.url}
-                      alt={docPreview.label}
-                      className="max-w-full max-h-[70vh] object-contain rounded-lg"
-                    />
-                  )}
+                  {(() => {
+                    const url = docPreview.url;
+                    const isPdf = url.match(/\.pdf/i) || url.includes('/raw/upload/');
+                    if (isPdf) {
+                      return (
+                        <iframe
+                          src={url}
+                          title={docPreview.label}
+                          className="w-full h-[70vh] rounded-lg border border-slate-200"
+                        />
+                      );
+                    }
+                    return (
+                      <img
+                        src={url}
+                        alt={docPreview.label}
+                        className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                      />
+                    );
+                  })()}
                 </div>
               </motion.div>
             </motion.div>
