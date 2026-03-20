@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle } from 'lucide-react';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle } from 'lucide-react';
 import { getListingById } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
@@ -125,10 +125,42 @@ const PropertyDetailPage = () => {
                             </div>
                         </div>
 
-                        <div className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border ${badge.cls}`}>
-                            {badge.emoji} {badge.label}
+                        <div className="text-right">
+                            <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border ${badge.cls}`}>
+                                {badge.emoji} {badge.label}
+                            </div>
+                            {property.badgeMessage && (
+                                <p className="flex items-center gap-1 text-xs text-slate-500 mt-1.5 justify-end">
+                                    <MessageSquare className="w-3 h-3" /> {property.badgeMessage}
+                                </p>
+                            )}
                         </div>
                     </div>
+
+                    {/* Owner rejection banner (visible to property owner only) */}
+                    {user?._id === (property.owner?._id || property.owner) && property.verificationStatus === 'rejected' && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 flex items-start gap-3">
+                            <ShieldX className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-bold text-red-800">This property was rejected by admin</p>
+                                <p className="text-xs text-red-600 mt-0.5">{property.rejectionReason || 'No reason provided'}</p>
+                                <button
+                                    onClick={() => navigate(`/owner/edit-listing/${property._id}`)}
+                                    className="text-xs font-bold text-red-700 hover:underline mt-1.5"
+                                >
+                                    Edit & Re-submit →
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Not verified warning for visitors */}
+                    {property.verificationStatus === 'pending' && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 flex items-center gap-3">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                            <p className="text-sm font-semibold text-amber-800">This property is awaiting admin verification</p>
+                        </div>
+                    )}
 
                     {/* Owner */}
                     <p className="text-slate-500 text-sm mb-6">

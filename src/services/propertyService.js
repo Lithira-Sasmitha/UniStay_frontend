@@ -35,9 +35,9 @@ export const deletePhoto = (propertyId, publicId) =>
 export const toggleActive = (propertyId) =>
     api.patch(`/properties/${propertyId}/toggle-active`);
 
-/** Get Film Hall view (rooms + occupants) */
-export const getFilmHallView = (propertyId) =>
-    api.get(`/properties/${propertyId}/film-hall`);
+/** Get Boarding Arrange view (rooms + occupants + bookings + stats) */
+export const getBoardingArrangeView = (propertyId) =>
+    api.get(`/properties/${propertyId}/boarding-arrange`);
 
 /** Get owner's properties with rooms + occupant details (all properties) */
 export const getOwnerBoarding = () => api.get('/properties/my-boarding');
@@ -63,5 +63,23 @@ export const getAllProperties = () =>
     api.get('/properties/admin/all');
 
 /** Assign trust badge to a property */
-export const setTrustBadge = (propertyId, badge) =>
-    api.patch(`/properties/admin/${propertyId}/badge`, { badge });
+export const setTrustBadge = (propertyId, badge, badgeMessage = '') =>
+    api.patch(`/properties/admin/${propertyId}/badge`, { badge, badgeMessage });
+
+/** Reject a property (admin) */
+export const rejectProperty = (propertyId, rejectionReason) =>
+    api.patch(`/properties/admin/${propertyId}/reject`, { rejectionReason });
+
+// ── Property CRUD ─────────────────────────────────────────────────────
+
+/** Update property details */
+export const updateProperty = (propertyId, data) =>
+    api.put(`/properties/${propertyId}`, data);
+
+/** Delete a property */
+export const deleteProperty = (propertyId) =>
+    api.delete(`/properties/${propertyId}`);
+
+/** Remove an occupant from a room */
+export const removeOccupant = (roomId, studentId, reason = '') =>
+    api.patch(`/properties/rooms/${roomId}/remove-occupant`, { studentId, reason });

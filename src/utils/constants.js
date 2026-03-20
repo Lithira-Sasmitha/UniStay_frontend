@@ -23,6 +23,7 @@ export const ROUTES = {
   LISTINGS: '/listings',
   LISTING_DETAIL: '/listings/:propertyId',
   CREATE_LISTING: '/owner/create-listing',
+  EDIT_LISTING: '/owner/edit-listing/:propertyId',
   STUDENT_PAY: '/student/pay/:bookingId',
 };
 
