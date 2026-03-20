@@ -21,10 +21,17 @@ import {
   FileText,
   X,
   Eye,
+  Building,
+  Power,
+  ShieldX,
+  MessageSquare,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
-import { getVerificationQueue, setTrustBadge } from '../../services/propertyService';
+import {
+  getVerificationQueue, setTrustBadge, rejectProperty,
+  getAllProperties, toggleActive, deleteProperty as deletePropertyApi,
+} from '../../services/propertyService';
 import EditProfileModal from '../../components/modals/EditProfileModal';
 import AdminEditUserModal from '../../components/modals/AdminEditUserModal';
 import { ROLES } from '../../utils/constants';
@@ -125,6 +132,19 @@ const AdminDashboard = () => {
   const [badgeLoading, setBadgeLoading] = useState('');
   const [docPreview, setDocPreview] = useState(null); // { url, label }
 
+  // Reject property modal
+  const [rejectModal, setRejectModal] = useState(null); // propertyId
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectLoading, setRejectLoading] = useState(false);
+
+  // Badge message modal
+  const [badgeMessageModal, setBadgeMessageModal] = useState(null); // { propertyId, badge }
+  const [badgeMessage, setBadgeMessage] = useState('');
+
+  // All properties tab
+  const [allProperties, setAllProperties] = useState([]);
+  const [allPropsLoading, setAllPropsLoading] = useState(false);
+
   const fetchUsers = async () => {
     try {
       const data = await adminService.getAllUsers();
@@ -147,24 +167,91 @@ const AdminDashboard = () => {
     finally { setVerificationLoading(false); }
   };
 
+  const fetchAllProperties = async () => {
+    setAllPropsLoading(true);
+    try {
+      const { data } = await getAllProperties();
+      setAllProperties(data.properties || []);
+    } catch { /* silent */ }
+    finally { setAllPropsLoading(false); }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchVerificationQueue();
+    fetchAllProperties();
   }, []);
 
-  const handleSetBadge = async (propertyId, badge) => {
+  // Badge assignment: now opens a message modal first
+  const handleBadgeClick = (propertyId, badge) => {
+    setBadgeMessageModal({ propertyId, badge });
+    setBadgeMessage('');
+  };
+
+  const handleSetBadge = async () => {
+    if (!badgeMessageModal) return;
+    const { propertyId, badge } = badgeMessageModal;
     setBadgeLoading(propertyId + badge);
     try {
-      await setTrustBadge(propertyId, badge);
+      await setTrustBadge(propertyId, badge, badgeMessage);
       setMessage({ type: 'success', text: `Badge set to ${badge} successfully!` });
-      // Remove from pending queue if badge assigned (now verified)
       if (badge !== 'unverified') {
         setPendingProperties(prev => prev.filter(p => p._id !== propertyId));
       }
+      setBadgeMessageModal(null);
+      setBadgeMessage('');
+      fetchAllProperties();
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to assign badge' });
     } finally {
       setBadgeLoading('');
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleRejectProperty = async () => {
+    if (!rejectModal || rejectReason.length < 10) return;
+    setRejectLoading(true);
+    try {
+      await rejectProperty(rejectModal, rejectReason);
+      setMessage({ type: 'success', text: 'Property rejected. Owner has been notified via email.' });
+      setPendingProperties(prev => prev.filter(p => p._id !== rejectModal));
+      setRejectModal(null);
+      setRejectReason('');
+      fetchAllProperties();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to reject property' });
+    } finally {
+      setRejectLoading(false);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleAdminToggleActive = async (propertyId) => {
+    setActionLoading(propertyId);
+    try {
+      await toggleActive(propertyId);
+      fetchAllProperties();
+      setMessage({ type: 'success', text: 'Property status toggled' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to toggle status' });
+    } finally {
+      setActionLoading(null);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleAdminDeleteProperty = async (propertyId, propertyName) => {
+    if (!window.confirm(`Delete "${propertyName}"? Pending bookings will be cancelled.`)) return;
+    setActionLoading(propertyId);
+    try {
+      await deletePropertyApi(propertyId);
+      setAllProperties(prev => prev.filter(p => p._id !== propertyId));
+      setMessage({ type: 'success', text: 'Property deleted' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to delete property' });
+    } finally {
+      setActionLoading(null);
       setTimeout(() => setMessage(null), 3000);
     }
   };
@@ -406,6 +493,7 @@ const AdminDashboard = () => {
           {[
             { id: 'users', label: 'User Registry', icon: Users, count: null },
             { id: 'verification', label: 'Verification', icon: ClipboardList, count: pendingProperties.length },
+            { id: 'properties', label: 'All Properties', icon: Building, count: null },
           ].map(({ id, label, icon: Icon, count }) => (
             <button
               key={id}
@@ -525,29 +613,131 @@ const AdminDashboard = () => {
                           ))}
                         </div>
 
-                        {/* Badge assignment */}
-                        <div>
-                          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                            <Award className="w-3.5 h-3.5" /> Assign Trust Badge
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {BADGE_OPTIONS.map(({ value, label, desc }) => (
-                              <button
-                                key={value}
-                                title={desc}
-                                disabled={badgeLoading === prop._id + value}
-                                onClick={() => handleSetBadge(prop._id, value)}
-                                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold border transition-all disabled:opacity-50 ${prop.trustBadge === value
-                                  ? 'bg-slate-900 text-white border-slate-900'
-                                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                        {/* Badge assignment + Reject */}
+                        <div className="flex flex-wrap items-end justify-between gap-4">
+                          <div>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                              <Award className="w-3.5 h-3.5" /> Assign Trust Badge
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {BADGE_OPTIONS.map(({ value, label, desc }) => (
+                                <button
+                                  key={value}
+                                  title={desc}
+                                  disabled={!!badgeLoading}
+                                  onClick={() => handleBadgeClick(prop._id, value)}
+                                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold border transition-all disabled:opacity-50 ${prop.trustBadge === value
+                                    ? 'bg-slate-900 text-white border-slate-900'
+                                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
                                   }`}
-                              >
-                                {badgeLoading === prop._id + value
-                                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                  : null}
-                                {label}
-                              </button>
-                            ))}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => { setRejectModal(prop._id); setRejectReason(''); }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
+                          >
+                            <ShieldX className="w-4 h-4" /> Reject Property
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── User Management Tab ─────────────────────────── */}
+        {/* ── All Properties Tab ──────────────────────────── */}
+        {activeTab === 'properties' && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <div className={`${glassCard} rounded-[2.5rem]`}>
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">All Properties</h2>
+              <p className="text-slate-500 text-sm font-medium mb-6">Manage all properties on the platform.</p>
+
+              {allPropsLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                </div>
+              ) : allProperties.length === 0 ? (
+                <div className="text-center py-20">
+                  <Building className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="font-bold text-slate-700 text-lg">No Properties</p>
+                  <p className="text-slate-400 text-sm">No properties have been created yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {allProperties.map((prop) => {
+                    const totalRooms = (prop.rooms || []).length;
+                    const totalOccupied = (prop.rooms || []).reduce((a, r) => a + (r.currentOccupants?.length || 0), 0);
+                    const statusColors = {
+                      verified: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                      pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                      rejected: 'bg-red-50 text-red-600 border-red-200',
+                    };
+                    return (
+                      <div key={prop._id} className="bg-white/70 rounded-2xl border border-slate-100 p-5">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-black text-slate-900">{prop.name}</h3>
+                            <p className="text-sm text-slate-500">{prop.address}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              Owner: <span className="font-semibold text-slate-600">{prop.owner?.name}</span> · {prop.owner?.email}
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${statusColors[prop.verificationStatus] || ''}`}>
+                                {prop.verificationStatus}
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${prop.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                                {prop.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                              {prop.trustBadge !== 'unverified' && (
+                                <span className="text-xs px-2 py-0.5 rounded-full font-bold border bg-purple-50 text-purple-700 border-purple-200 capitalize">
+                                  {prop.trustBadge} Badge
+                                </span>
+                              )}
+                              <span className="text-xs px-2 py-0.5 rounded-full font-bold border bg-blue-50 text-blue-700 border-blue-200">
+                                {totalRooms} rooms · {totalOccupied} occupied
+                              </span>
+                            </div>
+                            {prop.rejectionReason && (
+                              <p className="text-xs text-red-500 mt-1.5">Rejection: {prop.rejectionReason}</p>
+                            )}
+                            {prop.badgeMessage && (
+                              <p className="text-xs text-purple-500 mt-1 flex items-center gap-1">
+                                <MessageSquare className="w-3 h-3" /> {prop.badgeMessage}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleAdminToggleActive(prop._id)}
+                              disabled={actionLoading === prop._id}
+                              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 ${prop.isActive ? 'bg-orange-50 text-orange-700 hover:bg-orange-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                            >
+                              {actionLoading === prop._id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Power className="w-3 h-3" />}
+                              {prop.isActive ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button
+                              onClick={() => handleAdminDeleteProperty(prop._id, prop.name)}
+                              disabled={actionLoading === prop._id}
+                              className="px-3 py-1.5 text-xs font-bold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              <Trash2 className="w-3 h-3" /> Delete
+                            </button>
+                            <a
+                              href={`/listings/${prop._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3 h-3" /> View
+                            </a>
                           </div>
                         </div>
                       </div>
@@ -667,6 +857,119 @@ const AdminDashboard = () => {
           </div>
         </motion.div>}
       </div>
+
+      {/* ── Badge Message Modal ──────────────────────────────────────── */}
+      <AnimatePresence>
+        {badgeMessageModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => { setBadgeMessageModal(null); setBadgeMessage(''); }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-md p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-slate-900">
+                  Assign {badgeMessageModal.badge.charAt(0).toUpperCase() + badgeMessageModal.badge.slice(1)} Badge
+                </h3>
+                <button onClick={() => { setBadgeMessageModal(null); setBadgeMessage(''); }} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
+
+              <p className="text-sm text-slate-500 mb-4">
+                Add an optional note explaining this badge assignment. This will be visible to the property owner.
+              </p>
+
+              <textarea
+                value={badgeMessage}
+                onChange={(e) => setBadgeMessage(e.target.value)}
+                placeholder="e.g., All documents verified and property inspected"
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-400 font-medium text-slate-900 resize-none mb-4"
+              />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setBadgeMessageModal(null); setBadgeMessage(''); }}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSetBadge}
+                  disabled={badgeLoading}
+                  className="flex-1 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {badgeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Award className="w-4 h-4" />}
+                  Assign Badge
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Reject Property Modal ────────────────────────────────────── */}
+      <AnimatePresence>
+        {rejectModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => { setRejectModal(null); setRejectReason(''); }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-md p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-red-600 flex items-center gap-2">
+                  <ShieldX className="w-5 h-5" /> Reject Property
+                </h3>
+                <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
+
+              <p className="text-sm text-slate-500 mb-4">
+                Provide a reason for rejecting this property. The owner will be notified via email and can re-submit after making changes.
+              </p>
+
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g., NIC photo is blurry. Please upload a clear photo of your National ID card."
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-400 font-medium text-slate-900 resize-none mb-2"
+              />
+              <p className={`text-xs mb-4 ${rejectReason.length < 10 ? 'text-red-400' : 'text-slate-400'}`}>
+                {rejectReason.length}/10 characters minimum
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setRejectModal(null); setRejectReason(''); }}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRejectProperty}
+                  disabled={rejectLoading || rejectReason.length < 10}
+                  className="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {rejectLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldX className="w-4 h-4" />}
+                  Reject Property
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

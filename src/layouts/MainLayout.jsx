@@ -30,17 +30,10 @@ const MainLayout = () => {
             <Outlet />
           </div>
           
-          <footer className="mt-auto py-12 border-t border-slate-200/60 transition-all duration-300 opacity-60">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <p className="text-sm font-medium text-slate-500 tracking-tight">
-                © {new Date().getFullYear()} <span className="text-primary-600 font-bold">UniStay</span> Student Booking Platform. All rights reserved.
-              </p>
-              <div className="flex items-center gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                <a href="#" className="hover:text-primary-500 transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-primary-500 transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-primary-500 transition-colors">Contact Us</a>
-              </div>
-            </div>
+          <footer className="mt-auto py-8 border-t border-slate-200/60 transition-all duration-300 opacity-60">
+            <p className="text-center text-sm font-medium text-slate-500 tracking-tight">
+              © {new Date().getFullYear()} <span className="text-primary-600 font-bold">UniStay</span> — Student Boarding Platform
+            </p>
           </footer>
         </main>
       </div>

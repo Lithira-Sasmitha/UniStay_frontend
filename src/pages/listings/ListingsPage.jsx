@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Loader2 } from 'lucide-react';
 import { getPublicListings } from '../../services/propertyService';
 import PropertyCard from '../../components/cards/PropertyCard';
 
 const ListingsPage = () => {
+    const [searchParams] = useSearchParams();
+    const initialSearch = searchParams.get('search') || '';
+
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [query, setQuery] = useState('');
+    const [search, setSearch] = useState(initialSearch);
+    const [query, setQuery] = useState(initialSearch);
     const [error, setError] = useState('');
 
     useEffect(() => {
