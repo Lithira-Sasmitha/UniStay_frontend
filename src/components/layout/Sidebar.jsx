@@ -1,29 +1,52 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, List, Users, Calendar, Settings, Heart, HelpCircle, X, ChevronRight, Sparkles } from 'lucide-react';
-import { ROUTES } from '../../utils/constants';
+import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield } from 'lucide-react';
+import { ROUTES, ROLES } from '../../utils/constants';
 import { cn } from '../../utils/cn';
+import useAuth from '../../hooks/useAuth';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.DASHBOARD },
-    { name: 'Browse Listings', icon: List, path: ROUTES.LISTINGS },
-    { name: 'My Bookings', icon: Calendar, path: '/bookings' },
-    { name: 'Favorites', icon: Heart, path: '/favorites' },
-    { name: 'Manage Users', icon: Users, path: '/users', adminOnly: true },
-    { name: 'Support', icon: HelpCircle, path: '/support' },
-    { name: 'Settings', icon: Settings, path: '/settings' },
-  ];
+  const { user } = useAuth();
+  const role = user?.role;
+
+  const getMenuItems = () => {
+    const items = [];
+
+    // Dashboard — role-specific
+    if (role === ROLES.SUPER_ADMIN) {
+      items.push({ name: 'Control Center', icon: Shield, path: ROUTES.ADMIN_DASHBOARD });
+    } else if (role === ROLES.BOARDING_OWNER) {
+      items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
+    } else if (role === ROLES.STUDENT) {
+      items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.STUDENT_DASHBOARD });
+    }
+
+    // Browse Listings — everyone
+    items.push({ name: 'Browse Listings', icon: List, path: ROUTES.LISTINGS });
+
+    // Owner-specific
+    if (role === ROLES.BOARDING_OWNER) {
+      items.push({ name: 'Create Listing', icon: PlusCircle, path: ROUTES.CREATE_LISTING });
+    }
+
+    // Admin-specific
+    if (role === ROLES.SUPER_ADMIN) {
+      items.push({ name: 'All Properties', icon: Building, path: ROUTES.LISTINGS });
+    }
+
+    return items;
+  };
+
+  const menuItems = getMenuItems();
 
   const sidebarVariants = {
-    open: { 
-      x: 0, 
-      transition: { type: "spring", stiffness: 300, damping: 30 } 
+    open: {
+      x: 0,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
     },
-    closed: { 
-      x: "-100%", 
-      transition: { type: "spring", stiffness: 300, damping: 30 } 
+    closed: {
+      x: "-100%",
+      transition: { type: "spring", stiffness: 300, damping: 30 }
     }
   };
 
@@ -38,8 +61,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         onClick={onClose}
         className={({ isActive }) => cn(`
           relative flex items-center gap-4 px-6 py-4 rounded-[24px] text-sm font-black transition-all duration-300 group
-          ${isActive 
-            ? 'bg-slate-900 text-white shadow-2xl shadow-slate-300/50' 
+          ${isActive
+            ? 'bg-slate-900 text-white shadow-2xl shadow-slate-300/50'
             : 'text-slate-500 hover:bg-primary-50 hover:text-primary-700 hover:translate-x-1'}
         `)}
       >
@@ -48,12 +71,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             <item.icon className={cn(`w-5 h-5 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`)} />
             <span className="tracking-tight">{item.name}</span>
             {isActive ? (
-              <motion.div 
+              <motion.div
                 layoutId="activeIndicator"
                 className="ml-auto w-2 h-2 bg-primary-400 rounded-full shadow-[0_0_15px_rgba(96,165,250,0.8)]"
               />
             ) : (
-                <ChevronRight className="ml-auto w-4 h-4 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0" />
+              <ChevronRight className="ml-auto w-4 h-4 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-2 group-hover:translate-x-0" />
             )}
           </>
         )}
@@ -65,16 +88,16 @@ const Sidebar = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {/* Backdrop for mobile */}
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-40 lg:hidden" 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-40 lg:hidden"
           onClick={onClose}
         />
       )}
-      
-      <motion.aside 
+
+      <motion.aside
         variants={sidebarVariants}
         initial="closed"
         animate={isOpen || window.innerWidth >= 1024 ? "open" : "closed"}
@@ -110,28 +133,13 @@ const Sidebar = ({ isOpen, onClose }) => {
             ))}
           </nav>
 
-          {/* Sidebar Footer/Banner */}
+          {/* Sidebar Footer — Branding */}
           <div className="mt-auto pt-10 relative z-10">
-            <motion.div 
-               whileHover={{ scale: 1.02 }}
-               className="relative p-8 bg-slate-900 rounded-[40px] overflow-hidden shadow-2xl shadow-slate-300 group cursor-pointer"
-            >
-              {/* Animated glow */}
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-              
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-500">
-                   <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                    <p className="text-white font-black text-xl leading-tight">Pro Plan</p>
-                    <p className="text-slate-400 text-xs font-bold leading-relaxed opacity-80 mt-1 uppercase tracking-widest">Get 20% Discount</p>
-                </div>
-                <button className="w-full bg-white text-slate-900 py-3 rounded-2xl text-xs font-black shadow-lg hover:shadow-primary-100 hover:-translate-y-0.5 transition-all">
-                  Upgrade Now
-                </button>
-              </div>
-            </motion.div>
+            <div className="text-center">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                UniStay &copy; {new Date().getFullYear()}
+              </p>
+            </div>
           </div>
         </div>
       </motion.aside>

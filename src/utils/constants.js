@@ -20,6 +20,11 @@ export const ROUTES = {
   ADMIN_DASHBOARD: '/admin',
   OWNER_DASHBOARD: '/owner',
   STUDENT_DASHBOARD: '/student',
+  LISTINGS: '/listings',
+  LISTING_DETAIL: '/listings/:propertyId',
+  CREATE_LISTING: '/owner/create-listing',
+  EDIT_LISTING: '/owner/edit-listing/:propertyId',
+  STUDENT_PAY: '/student/pay/:bookingId',
 };
 
 // ─── Role → Dashboard Redirect Map ─────────────────────────────────
