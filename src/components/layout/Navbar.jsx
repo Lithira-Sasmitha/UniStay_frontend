@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
-import { Menu, X, Bell, User, LogOut, Settings, Search, Home } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, Bell, User, LogOut, Search, Home } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
-import { APP_NAME } from '../../utils/constants';
+import { ROLE_DASHBOARD_MAP, ROUTES } from '../../utils/constants';
 
-const Navbar = ({ onMenuClick }) => {
+const Navbar = ({ onMenuClick, onOpenProfile }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`${ROUTES.LISTINGS}?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
+  const handleLogoClick = () => {
+    const dashboard = user ? ROLE_DASHBOARD_MAP[user.role] : ROUTES.LOGIN;
+    navigate(dashboard || ROUTES.LOGIN);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/50 shadow-sm transition-all duration-300">
@@ -19,7 +35,7 @@ const Navbar = ({ onMenuClick }) => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center gap-2 group cursor-pointer group">
+            <div onClick={handleLogoClick} className="flex items-center gap-2 group cursor-pointer">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary-200 group-hover:scale-110 transition-transform">
                 <Home className="w-5 h-5 md:w-6 md:h-6" />
               </div>
@@ -30,24 +46,28 @@ const Navbar = ({ onMenuClick }) => {
           </div>
 
           {/* Center: Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-12">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-lg mx-12">
             <div className="relative w-full group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for boarding places..."
                 className="w-full bg-gray-100/50 border border-transparent focus:border-primary-500/30 focus:bg-white rounded-xl py-2 pl-10 pr-4 text-sm outline-none transition-all duration-300 focus:ring-4 focus:ring-primary-500/10"
               />
             </div>
-          </div>
+          </form>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 md:gap-4">
-            <button className="relative p-2 text-gray-600 hover:bg-gray-100/50 rounded-xl transition-all hover:scale-105 active:scale-95">
+            <button
+              className="relative p-2 text-gray-600 hover:bg-gray-100/50 rounded-xl transition-all hover:scale-105 active:scale-95"
+              title="Notifications — Coming Soon"
+            >
               <Bell className="w-5 h-5 md:w-6 md:h-6" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 border-2 border-white rounded-full scale-110 animate-pulse"></span>
             </button>
-            
+
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -69,16 +89,15 @@ const Navbar = ({ onMenuClick }) => {
                     <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
                   </div>
                   <div className="p-1.5 flex flex-col">
-                    <button className="flex items-center gap-3 p-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
+                    <button
+                      onClick={() => { setShowProfileMenu(false); onOpenProfile?.(); }}
+                      className="flex items-center gap-3 p-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                    >
                       <User className="w-4 h-4 text-gray-400" />
                       Profile Settings
                     </button>
-                    <button className="flex items-center gap-3 p-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
-                      <Settings className="w-4 h-4 text-gray-400" />
-                      Preferences
-                    </button>
                     <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
-                    <button 
+                    <button
                       onClick={logout}
                       className="flex items-center gap-3 p-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                     >

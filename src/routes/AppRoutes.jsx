@@ -1,11 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
+import MainLayout from '../layouts/MainLayout';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import AdminDashboard from '../pages/dashboard/AdminDashboard';
 import OwnerDashboard from '../pages/dashboard/OwnerDashboard';
 import StudentDashboard from '../pages/dashboard/StudentDashboard';
+import ListingsPage from '../pages/listings/ListingsPage';
+import PropertyDetailPage from '../pages/listings/PropertyDetailPage';
+import CreateListingPage from '../pages/listings/CreateListingPage';
+import EditListingPage from '../pages/listings/EditListingPage';
+import PaymentPage from '../pages/payment/PaymentPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -16,6 +22,12 @@ const AppRoutes = () => {
       <Route element={<AuthLayout />}>
         <Route path={ROUTES.LOGIN} element={<Login />} />
         <Route path={ROUTES.REGISTER} element={<Register />} />
+      </Route>
+
+      {/* ── Public Listing Routes (wrapped in MainLayout) ────────── */}
+      <Route element={<MainLayout />}>
+        <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
+        <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
@@ -37,6 +49,22 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path={ROUTES.CREATE_LISTING}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <CreateListingPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.EDIT_LISTING}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <EditListingPage />
+          </PrivateRoute>
+        }
+      />
 
       {/* ── Protected: Student ─────────────────────────────────────── */}
       <Route
@@ -44,6 +72,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <StudentDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_PAY}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <PaymentPage />
           </PrivateRoute>
         }
       />
