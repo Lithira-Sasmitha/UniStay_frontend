@@ -12,6 +12,10 @@ import PropertyDetailPage from '../pages/listings/PropertyDetailPage';
 import CreateListingPage from '../pages/listings/CreateListingPage';
 import EditListingPage from '../pages/listings/EditListingPage';
 import PaymentPage from '../pages/payment/PaymentPage';
+import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
+import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
+import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
+import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -28,6 +32,7 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
         <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
+        <Route path={ROUTES.REPORT_SAFETY} element={<ReportSafetyPage />} />
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
@@ -36,6 +41,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
             <AdminDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/safety"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+            <AdminIncidentDashboard />
           </PrivateRoute>
         }
       />
@@ -80,6 +93,30 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <PaymentPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.REPORT_SAFETY}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <ReportSafetyPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/student/report-incident"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <ReportIncidentPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/student/incidents"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <MyIncidentsPage />
           </PrivateRoute>
         }
       />

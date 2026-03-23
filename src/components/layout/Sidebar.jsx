@@ -15,10 +15,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     // Dashboard — role-specific
     if (role === ROLES.SUPER_ADMIN) {
       items.push({ name: 'Control Center', icon: Shield, path: ROUTES.ADMIN_DASHBOARD });
+      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
     } else if (role === ROLES.BOARDING_OWNER) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
+      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
     } else if (role === ROLES.STUDENT) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.STUDENT_DASHBOARD });
+      items.push({ name: 'My Incidents', icon: Shield, path: '/student/incidents' });
     }
 
     // Browse Listings — everyone
