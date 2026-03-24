@@ -514,7 +514,7 @@ const AdminDashboard = () => {
         </motion.div>
 
         {/* Stats Grid — shown in users tab only */}
-        {activeTab === 'users' && <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {activeTab === 'users' && <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { label: 'Total Users', value: usersList.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100/50', iconBg: 'bg-blue-500 shadow-blue-500/20' },
             { label: 'Boarding Owners', value: usersList.filter(u => u.role === ROLES.BOARDING_OWNER).length, icon: UserCog, color: 'text-indigo-600', bg: 'bg-indigo-100/50', iconBg: 'bg-indigo-500 shadow-indigo-500/20' },
@@ -750,7 +750,7 @@ const AdminDashboard = () => {
         )}
 
         {/* ── User Management Tab ─────────────────────────── */}
-        {activeTab === 'users' && <motion.div variants={itemVariants} className="bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-[2.5rem] overflow-hidden">
+        {activeTab === 'users' && <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }} className="bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-[2.5rem] overflow-hidden">
           <div className="p-8 md:p-10 border-b border-white/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/20">
             <div>
               <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">User Registry</h2>
