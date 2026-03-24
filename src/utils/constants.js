@@ -25,6 +25,7 @@ export const ROUTES = {
   CREATE_LISTING: '/owner/create-listing',
   EDIT_LISTING: '/owner/edit-listing/:propertyId',
   STUDENT_PAY: '/student/pay/:bookingId',
+  REPORT_SAFETY: '/student/report-safety',
 };
 
 // ─── Role → Dashboard Redirect Map ─────────────────────────────────
