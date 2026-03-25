@@ -4,11 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import { AlertTriangle, Clock, MapPin, Building, Eye, AlertCircle, Plus, Search, Filter } from 'lucide-react';
+import IncidentDetailModal from '../../components/modals/IncidentDetailModal';
 
 export default function MyIncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
+  const [selectedIncident, setSelectedIncident] = useState(null);
   
   const nav = useNavigate();
 
@@ -137,9 +139,9 @@ export default function MyIncidentsPage() {
                       <img src={inc.photoUrl} alt="Evidence" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                     </div>
                   )}
-                  
-                  <button 
-                    onClick={() => { /* Detail Modal or Page implementation */ }}
+
+                  <button
+                    onClick={() => setSelectedIncident(inc)}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-semibold rounded-xl transition-colors shrink-0 text-sm"
                   >
                     <Eye size={18} />
@@ -151,6 +153,13 @@ export default function MyIncidentsPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {selectedIncident && (
+        <IncidentDetailModal 
+          incident={selectedIncident} 
+          onClose={() => setSelectedIncident(null)} 
+        />
       )}
     </div>
   );
