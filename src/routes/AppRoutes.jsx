@@ -16,6 +16,7 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -117,6 +118,15 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <MyIncidentsPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.ROOMMATE_FINDER}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateFinder />
           </PrivateRoute>
         }
       />
