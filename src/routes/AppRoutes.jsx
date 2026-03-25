@@ -96,30 +96,26 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-      <Route
-        path={ROUTES.REPORT_SAFETY}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <ReportSafetyPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/student/report-incident"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <ReportIncidentPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/student/incidents"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <MyIncidentsPage />
-          </PrivateRoute>
-        }
-      />
+
+      {/* Pages needing MainLayout wrapper */}
+      <Route element={<MainLayout />}>
+        <Route
+          path="/student/report-incident"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ReportIncidentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
