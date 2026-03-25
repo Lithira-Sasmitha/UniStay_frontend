@@ -175,6 +175,7 @@ export default function ReportIncidentPage() {
     const form = new FormData();
     const propertyId = selectedBooking?.property?._id || selectedBooking?.property;
     form.append('propertyId', propertyId);
+    form.append('title', formData.title);
     form.append('category', formData.category);
     form.append('severity', formData.severity);
     
