@@ -26,6 +26,7 @@ export const ROUTES = {
   EDIT_LISTING: '/owner/edit-listing/:propertyId',
   STUDENT_PAY: '/student/pay/:bookingId',
   REPORT_SAFETY: '/student/report-safety',
+  ROOMMATE_FINDER: '/student/roommates',
 };
 
 // ─── Role → Dashboard Redirect Map ─────────────────────────────────
