@@ -5,6 +5,7 @@ import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, Shiel
 import { getListingById } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
+import SafetyBadge from '../../components/common/SafetyBadge';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -125,10 +126,11 @@ const PropertyDetailPage = () => {
                             </div>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end gap-2">
                             <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border ${badge.cls}`}>
                                 {badge.emoji} {badge.label}
                             </div>
+                            <SafetyBadge propertyId={property._id} showDetails={true} />
                             {property.badgeMessage && (
                                 <p className="flex items-center gap-1 text-xs text-slate-500 mt-1.5 justify-end">
                                     <MessageSquare className="w-3 h-3" /> {property.badgeMessage}
