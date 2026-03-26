@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, AlertTriangle, ShieldCheck, Clock, X, Loader2, Eye, Shield, CheckCircle, XCircle 
+  Search, AlertTriangle, BarChart3, ShieldCheck, Clock, X, Loader2, Eye, Shield, CheckCircle, XCircle 
 } from 'lucide-react';
 import incidentService from '../../services/incidentService';
 import authService from '../../services/authService';
@@ -103,6 +104,7 @@ const ChevronDownIcon = (props) => (
 
 
 export default function AdminIncidentDashboard() {
+  const navigate = useNavigate();
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -257,10 +259,7 @@ export default function AdminIncidentDashboard() {
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Safety Incident Dashboard</h1>
             <p className="text-slate-500 mt-1">Monitor and manage all reported safety incidents.</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-             Last updated {lastUpdated}
-          </div>
+          <div className="flex items-center gap-4"><button onClick={() => navigate("/admin/analytics")} className="flex items-center justify-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95"><BarChart3 className="w-4 h-4" /> View Analytics</button><div className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>Last updated {lastUpdated}</div></div>
         </div>
       </div>
 
@@ -631,3 +630,6 @@ export default function AdminIncidentDashboard() {
     </div>
   );
 }
+
+
+
