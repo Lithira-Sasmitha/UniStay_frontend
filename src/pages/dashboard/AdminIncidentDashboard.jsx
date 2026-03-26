@@ -189,9 +189,9 @@ export default function AdminIncidentDashboard() {
   const filteredIncidents = useMemo(() => {
     return incidents.filter(inc => {
       const matchSearch = 
-        inc._id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        inc.property?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inc.student?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+        (inc._id?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        (inc.property?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (inc.student?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       
       const matchSeverity = severityFilter === 'All' || inc.severity === severityFilter;
       
@@ -199,7 +199,7 @@ export default function AdminIncidentDashboard() {
       if (statusFilter !== 'All') {
           // our DB uses lowercase status mostly: 'open', 'investigating', 'resolved', 'rejected'
           const filterLower = statusFilter.toLowerCase();
-          const incStatusLower = inc.status.toLowerCase();
+          const incStatusLower = inc.status ? inc.status.toLowerCase() : '';
           
           if (filterLower === 'under investigation' && incStatusLower === 'investigating') {
              matchStatus = true;
@@ -240,7 +240,7 @@ export default function AdminIncidentDashboard() {
     return <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
   };
 
-  const formatId = (id) => `INC-${id?.substring(0, 5).toUpperCase()}`;
+  const formatId = (id) => `INC-${(id || '').substring(0, 5).toUpperCase()}`;
 
   if (!isAdmin) {
     return <div className="p-8 text-center text-red-500 font-bold">Access Denied. Only Admins can view this page.</div>;
