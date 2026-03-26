@@ -16,6 +16,7 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
@@ -50,6 +51,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
             <AdminIncidentDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+            <SafetyAnalyticsDashboard />
           </PrivateRoute>
         }
       />
@@ -133,3 +142,4 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+
