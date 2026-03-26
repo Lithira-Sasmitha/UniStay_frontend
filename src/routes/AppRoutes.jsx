@@ -135,6 +135,15 @@ const AppRoutes = () => {
         />
       </Route>
 
+      <Route
+        path={ROUTES.ROOMMATE_FINDER}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateFinder />
+          </PrivateRoute>
+        }
+      />
+
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
     </Routes>
