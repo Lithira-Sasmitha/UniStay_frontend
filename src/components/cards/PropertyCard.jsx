@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Users, DollarSign } from 'lucide-react';
+import SafetyBadge from '../common/SafetyBadge';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -37,9 +38,14 @@ const PropertyCard = ({ property }) => {
                 )}
 
                 {/* Trust Badge */}
-                <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-sm bg-white/80 ${badge.cls}`}>
+                <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-sm bg-white/90 ${badge.cls}`}>
                     <span>{badge.emoji}</span>
                     <span>{badge.label}</span>
+                </div>
+
+                {/* Safety Badge */}
+                <div className="absolute top-3 left-3 z-10 w-fit">
+                    <SafetyBadge propertyId={property._id} showDetails={false} />
                 </div>
             </div>
 

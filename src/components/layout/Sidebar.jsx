@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield } from 'lucide-react';
+import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3 } from 'lucide-react';
 import { ROUTES, ROLES } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 import useAuth from '../../hooks/useAuth';
@@ -16,9 +16,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (role === ROLES.SUPER_ADMIN) {
       items.push({ name: 'Control Center', icon: Shield, path: ROUTES.ADMIN_DASHBOARD });
       items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
+      items.push({ name: 'Safety Analytics', icon: BarChart3, path: '/admin/analytics' });
     } else if (role === ROLES.BOARDING_OWNER) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
-      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
+      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/owner/incidents' });
     } else if (role === ROLES.STUDENT) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.STUDENT_DASHBOARD });
       items.push({ name: 'My Incidents', icon: Shield, path: '/student/incidents' });

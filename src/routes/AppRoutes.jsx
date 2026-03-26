@@ -16,7 +16,8 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
-import RoommateFinder from '../pages/dashboard/RoommateFinder';
+import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
+import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -48,8 +49,16 @@ const AppRoutes = () => {
       <Route
         path="/admin/safety"
         element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
             <AdminIncidentDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+            <SafetyAnalyticsDashboard />
           </PrivateRoute>
         }
       />
@@ -60,6 +69,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
             <OwnerDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/owner/incidents"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <OwnerIncidentsPage />
           </PrivateRoute>
         }
       />
@@ -97,30 +114,26 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-      <Route
-        path={ROUTES.REPORT_SAFETY}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <ReportSafetyPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/student/report-incident"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <ReportIncidentPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/student/incidents"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <MyIncidentsPage />
-          </PrivateRoute>
-        }
-      />
+
+      {/* Pages needing MainLayout wrapper */}
+      <Route element={<MainLayout />}>
+        <Route
+          path="/student/report-incident"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ReportIncidentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       <Route
         path={ROUTES.ROOMMATE_FINDER}
@@ -138,3 +151,4 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+
