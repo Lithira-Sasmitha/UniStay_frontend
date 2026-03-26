@@ -25,6 +25,7 @@ import {
   Power,
   ShieldX,
   MessageSquare,
+  ShieldAlert
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
@@ -489,7 +490,7 @@ const AdminDashboard = () => {
         </AnimatePresence>
 
         {/* ── Tab Switcher ──────────────────────────────────── */}
-        <motion.div variants={itemVariants} className="flex gap-2 bg-white/60 backdrop-blur-xl rounded-2xl p-1.5 border border-white/60 w-fit shadow-sm">
+        <motion.div variants={itemVariants} className="flex flex-wrap gap-2 bg-white/60 backdrop-blur-xl rounded-2xl p-1.5 border border-white/60 w-fit shadow-sm">
           {[
             { id: 'users', label: 'User Registry', icon: Users, count: null },
             { id: 'verification', label: 'Verification', icon: ClipboardList, count: pendingProperties.length },
@@ -511,6 +512,13 @@ const AdminDashboard = () => {
               )}
             </button>
           ))}
+          <button
+              onClick={() => window.location.href = '/admin/safety'}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all text-orange-600 hover:text-orange-800 hover:bg-white/60`}
+          >
+              <ShieldAlert className="w-4 h-4" />
+              Safety Incidents
+          </button>
         </motion.div>
 
         {/* Stats Grid — shown in users tab only */}
