@@ -12,8 +12,11 @@ const incidentService = {
   getIncidents: (params) => 
     api.get('/incidents', { params }).then(r => r.data),
 
-  updateStatus: (id, status) => 
-    api.patch(`/incidents/${id}/status`, { status }).then(r => r.data),
+updateStatus: (id, status, adminNotes) =>
+    api.patch(`/incidents/${id}/status`, { status, adminNotes }).then(r => r.data),
+
+  addOwnerResponse: (id, ownerResponse) =>
+    api.patch(`/incidents/${id}/owner-response`, { ownerResponse }).then(r => r.data),
 
   getPropertySafety: (propertyId) => 
     api.get(`/properties/${propertyId}/safety`).then(r => r.data),
