@@ -190,7 +190,7 @@ export default function AdminIncidentDashboard() {
     return incidents.filter(inc => {
       const matchSearch = 
         (inc._id?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-        (inc.property?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (inc.property?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (inc.student?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       
       const matchSeverity = severityFilter === 'All' || inc.severity === severityFilter;
@@ -415,7 +415,7 @@ export default function AdminIncidentDashboard() {
                         {formatId(inc._id)}
                       </td>
                       <td className="px-6 py-4 whitespace-normal min-w-[200px] text-slate-600">
-                        {inc.property?.title || 'Unknown Estate'}
+                        {inc.property?.name || 'Unknown Estate'}
                       </td>
                       <td className="px-6 py-4">
                         {inc.student?.name || 'Unknown Student'}
@@ -490,7 +490,7 @@ export default function AdminIncidentDashboard() {
                     <div className="space-y-6">
                       <div>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Property</p>
-                        <p className="font-semibold text-slate-800">{viewIncident.property?.title || 'Unknown'}</p>
+                        <p className="font-semibold text-slate-800">{viewIncident.property?.name || 'Unknown'}</p>
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reported On</p>
@@ -522,6 +522,20 @@ export default function AdminIncidentDashboard() {
                      <a href={viewIncident.photoUrl} target="_blank" rel="noreferrer">
                        <img src={viewIncident.photoUrl} alt="Evidence" className="rounded-xl border border-slate-200 max-h-64 object-cover hover:opacity-90 transition-opacity cursor-zoom-in" />
                      </a>
+                   </div>
+                 )}
+
+                 {viewIncident.ownerResponse && (
+                   <div className="mb-8">
+                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Owner Response</p>
+                     <div className="bg-amber-50 border border-amber-100 rounded-xl p-5 text-sm text-amber-900 leading-relaxed font-semibold italic">
+                       "{viewIncident.ownerResponse}"
+                       {viewIncident.ownerRespondedAt && (
+                           <div className="text-xs text-amber-700 mt-2 not-italic opacity-70">
+                               Responded on {new Date(viewIncident.ownerRespondedAt).toLocaleString()}
+                           </div>
+                       )}
+                     </div>
                    </div>
                  )}
 
