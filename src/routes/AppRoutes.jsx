@@ -16,6 +16,7 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -47,7 +48,7 @@ const AppRoutes = () => {
       <Route
         path="/admin/safety"
         element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
             <AdminIncidentDashboard />
           </PrivateRoute>
         }
@@ -59,6 +60,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
             <OwnerDashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/owner/incidents"
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <OwnerIncidentsPage />
           </PrivateRoute>
         }
       />

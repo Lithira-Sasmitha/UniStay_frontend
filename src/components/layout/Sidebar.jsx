@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
     } else if (role === ROLES.BOARDING_OWNER) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
-      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
+      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/owner/incidents' });
     } else if (role === ROLES.STUDENT) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.STUDENT_DASHBOARD });
       items.push({ name: 'My Incidents', icon: Shield, path: '/student/incidents' });
