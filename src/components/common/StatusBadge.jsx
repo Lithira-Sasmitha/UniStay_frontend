@@ -1,16 +1,16 @@
 const STATUS_CONFIG = {
   // Booking/User Statuses
-  pending: { label: 'Pending', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  verified: { label: 'Verified', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  rejected: { label: 'Rejected', cls: 'bg-red-50 text-red-700 border-red-200' },
-  approved: { label: 'Approved', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  confirmed: { label: 'Confirmed', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  cancelled: { label: 'Cancelled', cls: 'bg-slate-50 text-slate-500 border-slate-200' },
+  pending: { label: 'Pending', cls: 'bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm border-orange-200/50' },
+  verified: { label: 'Verified', cls: 'bg-gradient-to-r from-emerald-400 to-teal-500 text-white shadow-sm border-teal-200/50' },
+  rejected: { label: 'Rejected', cls: 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm border-rose-200/50' },
+  approved: { label: 'Approved', cls: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm border-indigo-200/50' },
+  confirmed: { label: 'Confirmed', cls: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm border-emerald-200/50' },
+  cancelled: { label: 'Cancelled', cls: 'bg-gradient-to-r from-slate-400 to-slate-500 text-white shadow-sm border-slate-200/50' },
 
   // Incident Statuses
-  open: { label: 'Open', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  investigating: { label: 'Investigating', cls: 'bg-orange-50 text-orange-700 border-orange-200' },
-  resolved: { label: 'Resolved', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  open: { label: 'Open', cls: 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-sm border-blue-200/50' },
+  investigating: { label: 'Investigating', cls: 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-sm border-amber-200/50' },
+  resolved: { label: 'Resolved', cls: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm border-teal-200/50' },
 };
 
 const SIZE_CLS = {
