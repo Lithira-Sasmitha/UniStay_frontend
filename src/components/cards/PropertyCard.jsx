@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign } from 'lucide-react';
+import { MapPin, Users, DollarSign, Star } from 'lucide-react';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -16,6 +16,7 @@ const PropertyCard = ({ property }) => {
     const totalSlots = property.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
     const occupied = property.rooms?.reduce((acc, r) => acc + (r.currentOccupants?.length || 0), 0) || 0;
     const available = totalSlots - occupied;
+    const hasReviews = Number(property.reviewCount) > 0 && Number(property.averageRating) > 0;
 
     return (
         <div
@@ -52,6 +53,16 @@ const PropertyCard = ({ property }) => {
                 <div className="flex items-center gap-1.5 text-slate-500 mb-4">
                     <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="text-xs font-medium line-clamp-1">{property.address}</span>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-bold">
+                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                        {hasReviews ? `${property.averageRating}/5` : 'New'}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                        {Number(property.reviewCount) || 0} review{Number(property.reviewCount) === 1 ? '' : 's'}
+                    </span>
                 </div>
 
                 <div className="flex items-center justify-between">
