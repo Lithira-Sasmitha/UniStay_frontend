@@ -23,8 +23,8 @@ const riskyProperties = [
 
 export default function SafetyAnalyticsDashboard() {
   return (
-    <div className="font-sans text-slate-800 pb-12">
-      <div className="space-y-8">
+    <div className="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-800">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Section */}
         <div className="flex flex-col gap-2">
