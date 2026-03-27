@@ -1,6 +1,8 @@
 import React from 'react';
 import { X, Calendar, MapPin, Building, AlertTriangle, User, Hash } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
+import IncidentTimeline from '../incident/IncidentTimeline';
+import { Clock } from 'lucide-react';
 
 export default function IncidentDetailModal({ incident, onClose }) {
   if (!incident) return null;
@@ -99,6 +101,24 @@ export default function IncidentDetailModal({ incident, onClose }) {
               </div>
             </div>
           )}
+
+          {/* Incident Resolution Timeline */}
+          <div className="mt-8 pt-8 border-t border-slate-100">
+             <div className="flex items-center gap-3 mb-6">
+                <div className="h-px flex-1 bg-slate-100"></div>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2 flex items-center gap-2">
+                   <Clock size={14} /> Progress Timeline
+                </h3>
+                <div className="h-px flex-1 bg-slate-100"></div>
+             </div>
+             
+             <div className="px-2">
+                <IncidentTimeline 
+                  history={incident.statusHistory} 
+                  currentStatus={incident.status} 
+                />
+             </div>
+          </div>
 
         </div>
 

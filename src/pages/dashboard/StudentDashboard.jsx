@@ -310,7 +310,7 @@ const StudentDashboard = () => {
       {/* Quick Actions */}
       <motion.div variants={itemVariants} className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm mb-10">
         <h2 className="text-xl font-black text-slate-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/listings')}
             className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-primary-50 hover:border-primary-200 border border-slate-100 transition-all group"
@@ -324,7 +324,7 @@ const StudentDashboard = () => {
             <button
               disabled={!currentUserData?.isVerified || hasActiveBooking}
               onClick={() => navigate('/student/roommates')}
-              className={`w-full p-6 rounded-2xl text-left transition-all border ${
+              className={`w-full h-full p-6 rounded-2xl text-left transition-all border ${
                 !currentUserData?.isVerified || hasActiveBooking 
                 ? 'bg-slate-50 opacity-60 cursor-not-allowed border-slate-100' 
                 : 'bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border-slate-100'
@@ -334,20 +334,29 @@ const StudentDashboard = () => {
               <p className="font-bold text-slate-900">Roommate Finder</p>
               <p className="text-xs text-slate-500 mt-1">
                 {!currentUserData?.isVerified 
-                  ? 'Verification required to use this' 
+                  ? 'Verification required' 
                   : hasActiveBooking 
-                    ? 'Active booking blocks this feature' 
+                    ? 'Unavailable during active stay' 
                     : 'Browse and connect with verified roommates'
                 }
               </p>
               
               {currentUserData?.isVerified && !hasActiveBooking && (
                 <div className="absolute top-4 right-4 bg-amber-100 text-amber-700 text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest border border-amber-200">
-                   Verified Access
+                   Verified
                 </div>
               )}
             </button>
           </div>
+
+          <button
+            onClick={() => navigate('/student/incidents')}
+            className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-red-50 hover:border-red-200 border border-slate-100 transition-all group"
+          >
+            <ShieldAlert className="w-6 h-6 text-red-500 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">My Incidents</p>
+            <p className="text-xs text-slate-500 mt-1">Track and manage your safety reports</p>
+          </button>
         </div>
       </motion.div>
 
