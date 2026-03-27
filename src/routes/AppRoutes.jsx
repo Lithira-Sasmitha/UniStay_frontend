@@ -18,6 +18,7 @@ import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
+import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -130,6 +131,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
               <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-bookings/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <BookingAnalyticsPage />
             </PrivateRoute>
           }
         />
