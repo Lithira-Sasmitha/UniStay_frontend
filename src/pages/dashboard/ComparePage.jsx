@@ -58,18 +58,21 @@ const ComparePage = () => {
                 ? Math.min(...p.rooms.map(r => r.monthlyRent)) 
                 : 100000;
             
-            // 1. Price Factor (Lower is better, base ~25k as average)
-            const priceScore = Math.max(0, 40 - (Math.max(0, (lowestRent - 15000)) / 1000));
+            // 1. Safety & Trust Factor (MAX PRIORITY: 50 points)
+            // Trust badges are the primary safety indicator
+            const trustScores = { gold: 50, silver: 35, bronze: 15, unverified: 0 };
+            const safetyScore = (trustScores[p.trustBadge?.toLowerCase()] || 0);
+            score += safetyScore;
+
+            // 2. Price Factor (Secondary Priority: 25 points)
+            // Lower is better, base ~25k as average
+            const priceScore = Math.max(0, 25 - (Math.max(0, (lowestRent - 15000)) / 1500));
             score += priceScore;
 
-            // 2. Trust Badge factor (Max 30 points)
-            const trustScores = { gold: 30, silver: 20, bronze: 10, unverified: 0 };
-            score += (trustScores[p.trustBadge?.toLowerCase()] || 0);
-
-            // 3. Amenities factor (Max 20 points)
+            // 3. Amenities factor (Max 15 points)
             const amenityCount = new Set();
             p.rooms?.forEach(r => r.facilities?.forEach(f => amenityCount.add(f.toLowerCase().trim())));
-            score += Math.min(20, amenityCount.size * 3);
+            score += Math.min(15, amenityCount.size * 2);
 
             // 4. Availability Bonus (Max 10 points)
             const totalSlots = p.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
@@ -77,21 +80,22 @@ const ComparePage = () => {
             const available = totalSlots - occupied;
             if (available > 0) score += 10;
 
-            return { ...p, finalScore: score, lowestRent };
+            return { ...p, finalScore: score, lowestRent, safetyScore };
         });
 
         const sorted = [...scored].sort((a, b) => b.finalScore - a.finalScore);
         const best = sorted[0];
         const runnerUp = sorted[1];
 
-        // Determine why it's the best
-        let reason = "This property offers the best balance of price, safety, and amenities.";
-        if (best.trustBadge?.toLowerCase() === 'gold' && runnerUp.trustBadge?.toLowerCase() !== 'gold') {
-            reason = "Recommended for its superior 'Gold' verification status and safety standards.";
+        // Determine why it's the best (Prioritizing Safety Messaging)
+        let reason = "This property is highly recommended for its excellent balance of safety, trust verification, and living standards.";
+        
+        if (best.trustBadge?.toLowerCase() === 'gold' || best.trustBadge?.toLowerCase() === 'silver') {
+            reason = `Top Choice: This property is ${best.trustBadge} verified, indicating it has passed our most rigorous safety and security audits for student housing.`;
+        } else if (best.safetyScore > (runnerUp?.safetyScore || 0)) {
+            reason = "Recommended for your security: This property has higher verified trust ratings compared to others in your comparison list.";
         } else if (best.lowestRent < (runnerUp.lowestRent * 0.85)) {
-            reason = "Highly recommended for its exceptional value: significantly lower rent without sacrificing quality.";
-        } else if (best.finalScore > runnerUp.finalScore + 15) {
-            reason = "Clearly stands out with significantly better facilities and trust ratings compared to other options.";
+            reason = "A secure and budget-friendly option that maintains good standards while being significantly more affordable.";
         }
 
         return { propertyId: best._id, name: best.name, reason };
