@@ -55,7 +55,7 @@ const WishlistPage = () => {
                         <motion.button
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            onClick={() => alert('Compare feature coming soon!')}
+                            onClick={() => navigate(`/compare?ids=${compareList.join(',')}`)}
                             className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:scale-105 transition-transform flex items-center gap-2"
                         >
                             <Scale className="w-5 h-5" />

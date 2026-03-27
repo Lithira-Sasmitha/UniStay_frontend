@@ -20,6 +20,7 @@ import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboar
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
 import WishlistPage from '../pages/dashboard/WishlistPage';
+import ComparePage from '../pages/dashboard/ComparePage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -148,6 +149,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
               <WishlistPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/compare"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ComparePage />
             </PrivateRoute>
           }
         />
