@@ -19,6 +19,7 @@ import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
+import WishlistPage from '../pages/dashboard/WishlistPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -139,6 +140,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
               <BookingAnalyticsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <WishlistPage />
             </PrivateRoute>
           }
         />
