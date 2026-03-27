@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Shield, Info, Loader2, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Send, Shield, Info, Loader2, Sparkles, Bot } from 'lucide-react';
 import api from '../../services/api';
 
 const SafetyAssistantChat = ({ propertyId }) => {
@@ -151,17 +151,30 @@ const SafetyAssistantChat = ({ propertyId }) => {
 
             {/* Float Button */}
             {!isOpen && (
-                <motion.button
+                <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(true)}
-                    className="bg-slate-900 text-white w-16 h-16 rounded-[1.5rem] flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_-12px_rgba(30,41,59,0.5)] transition-all group border-4 border-white"
+                    className="relative"
                 >
-                    <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
-                    <div className="absolute top-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white" />
-                </motion.button>
+                    {/* Pulsing ring background */}
+                    <div className="absolute -inset-2 bg-primary-500/30 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                    
+                    <motion.button
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsOpen(true)}
+                        className="relative bg-gradient-to-br from-primary-500 to-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(79,70,229,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(79,70,229,1)] transition-all group border-2 border-white/50"
+                    >
+                        {/* Bot Icon with Sparkles */}
+                        <div className="relative">
+                            <Bot className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                            <Sparkles className="w-4 h-4 text-amber-300 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-spin transition-all" />
+                        </div>
+
+                        {/* Status Dot */}
+                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
+                    </motion.button>
+                </motion.div>
             )}
         </div>
     );
