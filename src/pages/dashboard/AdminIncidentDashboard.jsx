@@ -7,6 +7,7 @@ import {
 import incidentService from '../../services/incidentService';
 import authService from '../../services/authService';
 import Toast from '../../components/common/Toast';
+import IncidentTimeline from '../../components/incident/IncidentTimeline';
 
 // Utility for clicking outside
 function useOnClickOutside(ref, handler) {
@@ -160,18 +161,20 @@ export default function AdminIncidentDashboard() {
 
     setActionLoading(true);
     try {
-      await incidentService.updateStatus(incident._id, action, adminNotes);
+      const response = await incidentService.updateStatus(incident._id, action, adminNotes);
+      const updatedIncident = response.data?.data || response.data || response;
+      
       showToast('Status updated successfully!');
       
-      // Update local state instantly
+      // Update local state instantly with FULL data (including new history)
       setIncidents(prev => prev.map(inc => 
-        inc._id === incident._id ? { ...inc, status: action, adminNotes } : inc
+        inc._id === incident._id ? updatedIncident : inc
       ));
       
       setActionModal(null);
       setAdminNotes('');
       if (viewIncident && viewIncident._id === incident._id) {
-          setViewIncident({ ...viewIncident, status: action, adminNotes });
+          setViewIncident(updatedIncident);
       }
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to update status', 'error');
@@ -249,21 +252,29 @@ export default function AdminIncidentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans pb-12">
+    <div className="font-sans pb-12">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* HEADER */}
-      <div className="bg-[#F8FAFC] pt-8 pb-6 px-8 max-w-7xl mx-auto">
+      <div className="pt-2 pb-6 px-1">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Safety Incident Dashboard</h1>
             <p className="text-slate-500 mt-1">Monitor and manage all reported safety incidents.</p>
           </div>
-          <div className="flex items-center gap-4"><button onClick={() => navigate("/admin/analytics")} className="flex items-center justify-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95"><BarChart3 className="w-4 h-4" /> View Analytics</button><div className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>Last updated {lastUpdated}</div></div>
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate("/admin/analytics")} className="flex items-center justify-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95">
+              <BarChart3 className="w-4 h-4" /> View Analytics
+            </button>
+            <div className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Last updated {lastUpdated}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 space-y-6">
+      <div className="space-y-6">
         
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -539,13 +550,31 @@ export default function AdminIncidentDashboard() {
                  )}
 
                  {viewIncident.adminNotes && (
-                   <div>
+                   <div className="mb-8">
                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Admin Remarks / Notes</p>
                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 text-sm text-blue-900 leading-relaxed font-semibold italic">
                        "{viewIncident.adminNotes}"
                      </div>
                    </div>
                  )}
+
+                 {/* Incident Progress Timeline */}
+                 <div className="mt-10 mb-6">
+                   <div className="flex items-center gap-3 mb-6">
+                      <div className="h-px flex-1 bg-slate-100"></div>
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+                         <Clock size={14} /> Incident Lifecycle Timeline
+                      </h3>
+                      <div className="h-px flex-1 bg-slate-100"></div>
+                   </div>
+                   
+                   <div className="px-1 sm:px-4">
+                      <IncidentTimeline 
+                        history={viewIncident.statusHistory} 
+                        currentStatus={viewIncident.status} 
+                      />
+                   </div>
+                 </div>
               </div>
 
               {/* View Actions (Bottom Bar) */}
@@ -564,7 +593,7 @@ export default function AdminIncidentDashboard() {
                   <button onClick={() => openActionModal(viewIncident, 'rejected', true)} className="px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-bold rounded-xl transition-colors">
                      Reject Report
                   </button>
-                </div>
+                 </div>
               )}
             </motion.div>
           </div>
@@ -630,6 +659,3 @@ export default function AdminIncidentDashboard() {
     </div>
   );
 }
-
-
-

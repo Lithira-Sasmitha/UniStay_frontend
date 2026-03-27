@@ -46,22 +46,25 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-      <Route
-        path="/admin/safety"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <AdminIncidentDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/admin/analytics"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <SafetyAnalyticsDashboard />
-          </PrivateRoute>
-        }
-      />
+
+      <Route element={<MainLayout />}>
+        <Route
+          path="/admin/safety"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminIncidentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <SafetyAnalyticsDashboard />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Protected: Boarding Owner ──────────────────────────────── */}
       <Route

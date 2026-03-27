@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, ShieldAlert, BarChart3 } from 'lucide-react';
 import { ROUTES, ROLES } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 import useAuth from '../../hooks/useAuth';
@@ -15,7 +15,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     // Dashboard — role-specific
     if (role === ROLES.SUPER_ADMIN) {
       items.push({ name: 'Control Center', icon: Shield, path: ROUTES.ADMIN_DASHBOARD });
-      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
+      items.push({ name: 'Safety Monitoring', icon: ShieldAlert, path: '/admin/safety' });
       items.push({ name: 'Safety Analytics', icon: BarChart3, path: '/admin/analytics' });
     } else if (role === ROLES.BOARDING_OWNER) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
