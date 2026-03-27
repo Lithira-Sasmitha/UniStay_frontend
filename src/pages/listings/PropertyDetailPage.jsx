@@ -7,6 +7,7 @@ import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
 import StatusBadge from '../../components/common/StatusBadge';
+import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -317,6 +318,8 @@ const PropertyDetailPage = () => {
                     </div>
                 </motion.div>
             </div>
+            {/* AI Safety Assistant Chat */}
+            <SafetyAssistantChat propertyId={property._id} />
         </div>
     );
 };

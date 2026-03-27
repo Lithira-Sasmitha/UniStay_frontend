@@ -15,6 +15,7 @@ import PaymentPage from '../pages/payment/PaymentPage';
 import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
+import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
@@ -139,6 +140,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
               <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT, ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+              <IncidentDetailPage />
             </PrivateRoute>
           }
         />
