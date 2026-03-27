@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, CheckCircle2, XCircle, DollarSign, Star, Shield, MapPin, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Loader2, CheckCircle2, XCircle, DollarSign, Star, Shield, MapPin, Search, Trophy, Sparkles, TrendingUp, Info } from 'lucide-react';
 import { ROUTES } from '../../utils/constants';
 import { getListingById } from '../../services/propertyService';
 import SafetyBadge from '../../components/common/SafetyBadge';
@@ -47,6 +47,55 @@ const ComparePage = () => {
 
         fetchProperties();
     }, [searchParams]);
+
+    // Recommendation Engine
+    const recommendation = useMemo(() => {
+        if (properties.length < 2) return null;
+
+        const scored = properties.map(p => {
+            let score = 0;
+            const lowestRent = p.rooms?.length 
+                ? Math.min(...p.rooms.map(r => r.monthlyRent)) 
+                : 100000;
+            
+            // 1. Price Factor (Lower is better, base ~25k as average)
+            const priceScore = Math.max(0, 40 - (Math.max(0, (lowestRent - 15000)) / 1000));
+            score += priceScore;
+
+            // 2. Trust Badge factor (Max 30 points)
+            const trustScores = { gold: 30, silver: 20, bronze: 10, unverified: 0 };
+            score += (trustScores[p.trustBadge?.toLowerCase()] || 0);
+
+            // 3. Amenities factor (Max 20 points)
+            const amenityCount = new Set();
+            p.rooms?.forEach(r => r.facilities?.forEach(f => amenityCount.add(f.toLowerCase().trim())));
+            score += Math.min(20, amenityCount.size * 3);
+
+            // 4. Availability Bonus (Max 10 points)
+            const totalSlots = p.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
+            const occupied = p.rooms?.reduce((acc, r) => acc + (r.currentOccupants?.length || 0), 0) || 0;
+            const available = totalSlots - occupied;
+            if (available > 0) score += 10;
+
+            return { ...p, finalScore: score, lowestRent };
+        });
+
+        const sorted = [...scored].sort((a, b) => b.finalScore - a.finalScore);
+        const best = sorted[0];
+        const runnerUp = sorted[1];
+
+        // Determine why it's the best
+        let reason = "This property offers the best balance of price, safety, and amenities.";
+        if (best.trustBadge?.toLowerCase() === 'gold' && runnerUp.trustBadge?.toLowerCase() !== 'gold') {
+            reason = "Recommended for its superior 'Gold' verification status and safety standards.";
+        } else if (best.lowestRent < (runnerUp.lowestRent * 0.85)) {
+            reason = "Highly recommended for its exceptional value: significantly lower rent without sacrificing quality.";
+        } else if (best.finalScore > runnerUp.finalScore + 15) {
+            reason = "Clearly stands out with significantly better facilities and trust ratings compared to other options.";
+        }
+
+        return { propertyId: best._id, name: best.name, reason };
+    }, [properties]);
 
     if (loading) {
         return (
@@ -108,6 +157,44 @@ const ComparePage = () => {
                     </div>
                 </div>
 
+                {/* AI Recommendation Banner */}
+                <AnimatePresence>
+                    {recommendation && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            className="mb-8 relative"
+                        >
+                            <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 animate-pulse"></div>
+                            <div className="relative bg-white border-2 border-primary-500/10 rounded-[2rem] p-6 pr-8 shadow-xl shadow-primary-500/10 overflow-hidden flex flex-col md:flex-row items-center gap-6">
+                                {/* Badge/Icon */}
+                                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-lg transform -rotate-6 shrink-0">
+                                    <Trophy className="w-10 h-10 text-white" />
+                                </div>
+                                
+                                <div className="flex-1 text-center md:text-left">
+                                    <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                                        <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />
+                                        <span className="text-xs font-black text-primary-600 uppercase tracking-widest bg-primary-50 px-3 py-1 rounded-full">Smart Recommendation</span>
+                                    </div>
+                                    <h2 className="text-2xl font-black text-slate-900 mb-1">
+                                        Best Choice: <span className="text-primary-600">{recommendation.name}</span>
+                                    </h2>
+                                    <p className="text-slate-600 font-medium leading-relaxed max-w-2xl">
+                                        {recommendation.reason}
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col items-center justify-center bg-slate-50 p-4 rounded-2xl border border-slate-100 min-w-[140px]">
+                                    <TrendingUp className="w-6 h-6 text-emerald-500 mb-1" />
+                                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Analysis Score</span>
+                                    <span className="text-3xl font-black text-slate-900">Top-Tier</span>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {error && (
                     <div className="bg-rose-50 text-rose-600 p-4 rounded-xl border border-rose-200 mb-8 font-medium">
                         {error}
@@ -137,6 +224,14 @@ const ComparePage = () => {
                                                     <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-[10px] font-black border backdrop-blur-md ${badge.color}`}>
                                                         {badge.emoji} {p.trustBadge?.toUpperCase()}
                                                     </div>
+
+                                                    {/* Best Choice Badge on Image */}
+                                                    {recommendation?.propertyId === p._id && (
+                                                        <div className="absolute top-2 left-2 bg-primary-600 text-white px-2 py-1 rounded-lg flex items-center gap-1 shadow-lg ring-2 ring-white/50 animate-bounce group transform scale-110">
+                                                            <Trophy className="w-3.5 h-3.5 fill-white" />
+                                                            <span className="text-[10px] font-black uppercase">Best Choice</span>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <h3 className="font-black text-slate-900 text-lg leading-tight mb-1">{p.name}</h3>
