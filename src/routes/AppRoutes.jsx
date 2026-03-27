@@ -145,22 +145,22 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/wishlist"
-          element={
-            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-              <WishlistPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/compare"
-          element={
-            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-              <ComparePage />
-            </PrivateRoute>
-          }
-        />
-      </Route>
+            path={ROUTES.COMPARE}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <ComparePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={ROUTES.WISHLIST}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <WishlistPage />
+              </PrivateRoute>
+            }
+          />
+        </Route>
 
       {/* <Route
         path={ROUTES.ROOMMATE_FINDER}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Search, Scale, MapPin, DollarSign, Star, Ghost } from 'lucide-react';
+import { ROUTES } from '../../utils/constants';
 import useWishlist from '../../hooks/useWishlist';
 import SafetyBadge from '../../components/common/SafetyBadge';
 
@@ -55,7 +56,7 @@ const WishlistPage = () => {
                         <motion.button
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            onClick={() => navigate(`/compare?ids=${compareList.join(',')}`)}
+                            onClick={() => navigate(`${ROUTES.COMPARE}?ids=${compareList.join(',')}`)}
                             className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:scale-105 transition-transform flex items-center gap-2"
                         >
                             <Scale className="w-5 h-5" />
@@ -76,7 +77,7 @@ const WishlistPage = () => {
                             Start adding boarding places to your wishlist by clicking the heart icon on any property.
                         </p>
                         <button
-                            onClick={() => navigate('/listings')}
+                            onClick={() => navigate(ROUTES.LISTINGS)}
                             className="bg-primary-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200 inline-flex items-center gap-2"
                         >
                             <Search className="w-5 h-5" />
@@ -174,7 +175,7 @@ const WishlistPage = () => {
                                             </div>
                                             
                                             <button
-                                                onClick={() => navigate(`/listings/${property._id}`)}
+                                                onClick={() => navigate(ROUTES.LISTING_DETAIL.replace(':propertyId', property._id))}
                                                 className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex justify-center items-center gap-2"
                                             >
                                                 <Search className="w-4 h-4" />

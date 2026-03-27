@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2, CheckCircle2, XCircle, DollarSign, Star, Shield, MapPin, Search } from 'lucide-react';
+import { ROUTES } from '../../utils/constants';
 import { getListingById } from '../../services/propertyService';
 import SafetyBadge from '../../components/common/SafetyBadge';
 
@@ -33,8 +34,8 @@ const ComparePage = () => {
                 const results = await Promise.all(
                     ids.map(id => getListingById(id))
                 );
-                // Extract the parsed proper data structure based on the typical response
-                const fetchedProps = results.map(res => res.data?.data || res.data);
+                // Extract property from res.data.property as returned by controller
+                const fetchedProps = results.map(res => res.data?.property || res.data?.data || res.data);
                 setProperties(fetchedProps);
             } catch (err) {
                 console.error("Failed to load properties for comparison", err);
@@ -66,7 +67,7 @@ const ComparePage = () => {
                     <h2 className="text-2xl font-black text-slate-800 mb-2">Nothing to Compare</h2>
                     <p className="text-slate-500 mb-8">Please select properties from your wishlist to compare them side-by-side.</p>
                     <button
-                        onClick={() => navigate('/wishlist')}
+                        onClick={() => navigate(ROUTES.WISHLIST)}
                         className="bg-primary-600 text-white w-full py-4 rounded-xl font-bold shadow-lg shadow-primary-200 hover:scale-105 transition-transform"
                     >
                         Go to Wishlist
@@ -145,7 +146,7 @@ const ComparePage = () => {
                                                 </div>
                                                 
                                                 <button 
-                                                    onClick={() => navigate(`/listings/${p._id}`)}
+                                                    onClick={() => navigate(ROUTES.LISTING_DETAIL.replace(':propertyId', p._id))}
                                                     className="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2"
                                                 >
                                                     <Search className="w-4 h-4" /> View Details
