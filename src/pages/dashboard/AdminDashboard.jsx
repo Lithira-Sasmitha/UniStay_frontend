@@ -146,6 +146,9 @@ const AdminDashboard = () => {
   const [allProperties, setAllProperties] = useState([]);
   const [allPropsLoading, setAllPropsLoading] = useState(false);
 
+  const [highRiskProperties, setHighRiskProperties] = useState([]);
+  const [riskLoading, setRiskLoading] = useState(false);
+
   const fetchUsers = async () => {
     try {
       const data = await adminService.getAllUsers();
@@ -170,11 +173,20 @@ const AdminDashboard = () => {
 
   const fetchAllProperties = async () => {
     setAllPropsLoading(true);
+    setRiskLoading(true);
     try {
       const { data } = await getAllProperties();
-      setAllProperties(data.properties || []);
+      const properties = data.properties || [];
+      setAllProperties(properties);
+      
+      // Filter for High Risk properties
+      const highRisk = properties.filter(p => p.riskTrend === 'Increasing' || p.riskTrend === 'Stable Risk');
+      setHighRiskProperties(highRisk.sort((a,b) => (b.riskTrend === 'Increasing' ? 1 : -1)));
     } catch { /* silent */ }
-    finally { setAllPropsLoading(false); }
+    finally { 
+      setAllPropsLoading(false);
+      setRiskLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -663,7 +675,68 @@ const AdminDashboard = () => {
         {/* ── User Management Tab ─────────────────────────── */}
         {/* ── All Properties Tab ──────────────────────────── */}
         {activeTab === 'properties' && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pb-20">
+            
+            {/* High Risk Properties Section */}
+            {highRiskProperties.length > 0 && (
+              <div className="bg-rose-50 border-2 border-rose-200 rounded-[2.5rem] p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-rose-600 text-white p-2 rounded-xl shadow-lg shadow-rose-200/50">
+                      <ShieldAlert className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900 tracking-tight">High Risk Properties</h2>
+                      <p className="text-xs font-bold text-rose-600 uppercase tracking-widest mt-0.5">Safety Governance Alert</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/50 px-4 py-1.5 rounded-full border border-rose-100 text-[10px] font-black uppercase text-rose-600 tracking-tighter shadow-sm flex items-center gap-1.5">
+                    <Activity className="w-3 h-3" /> Predictive AI Active
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {highRiskProperties.map(p => (
+                    <div key={p._id} className="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:scale-110 transition-transform">
+                        <ShieldAlert className="w-16 h-16 text-rose-600" />
+                      </div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-slate-100 rounded-xl overflow-hidden shadow-inner flex-shrink-0">
+                          {p.photos?.[0]?.url ? (
+                            <img src={p.photos[0].url} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-lg">🏠</div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-black text-slate-900 text-sm truncate">{p.name}</h3>
+                          <p className="text-[10px] font-bold text-slate-400 truncate flex items-center gap-0.5">
+                            <MapPin className="w-2.5 h-2.5" /> {p.address}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-4 bg-rose-50/50 p-2.5 rounded-xl border border-rose-100/50">
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-rose-400 tracking-tight leading-none mb-1">Risk Trend</p>
+                          <p className={`text-xs font-black ${p.riskTrend === 'Increasing' ? 'text-rose-600' : 'text-amber-600'}`}>
+                            {p.riskTrend}
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => navigate(ROUTES.LISTING_DETAIL.replace(':propertyId', p._id))}
+                          className="bg-white p-2 rounded-lg text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className={`${glassCard} rounded-[2.5rem]`}>
               <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">All Properties</h2>
               <p className="text-slate-500 text-sm font-medium mb-6">Manage all properties on the platform.</p>
@@ -712,6 +785,13 @@ const AdminDashboard = () => {
                               <span className="text-xs px-2 py-0.5 rounded-full font-bold border bg-blue-50 text-blue-700 border-blue-200">
                                 {totalRooms} rooms · {totalOccupied} occupied
                               </span>
+                              {prop.riskTrend && prop.riskTrend !== 'Low Risk' && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-black border flex items-center gap-1 ${
+                                  prop.riskTrend === 'Increasing' ? 'bg-rose-600 text-white border-rose-700' : 'bg-amber-100 text-amber-700 border-amber-300'
+                                }`}>
+                                  <ShieldAlert className="w-3 h-3" /> {prop.riskTrend}
+                                </span>
+                              )}
                             </div>
                             {prop.rejectionReason && (
                               <p className="text-xs text-red-500 mt-1.5">Rejection: {prop.rejectionReason}</p>

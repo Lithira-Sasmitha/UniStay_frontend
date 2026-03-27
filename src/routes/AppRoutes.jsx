@@ -41,82 +41,88 @@ const AppRoutes = () => {
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
-      <Route
-        path={ROUTES.ADMIN_DASHBOARD}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <AdminDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/admin/safety"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <AdminIncidentDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/admin/analytics"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <SafetyAnalyticsDashboard />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.ADMIN_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/safety"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminIncidentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <SafetyAnalyticsDashboard />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Protected: Boarding Owner ──────────────────────────────── */}
-      <Route
-        path={ROUTES.OWNER_DASHBOARD}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <OwnerDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/owner/incidents"
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <OwnerIncidentsPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.CREATE_LISTING}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <CreateListingPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.EDIT_LISTING}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <EditListingPage />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.OWNER_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/owner/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <CreateListingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <EditListingPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Protected: Student ─────────────────────────────────────── */}
-      <Route
-        path={ROUTES.STUDENT_DASHBOARD}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <StudentDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.STUDENT_PAY}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <PaymentPage />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.STUDENT_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <StudentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.STUDENT_PAY}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* Pages needing MainLayout wrapper */}
       <Route element={<MainLayout />}>
