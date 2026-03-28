@@ -22,6 +22,7 @@ import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
 import WishlistPage from '../pages/dashboard/WishlistPage';
 import ComparePage from '../pages/dashboard/ComparePage';
+import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -177,14 +178,14 @@ const AppRoutes = () => {
           />
         </Route>
 
-      {/* <Route
+      <Route
         path={ROUTES.ROOMMATE_FINDER}
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <RoommateFinder />
           </PrivateRoute>
         }
-      /> */}
+      />
 
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />

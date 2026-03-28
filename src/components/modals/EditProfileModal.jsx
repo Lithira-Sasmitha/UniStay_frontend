@@ -68,8 +68,10 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
     const nameError = validateName(formData.name);
     if (nameError) newErrors.name = nameError;
 
-    const uniError = validateRequired(formData.university, 'University');
-    if (uniError) newErrors.university = uniError;
+    if (userData?.role !== 'boardingowner') {
+      const uniError = validateRequired(formData.university, 'University');
+      if (uniError) newErrors.university = uniError;
+    }
 
     const addressError = validateRequired(formData.address, 'Address');
     if (addressError) newErrors.address = addressError;
@@ -101,6 +103,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
       // Clean up data before sending
       const updateData = { ...formData };
       if (!updateData.password) delete updateData.password;
+      if (userData?.role === 'boardingowner') delete updateData.university;
       
       const response = await authService.updateProfile(updateData);
       
@@ -195,14 +198,16 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
                 icon={Mail}
                 disabled
               />
-              <Input
-                label="University"
-                name="university"
-                value={formData.university}
-                onChange={handleChange}
-                error={errors.university}
-                icon={GraduationCap}
-              />
+              {userData?.role !== 'boardingowner' && (
+                <Input
+                  label="University"
+                  name="university"
+                  value={formData.university}
+                  onChange={handleChange}
+                  error={errors.university}
+                  icon={GraduationCap}
+                />
+              )}
               <Input
                 label="Phone Number"
                 name="phonenumber"
