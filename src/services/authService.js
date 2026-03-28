@@ -73,6 +73,23 @@ const authService = {
     };
   },
 
+  // ── Verification ───────────────────────────────────────────────────
+  sendOTP: async (email) => {
+    const response = await api.post('/users/send-otp', { email });
+    return response.data;
+  },
+
+  verifyOTP: async (otp) => {
+    const response = await api.post('/users/verify-otp', { otp });
+    return response.data;
+  },
+
+  // ── Roommates ─────────────────────────────────────────────────────
+  getRoommates: async (params = {}) => {
+    const response = await api.get('/roommates', { params });
+    return response.data;
+  },
+
   // ── Check if authenticated ─────────────────────────────────────────
   isAuthenticated: () => !!localStorage.getItem(AUTH_TOKEN_KEY),
 };
