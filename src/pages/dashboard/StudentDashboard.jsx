@@ -5,7 +5,7 @@ import {
   GraduationCap, Search, Calendar, LogOut,
   User as UserIcon, ChevronDown, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
-  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap
+  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, TrendingUp, Heart
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
@@ -310,7 +310,7 @@ const StudentDashboard = () => {
       {/* Quick Actions */}
       <motion.div variants={itemVariants} className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm mb-10">
         <h2 className="text-xl font-black text-slate-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate('/listings')}
             className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-primary-50 hover:border-primary-200 border border-slate-100 transition-all group"
@@ -319,7 +319,25 @@ const StudentDashboard = () => {
             <p className="font-bold text-slate-900">Browse Listings</p>
             <p className="text-xs text-slate-500 mt-1">Find boarding places near your university</p>
           </button>
-          
+
+          <button
+            onClick={() => navigate('/wishlist')}
+            className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-rose-50 hover:border-rose-200 border border-slate-100 transition-all group"
+          >
+            <Heart className="w-6 h-6 text-rose-500 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">My Wishlist</p>
+            <p className="text-xs text-slate-500 mt-1">View and compare your saved properties</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/my-bookings/analytics')}
+            className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-blue-50 hover:border-blue-200 border border-slate-100 transition-all group"
+          >
+            <TrendingUp className="w-6 h-6 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">Booking Analytics</p>
+            <p className="text-xs text-slate-500 mt-1">View your booking history and spending trends</p>   
+          </button>
+
           <div className="relative group">
             <button
               disabled={!currentUserData?.isVerified || hasActiveBooking}

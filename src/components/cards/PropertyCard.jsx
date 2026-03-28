@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign } from 'lucide-react';
+import { MapPin, Users, DollarSign, Heart } from 'lucide-react';
 import SafetyBadge from '../common/SafetyBadge';
+import useWishlist from '../../hooks/useWishlist';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -11,8 +12,9 @@ const BADGE_CONFIG = {
 };
 
 const PropertyCard = ({ property }) => {
-    const navigate = useNavigate();
-    const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
+    const navigate = useNavigate();    const { isInWishlist, toggleWishlist } = useWishlist();
+    const inWishlist = isInWishlist(property._id);
+        const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
     const coverPhoto = property.photos?.[0]?.url || null;
     const totalSlots = property.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
     const occupied = property.rooms?.reduce((acc, r) => acc + (r.currentOccupants?.length || 0), 0) || 0;
@@ -45,6 +47,19 @@ const PropertyCard = ({ property }) => {
                         <span>{badge.label}</span>
                     </div>
                 </div>
+
+                {/* Wishlist Button */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(property);
+                    }}
+                    className="absolute bottom-3 right-3 z-10 p-2 rounded-full backdrop-blur-md bg-white/70 hover:bg-white border border-white/50 shadow-sm transition-all duration-200"
+                >
+                    <Heart 
+                        className={`w-5 h-5 transition-colors ${inWishlist ? 'fill-red-500 text-red-500' : 'text-slate-600'}`} 
+                    />
+                </button>
             </div>
 
             {/* Content */}
