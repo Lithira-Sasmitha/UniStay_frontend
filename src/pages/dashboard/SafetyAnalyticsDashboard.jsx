@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AlertTriangle, FileText, ShieldAlert, TrendingUp, Loader2 } from 'lucide-react';
 import incidentService from '../../services/incidentService';
@@ -79,61 +79,61 @@ export default function SafetyAnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-400" />
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-600">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen p-4 md:p-8 font-sans text-slate-200">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Section */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             Safety Analytics Dashboard
           </h1>
-          <p className="text-slate-500 text-lg">
+          <p className="text-slate-400 text-lg">
             Analyze incident trends and safety performance
           </p>
         </div>
 
         {/* Top Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-slate-300 hover:shadow-2xl transition-all">
+          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-slate-600 hover:shadow-2xl transition-all">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Incidents</p>
-                <h3 className="text-4xl font-black text-slate-900">{stats.total}</h3>
+                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Total Incidents</p>
+                <h3 className="text-4xl font-black text-white">{stats.total}</h3>
               </div>
-              <div className="p-3 bg-slate-100 text-blue-600 rounded-xl">
+              <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
                 <FileText className="w-6 h-6" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-slate-300 hover:shadow-2xl transition-all">
+          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-slate-600 hover:shadow-2xl transition-all">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Open Cases</p>
-                <h3 className="text-4xl font-black text-slate-900">{stats.openCases}</h3>
+                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Open Cases</p>
+                <h3 className="text-4xl font-black text-white">{stats.openCases}</h3>
               </div>
-              <div className="p-3 bg-slate-100 text-amber-600 rounded-xl">
+              <div className="p-3 bg-amber-500/20 text-amber-400 rounded-xl">
                 <AlertTriangle className="w-6 h-6" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-red-300 hover:shadow-2xl transition-all relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -z-10"></div>
+          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-red-500/30 hover:shadow-2xl transition-all relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-bl-full -z-10"></div>
             <div className="flex justify-between items-start z-10 relative">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">High Severity Incidents</p>
-                <h3 className="text-4xl font-black text-red-600">{stats.highSeverity}</h3>
+                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">High Severity Incidents</p>
+                <h3 className="text-4xl font-black text-red-400">{stats.highSeverity}</h3>
               </div>
-              <div className="p-3 bg-slate-100 text-red-600 rounded-xl">
+              <div className="p-3 bg-red-500/20 text-red-400 rounded-xl">
                 <ShieldAlert className="w-6 h-6" />
               </div>
             </div>
@@ -141,10 +141,10 @@ export default function SafetyAnalyticsDashboard() {
         </div>
 
         {/* Main Chart Section */}
-        <div className="bg-white backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-200">
+        <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-700/50">
            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Incident Trend Over Time</h2>
+              <TrendingUp className="w-6 h-6 text-blue-400" />
+              <h2 className="text-2xl font-bold text-white tracking-tight">Incident Trend Over Time</h2>
            </div>
            
            <div className="w-full h-[450px]">
@@ -207,28 +207,28 @@ export default function SafetyAnalyticsDashboard() {
         </div>
 
         {/* Bottom Section - Risky Properties */}
-        <div className="bg-white backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-200">
-           <h2 className="text-xl font-bold text-slate-900 mb-6">Top Risky Properties</h2>
+        <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-700/50">
+           <h2 className="text-xl font-bold text-white mb-6">Top Risky Properties</h2>
            <div className="flex flex-col space-y-3">
               {riskyProperties.length === 0 ? (
-                 <div className="text-center py-8 text-slate-500 font-medium bg-white/50 rounded-xl border border-slate-200">
+                 <div className="text-center py-8 text-slate-400 font-medium bg-slate-800/50 rounded-xl border border-slate-700/50">
                    No incidents reported yet.
                  </div>
               ) : (
                 riskyProperties.map((property, index) => (
                  <div 
                    key={property.id} 
-                   className="flex items-center justify-between p-4 rounded-xl bg-slate-100/30 hover:bg-slate-100/60 transition-colors border border-slate-200 hover:border-slate-300"
+                   className="flex items-center justify-between p-4 rounded-xl bg-slate-700/30 hover:bg-slate-700/60 transition-colors border border-slate-700/50 hover:border-slate-600"
                  >
                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-600 font-extrabold text-sm shadow-inner border border-slate-600">
+                       <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-inner border border-slate-600">
                           #{index + 1}
                        </div>
-                       <h4 className="font-semibold text-slate-600 text-lg">{property.name}</h4>
+                       <h4 className="font-semibold text-slate-200 text-lg">{property.name}</h4>
                     </div>
-                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-600/50">
-                       <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Incidents</span>
-                       <span className={`font-black text-xl ${property.incidents >= 10 ? 'text-red-600' : property.incidents >= 6 ? 'text-amber-600' : 'text-blue-600'}`}>
+                    <div className="flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-lg shadow-sm border border-slate-600/50">
+                       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Incidents</span>
+                       <span className={`font-black text-xl ${property.incidents >= 10 ? 'text-red-400' : property.incidents >= 6 ? 'text-amber-400' : 'text-blue-400'}`}>
                           {property.incidents}
                        </span>
                     </div>
@@ -242,6 +242,3 @@ export default function SafetyAnalyticsDashboard() {
     </div>
   );
 }
-
-
-

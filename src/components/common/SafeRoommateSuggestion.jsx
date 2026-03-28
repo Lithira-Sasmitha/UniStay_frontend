@@ -41,10 +41,11 @@ const SafeRoommateSuggestion = ({ property }) => {
                         budget: r.budget ? `LKR ${r.budget.toLocaleString()}` : 'Negotiable'
                     })));
                 } else {
-                    // Fallback to mocks
+                    // Fallback to mocks with light mode styling structure
                     setRoommates([
                         { id: 'mock-1', name: 'Kasun Perera', university: 'NSBM Green University', gender: 'Male', budget: 'LKR 10,000 - 15,000' },
-                        { id: 'mock-2', name: 'Sanduni Fernando', university: 'University of Colombo', gender: 'Female', budget: 'LKR 12,000 - 18,000' }
+                        { id: 'mock-2', name: 'Sanduni Fernando', university: 'University of Colombo', gender: 'Female', budget: 'LKR 12,000 - 18,000' },
+                        { id: 'mock-3', name: 'Dinuka Silva', university: 'SLIIT', gender: 'Male', budget: 'LKR 8,000 - 12,000' }
                     ]);
                 }
             } catch (err) {
@@ -52,7 +53,8 @@ const SafeRoommateSuggestion = ({ property }) => {
                 setSafetyLevel('review');
                 setRoommates([
                     { id: 'mock-1', name: 'Kasun Perera', university: 'NSBM Green University', gender: 'Male', budget: 'LKR 10,000 - 15,000' },
-                    { id: 'mock-2', name: 'Sanduni Fernando', university: 'University of Colombo', gender: 'Female', budget: 'LKR 12,000 - 18,000' }
+                    { id: 'mock-2', name: 'Sanduni Fernando', university: 'University of Colombo', gender: 'Female', budget: 'LKR 12,000 - 18,000' },
+                    { id: 'mock-3', name: 'Dinuka Silva', university: 'SLIIT', gender: 'Male', budget: 'LKR 8,000 - 12,000' }
                 ]);
             } finally {
                 setLoading(false);
