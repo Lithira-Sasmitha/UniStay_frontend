@@ -12,6 +12,17 @@ import PropertyDetailPage from '../pages/listings/PropertyDetailPage';
 import CreateListingPage from '../pages/listings/CreateListingPage';
 import EditListingPage from '../pages/listings/EditListingPage';
 import PaymentPage from '../pages/payment/PaymentPage';
+import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
+import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
+import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
+import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
+import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
+import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
+import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
+import WishlistPage from '../pages/dashboard/WishlistPage';
+import ComparePage from '../pages/dashboard/ComparePage';
+import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -28,58 +39,150 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
         <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
+        <Route path={ROUTES.REPORT_SAFETY} element={<ReportSafetyPage />} />
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
-      <Route
-        path={ROUTES.ADMIN_DASHBOARD}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-            <AdminDashboard />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.ADMIN_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/safety"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminIncidentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <SafetyAnalyticsDashboard />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Protected: Boarding Owner ──────────────────────────────── */}
-      <Route
-        path={ROUTES.OWNER_DASHBOARD}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <OwnerDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.CREATE_LISTING}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <CreateListingPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.EDIT_LISTING}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
-            <EditListingPage />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.OWNER_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/owner/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <CreateListingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <EditListingPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
 
       {/* ── Protected: Student ─────────────────────────────────────── */}
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.STUDENT_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <StudentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.STUDENT_PAY}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      {/* Pages needing MainLayout wrapper */}
+      <Route element={<MainLayout />}>
+        <Route
+          path="/student/report-incident"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ReportIncidentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT, ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+              <IncidentDetailPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-bookings/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <BookingAnalyticsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+            path={ROUTES.COMPARE}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <ComparePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={ROUTES.WISHLIST}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <WishlistPage />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+
       <Route
-        path={ROUTES.STUDENT_DASHBOARD}
+        path={ROUTES.ROOMMATE_FINDER}
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <StudentDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path={ROUTES.STUDENT_PAY}
-        element={
-          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
-            <PaymentPage />
+            <RoommateFinder />
           </PrivateRoute>
         }
       />
@@ -91,3 +194,4 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+

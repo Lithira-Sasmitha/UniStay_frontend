@@ -5,11 +5,14 @@ import {
   GraduationCap, Search, Calendar, LogOut,
   User as UserIcon, ChevronDown, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
-  Star,
+  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, TrendingUp, Heart, Star
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
 import { getStudentBookings, cancelBooking, submitBookingReview } from '../../services/bookingService';
+import authService from '../../services/authService';
+import Input from '../../components/common/Input';
+import Button from '../../components/common/Button';
 
 const STATUS_BADGE = {
   pending: { cls: 'bg-yellow-50 text-yellow-700 border-yellow-300', icon: Clock, label: 'Pending' },
@@ -43,17 +46,79 @@ const StudentDashboard = () => {
   const [reviewText, setReviewText] = useState('');
   const [reviewLoading, setReviewLoading] = useState('');
   const [reviewFeedback, setReviewFeedback] = useState({ bookingId: '', type: '', message: '' });
+  
+  // Verification State
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState({ type: '', text: '' });
+  const [typedEmail, setTypedEmail] = useState(user?.email || '');
+
+  const fetchProfile = async () => {
+    try {
+      const { user: profile } = await authService.getProfile();
+      setCurrentUserData(profile);
+      
+      // Update local storage too so it persists
+      const stored = JSON.parse(localStorage.getItem('userData') || '{}');
+      localStorage.setItem('userData', JSON.stringify({ ...stored, isVerified: profile.isVerified }));
+    } catch { /* silent */ }
+  };
 
   useEffect(() => {
     const fetch = async () => {
       try {
         const { data } = await getStudentBookings();
         setBookings(data.bookings || []);
+        await fetchProfile();
       } catch { /* silent */ }
       finally { setLoading(false); }
     };
     fetch();
   }, []);
+
+  const handleSendOTP = async () => {
+    if (!typedEmail.toLowerCase().endsWith('@my.sliit.lk')) {
+      setVerifyMessage({ type: 'error', text: 'Email must be a university email (@my.sliit.lk)' });
+      return;
+    }
+    setVerifying(true);
+    setVerifyMessage({ type: '', text: '' });
+    try {
+      const res = await authService.sendOTP(typedEmail);
+      if (res.success) {
+        setOtpSent(true);
+        setVerifyMessage({ type: 'success', text: res.message });
+      }
+    } catch (err) {
+      setVerifyMessage({ type: 'error', text: err.response?.data?.message || 'Failed to send OTP' });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpValue) return;
+    setVerifying(true);
+    setVerifyMessage({ type: '', text: '' });
+    try {
+      const res = await authService.verifyOTP(otpValue);
+      if (res.success) {
+        setVerifyMessage({ type: 'success', text: res.message });
+        setTimeout(async () => {
+          setShowVerifyModal(false);
+          await fetchProfile();
+        }, 2000);
+      }
+    } catch (err) {
+      setVerifyMessage({ type: 'error', text: err.response?.data?.message || 'Invalid OTP' });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const hasActiveBooking = bookings.some((b) => ['pending', 'approved', 'confirmed'].includes(b.status));
 
   const handleCancel = async (bookingId) => {
     setCancelLoading(bookingId);
@@ -125,9 +190,20 @@ const StudentDashboard = () => {
             </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Student Dashboard</h1>
-          <p className="text-slate-500 font-medium mt-2">
-            Welcome, <span className="text-slate-800 font-bold">{currentUserData?.name || 'Student'}</span>.
-          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <p className="text-slate-500 font-medium">
+              Welcome, <span className="text-slate-800 font-bold">{currentUserData?.name || 'Student'}</span>.
+            </p>
+            {currentUserData?.isVerified && (
+               <motion.div 
+                 initial={{ scale: 0 }} animate={{ scale: 1 }}
+                 className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100"
+               >
+                 <ShieldCheck className="w-3 h-3 text-amber-500" />
+                 <span className="text-[9px] font-black text-amber-700 uppercase tracking-widest">Verified</span>
+               </motion.div>
+            )}
+          </div>
         </div>
 
         <div className="relative">
@@ -140,7 +216,16 @@ const StudentDashboard = () => {
             </div>
             <div className="hidden sm:block text-left">
               <p className="text-xs font-black text-slate-900 leading-none mb-1">{currentUserData?.name || 'Student'}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Verified Student</p>
+              <div className="flex items-center gap-1">
+                {currentUserData?.isVerified ? (
+                  <>
+                    <ShieldCheck className="w-2.5 h-2.5 text-amber-500" />
+                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-tighter">Verified Student</p>
+                  </>
+                ) : (
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Unverified</p>
+                )}
+              </div>
             </div>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -200,10 +285,82 @@ const StudentDashboard = () => {
         ))}
       </motion.div>
 
+      {/* Verification & Badge Status Banner */}
+      <motion.div variants={itemVariants} className={`rounded-3xl p-8 mb-10 overflow-hidden relative border-2 ${
+         currentUserData?.isVerified 
+         ? 'bg-amber-50/30 border-amber-200' 
+         : 'bg-white border-dashed border-slate-200 shadow-sm'
+      }`}>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+          <div className="flex items-center gap-6">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+               currentUserData?.isVerified ? 'bg-amber-100 shadow-inner' : 'bg-primary-50'
+            }`}>
+              {currentUserData?.isVerified 
+                ? <Award className="w-8 h-8 text-amber-500" />
+                : <ShieldAlert className="w-8 h-8 text-primary-600" />
+              }
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                {currentUserData?.isVerified ? 'Verified Student (Gold)' : 'Email Not Verified'}
+              </h3>
+              <p className="text-slate-500 font-medium leading-relaxed">
+                {currentUserData?.isVerified 
+                  ? (
+                    <div className="flex flex-col gap-1 mt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-black uppercase">Account</span>
+                        <span className="text-slate-700 font-bold">{currentUserData?.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-black uppercase">Verified</span>
+                        <span className="font-bold text-amber-600">{currentUserData?.universityEmail}</span>
+                      </div>
+                    </div>
+                  )
+                  : 'Please verify your university email (@my.sliit.lk) to unlock all features including Roommate Finder.'
+                }
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex-shrink-0">
+            {currentUserData?.isVerified ? (
+              <motion.div 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.05 }}
+                className="relative group cursor-pointer"
+              >
+                 <div className="absolute -inset-4 bg-amber-500 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity" />
+                 <div className="relative bg-white w-28 h-28 rounded-[2rem] border-4 border-amber-100 flex flex-col items-center justify-center shadow-2xl shadow-amber-200/50">
+                    <Award className="w-10 h-10 text-amber-500" />
+                    <span className="text-[9px] font-black text-amber-700 uppercase tracking-widest mt-1">Verified</span>
+                    <motion.div 
+                       animate={{ rotate: [0, 15, -15, 0] }} transition={{ repeat: Infinity, duration: 2 }}
+                       className="absolute -top-1 -right-1 bg-amber-500 text-white p-1 rounded-full shadow-lg"
+                    >
+                       <Zap className="w-3 h-3 fill-white" />
+                    </motion.div>
+                 </div>
+              </motion.div>
+            ) : (
+              <button
+                 onClick={() => { setShowVerifyModal(true); setOtpSent(false); setVerifyMessage({ type: '', text: '' }); }}
+                 className="bg-primary-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary-200 hover:scale-[1.05] transition-transform flex items-center gap-2"
+              >
+                 Verify Email Now
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
       {/* Quick Actions */}
       <motion.div variants={itemVariants} className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm mb-10">
         <h2 className="text-xl font-black text-slate-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate('/listings')}
             className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-primary-50 hover:border-primary-200 border border-slate-100 transition-all group"
@@ -212,14 +369,53 @@ const StudentDashboard = () => {
             <p className="font-bold text-slate-900">Browse Listings</p>
             <p className="text-xs text-slate-500 mt-1">Find boarding places near your university</p>
           </button>
+
           <button
-            onClick={() => document.getElementById('bookings-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => navigate('/wishlist')}
+            className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-rose-50 hover:border-rose-200 border border-slate-100 transition-all group"
+          >
+            <Heart className="w-6 h-6 text-rose-500 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">My Wishlist</p>
+            <p className="text-xs text-slate-500 mt-1">View and compare your saved properties</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/my-bookings/analytics')}
             className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-blue-50 hover:border-blue-200 border border-slate-100 transition-all group"
           >
-            <Calendar className="w-6 h-6 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-            <p className="font-bold text-slate-900">My Bookings</p>
-            <p className="text-xs text-slate-500 mt-1">{activeBookings.length} active booking{activeBookings.length !== 1 ? 's' : ''}</p>
+            <TrendingUp className="w-6 h-6 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">Booking Analytics</p>
+            <p className="text-xs text-slate-500 mt-1">View your booking history and spending trends</p>   
           </button>
+
+          <div className="relative group">
+            <button
+              disabled={!currentUserData?.isVerified || hasActiveBooking}
+              onClick={() => navigate('/student/roommates')}
+              className={`w-full p-6 rounded-2xl text-left transition-all border ${
+                !currentUserData?.isVerified || hasActiveBooking 
+                ? 'bg-slate-50 opacity-60 cursor-not-allowed border-slate-100' 
+                : 'bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border-slate-100'
+              }`}
+            >
+              <Award className={`w-6 h-6 mb-3 transition-transform ${!currentUserData?.isVerified || hasActiveBooking ? 'text-slate-400' : 'text-amber-500 group-hover:scale-110'}`} />
+              <p className="font-bold text-slate-900">Roommate Finder</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {!currentUserData?.isVerified 
+                  ? 'Verification required to use this' 
+                  : hasActiveBooking 
+                    ? 'Active booking blocks this feature' 
+                    : 'Browse and connect with verified roommates'
+                }
+              </p>
+              
+              {currentUserData?.isVerified && !hasActiveBooking && (
+                <div className="absolute top-4 right-4 bg-amber-100 text-amber-700 text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest border border-amber-200">
+                   Verified Access
+                </div>
+              )}
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -410,6 +606,92 @@ const StudentDashboard = () => {
           </div>
         )}
       </motion.div>
+
+      {/* Verification Modal */}
+      <AnimatePresence>
+        {showVerifyModal && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !verifying && setShowVerifyModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden p-8"
+            >
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">{otpSent ? 'Enter Code' : 'Confirm Email'}</h3>
+                <p className="text-slate-500 font-medium">{otpSent ? `A 6-digit code was sent to ${typedEmail}` : 'Type your SLIIT email to receive an OTP'}</p>
+              </div>
+
+              {verifyMessage.text && (
+                 <div className={`mb-6 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 border ${
+                    verifyMessage.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700'
+                 }`}>
+                    {verifyMessage.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                    {verifyMessage.text}
+                 </div>
+              )}
+
+              <div className="space-y-6">
+                {!otpSent ? (
+                   <div className="space-y-6">
+                      <Input
+                        label="University Email"
+                        placeholder="yourname@my.sliit.lk"
+                        value={typedEmail}
+                        onChange={(e) => setTypedEmail(e.target.value)}
+                        icon={Mail}
+                      />
+                      <Button
+                        onClick={handleSendOTP}
+                        disabled={verifying}
+                        className="w-full py-4 rounded-2xl flex items-center justify-center gap-2"
+                      >
+                        {verifying ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Verification Code'}
+                      </Button>
+                      <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                        Verification is only available for <span className="text-primary-600">@my.sliit.lk</span> addresses
+                      </p>
+                   </div>
+                ) : (
+                   <div className="space-y-4">
+                      <Input
+                        label="6-Digit Verification Code"
+                        placeholder="000000"
+                        value={otpValue}
+                        onChange={(e) => setOtpValue(e.target.value)}
+                        icon={Key}
+                        className="text-center tracking-[1em] font-black text-xl"
+                        maxLength={6}
+                      />
+                      <Button
+                        onClick={handleVerifyOTP}
+                        disabled={verifying || otpValue.length !== 6}
+                        className="w-full py-4 rounded-2xl flex items-center justify-center gap-2"
+                      >
+                        {verifying ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code'}
+                      </Button>
+                      <button 
+                        onClick={handleSendOTP}
+                        disabled={verifying}
+                        className="w-full text-xs font-black text-primary-600 uppercase tracking-widest hover:underline"
+                      >
+                        Resend Code
+                      </button>
+                   </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

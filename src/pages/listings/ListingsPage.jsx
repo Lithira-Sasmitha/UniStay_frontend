@@ -100,14 +100,14 @@ const ListingsPage = () => {
                 </div>
             ) : (
                 <>
-                    <p className="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest">
+                    <p className="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest max-w-7xl mx-auto">
                         {properties.length} Listing{properties.length !== 1 ? 's' : ''} found
                     </p>
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="show"
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
                     >
                         {properties.map((property) => (
                             <motion.div key={property._id} variants={itemVariants}>

@@ -233,11 +233,20 @@ const OwnerDashboard = () => {
           </p>
         </div>
 
-        <div className="relative">
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 bg-white p-2 pr-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all"
+            onClick={() => window.location.href = '/owner/incidents'}
+            className="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2.5 rounded-2xl border border-red-100 shadow-sm transition-all font-bold text-sm"
           >
+            <AlertTriangle className="w-4 h-4" />
+            Safety Incidents
+          </button>
+          
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-3 bg-white p-2 pr-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all"
+            >
             <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold">
               {currentUserData?.name?.[0] || 'O'}
             </div>
@@ -274,6 +283,7 @@ const OwnerDashboard = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
       </motion.div>
 
