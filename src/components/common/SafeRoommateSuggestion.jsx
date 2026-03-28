@@ -5,6 +5,7 @@ import incidentService from '../../services/incidentService';
 const SafeRoommateSuggestion = ({ property }) => {
     const [safetyLevel, setSafetyLevel] = useState('review'); // safe, caution, review
     const [loading, setLoading] = useState(true);
+    const [requestedIds, setRequestedIds] = useState([]);
 
     const rent = property?.rooms?.[0]?.monthlyRent || 0;
     const split2 = rent / 2;
@@ -44,6 +45,10 @@ const SafeRoommateSuggestion = ({ property }) => {
         SafetyIcon = ShieldAlert;
         safetyColorClass = 'bg-red-50 text-red-700 border-red-200';
     }
+
+    const handleRequestShare = (studentId) => {
+        setRequestedIds(prev => [...prev, studentId]);
+    };
 
     // Mock students as instructed
     const mockStudents = [
@@ -127,8 +132,22 @@ const SafeRoommateSuggestion = ({ property }) => {
                                         <span className="bg-blue-50 text-blue-700 border border-blue-100 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Verified</span>
                                     </div>
                                 </div>
-                                <button className="w-full mt-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 rounded-xl font-bold text-sm transition-all shadow-sm">
-                                    Request to Share
+                                <button 
+                                    onClick={() => handleRequestShare(student.id)}
+                                    disabled={requestedIds.includes(student.id)}
+                                    className={`w-full mt-2 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 ${
+                                        requestedIds.includes(student.id)
+                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
+                                            : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200'
+                                    }`}
+                                >
+                                    {requestedIds.includes(student.id) ? (
+                                        <>
+                                            <BadgeCheck className="w-4 h-4" /> Request Sent
+                                        </>
+                                    ) : (
+                                        'Request to Share'
+                                    )}
                                 </button>
                             </div>
                         ))}
