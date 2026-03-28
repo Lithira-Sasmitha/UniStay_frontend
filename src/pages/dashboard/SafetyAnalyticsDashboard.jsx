@@ -1,29 +1,93 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, FileText, ShieldAlert, TrendingUp } from 'lucide-react';
-
-const trendData = [
-  { month: 'Jan', total: 12, highSeverity: 2 },
-  { month: 'Feb', total: 19, highSeverity: 4 },
-  { month: 'Mar', total: 15, highSeverity: 3 },
-  { month: 'Apr', total: 22, highSeverity: 7 },
-  { month: 'May', total: 18, highSeverity: 2 },
-  { month: 'Jun', total: 25, highSeverity: 8 },
-  { month: 'Jul', total: 20, highSeverity: 5 },
-  { month: 'Aug', total: 14, highSeverity: 1 },
-];
-
-const riskyProperties = [
-  { id: 1, name: 'Sunset Apartment Complex', incidents: 14 },
-  { id: 2, name: 'Greenville Student Housing', incidents: 9 },
-  { id: 3, name: 'Downtown Annex', incidents: 7 },
-  { id: 4, name: 'University Edge', incidents: 6 },
-  { id: 5, name: 'Pine View Boarding', incidents: 4 },
-];
+import { AlertTriangle, FileText, ShieldAlert, TrendingUp, Loader2 } from 'lucide-react';
+import incidentService from '../../services/incidentService';
+import Toast from '../../components/common/Toast';
 
 export default function SafetyAnalyticsDashboard() {
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await incidentService.getIncidents();
+      setIncidents(res.data || []);
+    } catch (err) {
+      console.error(err);
+      setToast({ message: 'Failed to fetch safety analytics data.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const { stats, trendData, riskyProperties } = useMemo(() => {
+    let openCount = 0;
+    let highCount = 0;
+    
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthCounts = {};
+    monthNames.forEach(m => monthCounts[m] = { month: m, total: 0, highSeverity: 0 });
+
+    const propertyCounts = {};
+
+    incidents.forEach(inc => {
+      // Basic stats
+      if (inc.status === 'open') openCount++;
+      if (inc.severity === 'High') highCount++;
+
+      // Monthly Trend (Current Year context)
+      const d = inc.createdAt ? new Date(inc.createdAt) : null;
+      if (d && !isNaN(d.getTime())) {
+        const monthStr = monthNames[d.getMonth()];
+        monthCounts[monthStr].total++;
+        if (inc.severity === 'High') {
+          monthCounts[monthStr].highSeverity++;
+        }
+      }
+
+      // Risky Properties
+      const property = inc.property;
+      if (property) {
+        const propId = property._id || property;
+        const propName = property.name || 'Unknown Property';
+        if (!propertyCounts[propId]) {
+          propertyCounts[propId] = { id: propId, name: propName, incidents: 0 };
+        }
+        propertyCounts[propId].incidents++;
+      }
+    });
+
+    const topProperties = Object.values(propertyCounts)
+      .sort((a, b) => b.incidents - a.incidents)
+      .slice(0, 5);
+
+    // Stop trend chart at the current month to avoid future empty months
+    const currentMonthIndex = new Date().getMonth();
+    const trendArray = monthNames.slice(0, currentMonthIndex + 1).map(m => monthCounts[m]);
+
+    return {
+      stats: { total: incidents.length, openCases: openCount, highSeverity: highCount },
+      trendData: trendArray,
+      riskyProperties: topProperties,
+    };
+  }, [incidents]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-800">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Section */}
@@ -42,7 +106,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Incidents</p>
-                <h3 className="text-4xl font-black text-slate-800">145</h3>
+                <h3 className="text-4xl font-black text-slate-800">{stats.total}</h3>
               </div>
               <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                 <FileText className="w-6 h-6" />
@@ -54,7 +118,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Open Cases</p>
-                <h3 className="text-4xl font-black text-slate-800">24</h3>
+                <h3 className="text-4xl font-black text-slate-800">{stats.openCases}</h3>
               </div>
               <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
                 <AlertTriangle className="w-6 h-6" />
@@ -67,7 +131,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start z-10 relative">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">High Severity Incidents</p>
-                <h3 className="text-4xl font-black text-red-600">32</h3>
+                <h3 className="text-4xl font-black text-red-600">{stats.highSeverity}</h3>
               </div>
               <div className="p-3 bg-red-50 text-red-600 rounded-xl">
                 <ShieldAlert className="w-6 h-6" />
@@ -143,7 +207,12 @@ export default function SafetyAnalyticsDashboard() {
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-md border border-slate-100">
            <h2 className="text-xl font-bold text-slate-800 mb-6">Top Risky Properties</h2>
            <div className="flex flex-col space-y-3">
-              {riskyProperties.map((property, index) => (
+              {riskyProperties.length === 0 ? (
+                 <div className="text-center py-8 text-slate-500 font-medium bg-slate-50 rounded-xl">
+                   No incidents reported yet.
+                 </div>
+              ) : (
+                riskyProperties.map((property, index) => (
                  <div 
                    key={property.id} 
                    className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
@@ -161,7 +230,8 @@ export default function SafetyAnalyticsDashboard() {
                        </span>
                     </div>
                  </div>
-              ))}
+                ))
+              )}
            </div>
         </div>
 
