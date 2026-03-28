@@ -12,7 +12,10 @@ const incidentService = {
   getIncidents: (params) => 
     api.get('/incidents', { params }).then(r => r.data),
 
-updateStatus: (id, status, adminNotes) =>
+  getIncidentById: (id) => 
+    api.get(`/incidents/${id}`).then(r => r.data),
+
+  updateStatus: (id, status, adminNotes) =>
     api.patch(`/incidents/${id}/status`, { status, adminNotes }).then(r => r.data),
 
   addOwnerResponse: (id, ownerResponse) =>
