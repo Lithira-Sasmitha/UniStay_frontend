@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History } from 'lucide-react';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star } from 'lucide-react';
 import { getListingById } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
@@ -81,6 +81,8 @@ const PropertyDetailPage = () => {
 
     const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
     const photos = property.photos || [];
+    const reviews = property.reviews || [];
+    const ratingSummary = property.averageRating ? `${property.averageRating}/5` : 'No ratings yet';
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -185,6 +187,15 @@ const PropertyDetailPage = () => {
                             <div className="flex items-center gap-1.5 text-slate-500 mt-2">
                                 <MapPin className="w-4 h-4" />
                                 <span className="font-medium">{property.address}</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-bold">
+                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                    {ratingSummary}
+                                </span>
+                                <span className="text-xs font-semibold text-slate-500">
+                                    {property.reviewCount || 0} review{property.reviewCount === 1 ? '' : 's'}
+                                </span>
                             </div>
                         </div>
 
@@ -318,6 +329,34 @@ const PropertyDetailPage = () => {
                         })}
                     </div>
 
+                    {/* Reviews */}
+                    <div className="mt-10 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-black text-slate-900">Student Reviews</h2>
+                            <span className="text-sm font-semibold text-slate-500">
+                                {property.reviewCount || 0} total
+                            </span>
+                        </div>
+
+                        {reviews.length === 0 ? (
+                            <p className="text-slate-500 text-sm">No reviews yet for this boarding.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {reviews.map((review) => (
+                                    <div key={review._id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                        <div className="flex items-center justify-between gap-3 mb-1.5">
+                                            <p className="font-bold text-slate-800">{review.student?.name || 'Student'}</p>
+                                            <div className="flex items-center gap-1 text-amber-600">
+                                                <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                                                <span className="text-sm font-bold">{review.rating}/5</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-slate-600 leading-relaxed">{review.reviewText}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     {/* Safe Roommate Suggestion Widget */}
                     <SafeRoommateSuggestion property={property} />
 

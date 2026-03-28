@@ -5,11 +5,11 @@ import {
   GraduationCap, Search, Calendar, LogOut,
   User as UserIcon, ChevronDown, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
-  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, TrendingUp, Heart
+  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, TrendingUp, Heart, Star
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
-import { getStudentBookings, cancelBooking } from '../../services/bookingService';
+import { getStudentBookings, cancelBooking, submitBookingReview } from '../../services/bookingService';
 import authService from '../../services/authService';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -29,6 +29,8 @@ const BADGE_CONFIG = {
   unverified: { emoji: '⚪' },
 };
 
+const REVIEW_ELIGIBLE_STATUSES = ['approved', 'confirmed', 'completed'];
+
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -39,6 +41,11 @@ const StudentDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelLoading, setCancelLoading] = useState('');
+  const [reviewFormBookingId, setReviewFormBookingId] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewLoading, setReviewLoading] = useState('');
+  const [reviewFeedback, setReviewFeedback] = useState({ bookingId: '', type: '', message: '' });
   
   // Verification State
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -120,6 +127,49 @@ const StudentDashboard = () => {
       setBookings((prev) => prev.map((b) => b._id === bookingId ? { ...b, status: 'cancelled' } : b));
     } catch { /* silent */ }
     finally { setCancelLoading(''); }
+  };
+
+  const openReviewForm = (bookingId) => {
+    setReviewFeedback({ bookingId: '', type: '', message: '' });
+    setReviewFormBookingId(bookingId);
+    setReviewRating(5);
+    setReviewText('');
+  };
+
+  const handleSubmitReview = async (bookingId) => {
+    const cleanedText = reviewText.trim();
+    const numericRating = Number(reviewRating);
+
+    if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+      setReviewFeedback({ bookingId, type: 'error', message: 'Please select a valid rating between 1 and 5.' });
+      return;
+    }
+    if (cleanedText.length < 20) {
+      setReviewFeedback({ bookingId, type: 'error', message: 'Review text must be at least 20 characters.' });
+      return;
+    }
+
+    setReviewLoading(bookingId);
+    setReviewFeedback({ bookingId: '', type: '', message: '' });
+
+    try {
+      const { data } = await submitBookingReview(bookingId, {
+        rating: numericRating,
+        reviewText: cleanedText,
+      });
+
+      setBookings((prev) => prev.map((b) => (
+        b._id === bookingId ? { ...b, review: data.review, canReview: false } : b
+      )));
+      setReviewFeedback({ bookingId, type: 'success', message: 'Review submitted successfully.' });
+      setReviewFormBookingId('');
+      setReviewText('');
+      setReviewRating(5);
+    } catch (err) {
+      setReviewFeedback({ bookingId, type: 'error', message: err.response?.data?.message || 'Failed to submit review.' });
+    } finally {
+      setReviewLoading('');
+    }
   };
 
   const activeBookings = bookings.filter((b) => ['pending', 'approved', 'confirmed'].includes(b.status));
@@ -396,6 +446,11 @@ const StudentDashboard = () => {
               const StatusIcon = statusInfo.icon;
               const propBadge = BADGE_CONFIG[booking.property?.trustBadge] || BADGE_CONFIG.unverified;
               const canCancel = ['pending', 'approved', 'confirmed'].includes(booking.status);
+              const hasReviewed = booking.hasReviewed ?? Boolean(booking.review);
+              const canReview = booking.canReview ?? (REVIEW_ELIGIBLE_STATUSES.includes(booking.status) && !hasReviewed);
+              const isReviewFormOpen = reviewFormBookingId === booking._id;
+              const isSubmittingReview = reviewLoading === booking._id;
+              const bookingFeedback = reviewFeedback.bookingId === booking._id ? reviewFeedback : null;
 
               return (
                 <div key={booking._id} className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
@@ -457,8 +512,94 @@ const StudentDashboard = () => {
                           Cancel
                         </button>
                       )}
+
+                      {canReview && (
+                        <button
+                          onClick={() => openReviewForm(booking._id)}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors"
+                        >
+                          <Star className="w-3.5 h-3.5" /> Add Review
+                        </button>
+                      )}
+
+                      {booking.review && (
+                        <span className="text-xs font-bold text-emerald-600 inline-flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" /> Review Submitted
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {booking.review && (
+                    <div className="mt-4 rounded-xl bg-white border border-slate-100 p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Your Review</p>
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700">
+                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {booking.review.rating}/5
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-600">{booking.review.reviewText}</p>
+                    </div>
+                  )}
+
+                  {isReviewFormOpen && (
+                    <div className="mt-4 rounded-xl bg-white border border-slate-100 p-4 space-y-3">
+                      <p className="text-sm font-black text-slate-800">Submit Your Review</p>
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Rating</label>
+                        <select
+                          value={reviewRating}
+                          onChange={(e) => setReviewRating(Number(e.target.value))}
+                          className="mt-1 w-full md:w-40 px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                        >
+                          {[5, 4, 3, 2, 1].map((r) => (
+                            <option key={r} value={r}>{r} Star{r === 1 ? '' : 's'}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Review</label>
+                        <textarea
+                          value={reviewText}
+                          onChange={(e) => setReviewText(e.target.value)}
+                          rows={3}
+                          placeholder="Share your experience with this boarding (minimum 20 characters)..."
+                          className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                        />
+                        <p className="text-[11px] text-slate-400 mt-1">{reviewText.trim().length}/20 minimum characters</p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleSubmitReview(booking._id)}
+                          disabled={isSubmittingReview}
+                          className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white rounded-xl text-sm font-bold transition-colors inline-flex items-center gap-1.5"
+                        >
+                          {isSubmittingReview ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Star className="w-3.5 h-3.5" />}
+                          Submit Review
+                        </button>
+                        <button
+                          onClick={() => setReviewFormBookingId('')}
+                          className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl text-sm font-bold transition-colors"
+                        >
+                          Close
+                        </button>
+                      </div>
+
+                      {bookingFeedback && (
+                        <p className={`text-xs font-semibold ${bookingFeedback.type === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>
+                          {bookingFeedback.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {!isReviewFormOpen && bookingFeedback && (
+                    <p className={`mt-3 text-xs font-semibold ${bookingFeedback.type === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>
+                      {bookingFeedback.message}
+                    </p>
+                  )}
                 </div>
               );
             })}
