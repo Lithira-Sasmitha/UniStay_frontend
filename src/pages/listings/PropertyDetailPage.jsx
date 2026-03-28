@@ -8,6 +8,7 @@ import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
 import StatusBadge from '../../components/common/StatusBadge';
 import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
+import SafeRoommateSuggestion from '../../components/common/SafeRoommateSuggestion';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -316,6 +317,10 @@ const PropertyDetailPage = () => {
                             );
                         })}
                     </div>
+
+                    {/* Safe Roommate Suggestion Widget */}
+                    <SafeRoommateSuggestion property={property} />
+
                 </motion.div>
             </div>
             {/* AI Safety Assistant Chat */}
