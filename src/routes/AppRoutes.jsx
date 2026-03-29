@@ -15,6 +15,7 @@ import PaymentPage from '../pages/payment/PaymentPage';
 import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
+import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
@@ -135,14 +136,14 @@ const AppRoutes = () => {
         />
       </Route>
 
-      {/* <Route
+      <Route
         path={ROUTES.ROOMMATE_FINDER}
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <RoommateFinder />
           </PrivateRoute>
         }
-      /> */}
+      />
 
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
