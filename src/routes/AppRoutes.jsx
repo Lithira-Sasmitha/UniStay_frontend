@@ -19,7 +19,6 @@ import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
-import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
