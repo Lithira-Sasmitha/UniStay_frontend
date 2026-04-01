@@ -17,6 +17,7 @@ const EditListingPage = () => {
     const [form, setForm] = useState({ name: '', address: '', description: '' });
     const [newPhotos, setNewPhotos] = useState([]);
     const [newPhotoPreviews, setNewPhotoPreviews] = useState([]);
+    const [newDocs, setNewDocs] = useState({ nicPhoto: null, utilityBill: null, policeReport: null });
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -63,14 +64,27 @@ const EditListingPage = () => {
         }
     };
 
+    const handleDocChange = (key, file) => {
+        setNewDocs(prev => ({ ...prev, [key]: file || null }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSaving(true);
 
         try {
-            // Update property details
-            const res = await updateProperty(propertyId, form);
+            // Build FormData so we can send docs alongside text fields
+            const fd = new FormData();
+            fd.append('name', form.name);
+            fd.append('address', form.address);
+            fd.append('description', form.description);
+            for (const key of ['nicPhoto', 'utilityBill', 'policeReport']) {
+                if (newDocs[key]) fd.append(key, newDocs[key]);
+            }
+
+            // Update property details (+ any new docs)
+            const res = await updateProperty(propertyId, fd);
             setProperty(prev => ({ ...prev, ...res.data.property }));
 
             // Upload new photos one by one
@@ -255,29 +269,57 @@ const EditListingPage = () => {
                             )}
                         </section>
 
-                        {/* Verification Documents (read-only display) */}
+                        {/* Verification Documents */}
                         <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-                            <h2 className="text-lg font-black text-slate-900 mb-2">Verification Documents</h2>
-                            <p className="text-slate-500 text-sm mb-4">Documents uploaded during creation. Contact admin to update.</p>
-                            <div className="grid grid-cols-1 gap-3">
+                            <h2 className="text-lg font-black text-slate-900 mb-1">Verification Documents</h2>
+                            <p className="text-slate-500 text-sm mb-4">Replace any document by uploading a new file. Saving will trigger re-verification.</p>
+                            <div className="grid grid-cols-1 gap-4">
                                 {[
-                                    { key: 'nicPhoto', label: 'NIC Photo' },
-                                    { key: 'utilityBill', label: 'Utility Bill' },
-                                    { key: 'policeReport', label: 'Police Clearance' },
-                                ].map(({ key, label }) => {
-                                    const doc = property.verificationDocs?.[key];
-                                    const hasDoc = doc?.url;
+                                    { key: 'nicPhoto', label: 'NIC Photo', accept: 'image/*,.pdf' },
+                                    { key: 'utilityBill', label: 'Utility Bill', accept: 'image/*,.pdf' },
+                                    { key: 'policeReport', label: 'Police Clearance', accept: 'image/*,.pdf' },
+                                ].map(({ key, label, accept }) => {
+                                    const existing = property.verificationDocs?.[key];
+                                    const hasExisting = !!existing?.url;
+                                    const newFile = newDocs[key];
                                     return (
-                                        <div key={key} className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${hasDoc ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-slate-50'}`}>
-                                            <FileText className={`w-5 h-5 flex-shrink-0 ${hasDoc ? 'text-emerald-600' : 'text-slate-400'}`} />
-                                            <span className={`text-sm font-medium ${hasDoc ? 'text-emerald-800' : 'text-slate-400'}`}>
-                                                {label}: {hasDoc ? 'Uploaded' : 'Not provided'}
-                                            </span>
-                                            {hasDoc && (
-                                                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs font-bold text-emerald-600 hover:underline">
-                                                    View
-                                                </a>
-                                            )}
+                                        <div key={key} className="border border-slate-200 rounded-xl p-4 space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className={`w-4 h-4 shrink-0 ${hasExisting ? 'text-emerald-600' : 'text-slate-400'}`} />
+                                                    <span className="text-sm font-bold text-slate-700">{label}</span>
+                                                    {hasExisting && !newFile && (
+                                                        <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Uploaded</span>
+                                                    )}
+                                                    {newFile && (
+                                                        <span className="text-[10px] font-black uppercase bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Will replace</span>
+                                                    )}
+                                                </div>
+                                                {hasExisting && (
+                                                    <a href={existing.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-emerald-600 hover:underline">
+                                                        View current
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <label className="flex items-center gap-3 cursor-pointer w-full px-4 py-2.5 rounded-lg border border-dashed border-slate-300 hover:border-primary-400 hover:bg-primary-50 transition-all">
+                                                <Upload className="w-4 h-4 text-slate-400 shrink-0" />
+                                                <span className="text-sm text-slate-500 font-medium truncate">
+                                                    {newFile ? newFile.name : (hasExisting ? 'Upload replacement' : 'Upload file')}
+                                                </span>
+                                                {newFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.preventDefault(); handleDocChange(key, null); }}
+                                                        className="ml-auto text-slate-400 hover:text-red-500 flex-shrink-0"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                <input
+                                                    type="file" accept={accept} className="hidden"
+                                                    onChange={(e) => handleDocChange(key, e.target.files[0])}
+                                                />
+                                            </label>
                                         </div>
                                     );
                                 })}

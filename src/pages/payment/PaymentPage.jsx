@@ -203,10 +203,10 @@ const PaymentPage = () => {
                     </p>
                 </motion.div>
                 <button
-                    onClick={() => navigate('/student')}
+                    onClick={() => navigate('/student', { state: { scrollToBoarding: true } })}
                     className="px-8 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200"
                 >
-                    Back to Dashboard
+                    View My Boarding
                 </button>
             </div>
         );

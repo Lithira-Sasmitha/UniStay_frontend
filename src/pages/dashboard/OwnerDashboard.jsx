@@ -178,6 +178,12 @@ const OwnerDashboard = () => {
         >
           <Edit3 className="w-3 h-3" /> Edit
         </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); navigate(`/owner/notice-board/${prop._id}`); }}
+          className={`${btnBase} bg-purple-50 text-purple-700 hover:bg-purple-100 font-bold transition-colors flex items-center gap-1`}
+        >
+          <Bell className="w-3 h-3" /> Notices
+        </button>
         {!isRejected && (
           <button
             onClick={(e) => { e.stopPropagation(); openBoardingArrange(prop._id); }}
@@ -381,6 +387,13 @@ const OwnerDashboard = () => {
                     <p className="font-bold text-slate-900">Boarding Arrange</p>
                     <p className="text-xs text-slate-500 mt-1">Room & occupancy management</p>
                   </button>
+                  <div className="p-6 bg-purple-50 rounded-2xl border border-purple-100">
+                    <Bell className="w-6 h-6 text-purple-600 mb-3" />
+                    <p className="font-bold text-slate-900">Notice Board</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Use the <span className="font-black text-purple-600">Notices</span> button on each property below to manage notices per boarding house.
+                    </p>
+                  </div>
                 </div>
               </motion.div>
 
