@@ -20,6 +20,7 @@ import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import WishlistPage from '../pages/dashboard/WishlistPage';
+import ComparePage from '../pages/listings/ComparePage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -42,6 +43,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
               <WishlistPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.COMPARE}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ComparePage />
             </PrivateRoute>
           }
         />

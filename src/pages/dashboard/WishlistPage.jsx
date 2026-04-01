@@ -8,7 +8,10 @@ import {
   BookOpen, 
   ExternalLink,
   Loader2,
-  HeartOff
+  HeartOff,
+  CheckSquare,
+  Square,
+  Maximize2
 } from 'lucide-react';
 import { getWishlist, toggleWishlist } from '../../services/propertyService';
 import PropertyCard from '../../components/cards/PropertyCard';
@@ -19,7 +22,8 @@ const WishlistPage = () => {
     const [wishlist, setWishlist] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('newest'); // 'price-low', 'price-high', 'rating'
+    const [sortBy, setSortBy] = useState('newest');
+    const [compareList, setCompareList] = useState([]);
 
     const fetchWishlist = async () => {
         try {
@@ -46,9 +50,31 @@ const WishlistPage = () => {
             const response = await toggleWishlist(propertyId);
             if (response.data.success) {
                 setWishlist(prev => prev.filter(item => item && item._id !== propertyId));
+                setCompareList(prev => prev.filter(id => id !== propertyId));
             }
         } catch (error) {
             console.error('Failed to remove item:', error);
+        }
+    };
+
+    const toggleCompareSelection = (e, propertyId) => {
+        e.stopPropagation();
+        setCompareList(prev => {
+            if (prev.includes(propertyId)) {
+                return prev.filter(id => id !== propertyId);
+            }
+            if (prev.length >= 4) {
+                // Could use hot-toast here if available, or just ignore
+                alert("You can compare up to 4 properties at a time.");
+                return prev;
+            }
+            return [...prev, propertyId];
+        });
+    };
+
+    const handleCompare = () => {
+        if (compareList.length >= 2) {
+            navigate(`/compare?ids=${compareList.join(',')}`);
         }
     };
 
@@ -151,9 +177,24 @@ const WishlistPage = () => {
                     <p className="text-slate-500">No properties match your search.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredWishlist.map((property) => (
-                        <div key={property._id} className="relative group">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
+                    {filteredWishlist.map((property) => {
+                        const isSelected = compareList.includes(property._id);
+                        return (
+                        <div key={property._id} className={`relative group rounded-2xl border-2 transition-all ${isSelected ? 'border-primary-500 shadow-md shadow-primary-100/50' : 'border-transparent'}`}>
+                            {/* Compare Checkbox Overlay */}
+                            <button
+                                onClick={(e) => toggleCompareSelection(e, property._id)}
+                                className={`absolute top-4 right-4 z-20 p-2 rounded-xl backdrop-blur-md shadow-sm transition-all sm:opacity-0 group-hover:opacity-100 ${
+                                    isSelected 
+                                        ? 'bg-primary-500 text-white opacity-100' 
+                                        : 'bg-white/80 text-slate-500 hover:bg-white hover:text-primary-500'
+                                }`}
+                                title={isSelected ? "Remove from comparison" : "Add to comparison"}
+                            >
+                                {isSelected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                            </button>
+
                             {/* Property Card Wrapper */}
                             <PropertyCard property={property} />
                             
@@ -175,7 +216,40 @@ const WishlistPage = () => {
                                 </button>
                             </div>
                         </div>
-                    ))}
+                    )})}
+                </div>
+            )}
+
+            {/* Compare Floating Action Bar */}
+            {compareList.length > 0 && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] p-4 z-50 animate-in slide-in-from-bottom">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-primary-50 text-primary-600 p-2 rounded-xl">
+                                <Maximize2 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-slate-900">Compare Properties</p>
+                                <p className="text-xs text-slate-500">{compareList.length} of 4 selected (min. 2 required)</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-3 w-full sm:w-auto">
+                            <button 
+                                onClick={() => setCompareList([])}
+                                className="flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                            >
+                                Clear All
+                            </button>
+                            <Button 
+                                variant="primary"
+                                disabled={compareList.length < 2}
+                                onClick={handleCompare}
+                                className="flex-1 sm:flex-none"
+                            >
+                                Compare Selected
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
