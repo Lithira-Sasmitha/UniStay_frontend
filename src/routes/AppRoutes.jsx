@@ -19,6 +19,7 @@ import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
+import WishlistPage from '../pages/dashboard/WishlistPage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -36,6 +37,14 @@ const AppRoutes = () => {
         <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
         <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
         <Route path={ROUTES.REPORT_SAFETY} element={<ReportSafetyPage />} />
+        <Route
+          path={ROUTES.WISHLIST}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <WishlistPage />
+            </PrivateRoute>
+          }
+        />
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}

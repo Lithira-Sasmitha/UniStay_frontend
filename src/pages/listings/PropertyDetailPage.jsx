@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle } from 'lucide-react';
-import { getListingById } from '../../services/propertyService';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, Heart } from 'lucide-react';
+import { getListingById, toggleWishlist, getWishlist } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
@@ -26,6 +26,8 @@ const PropertyDetailPage = () => {
     const [bookingRoomId, setBookingRoomId] = useState(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [bookingMsg, setBookingMsg] = useState('');
+    const [isSaved, setIsSaved] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
 
     useEffect(() => {
         const fetch = async () => {
@@ -34,12 +36,44 @@ const PropertyDetailPage = () => {
                 setProperty(data.property);
             } catch {
                 setError('Property not found.');
+                setLoading(false);
+                return;
+            }
+            
+            // Check if already in wishlist - separate try/catch so it doesn't break the page
+            try {
+                if (user && user.role === 'student') {
+                    const wishRes = await getWishlist();
+                    if (wishRes?.data?.success && Array.isArray(wishRes.data.wishlist)) {
+                        const isInWishlist = wishRes.data.wishlist.some(item => item && item._id === propertyId);
+                        setIsSaved(isInWishlist);
+                    }
+                }
+            } catch (wishlistErr) {
+                console.error('Failed to load wishlist status', wishlistErr);
             } finally {
                 setLoading(false);
             }
         };
         fetch();
-    }, [propertyId]);
+    }, [propertyId, user]);
+
+    const handleToggleWishlist = async () => {
+        if (!user) return navigate('/login');
+        if (user.role !== 'student') return;
+        
+        setWishlistLoading(true);
+        try {
+            const response = await toggleWishlist(propertyId);
+            if (response.data.success) {
+                setIsSaved(response.data.isSaved);
+            }
+        } catch (error) {
+            console.error('Failed to update wishlist:', error);
+        } finally {
+            setWishlistLoading(false);
+        }
+    };
 
     const handleBook = async (roomId) => {
         if (!user) return navigate('/login');
@@ -127,6 +161,19 @@ const PropertyDetailPage = () => {
                         </div>
 
                         <div className="text-right flex flex-col items-end gap-2">
+                            {user?.role === 'student' && (
+                                <button
+                                    onClick={handleToggleWishlist}
+                                    disabled={wishlistLoading}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 shadow-sm border mb-4 ${isSaved
+                                            ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`} />
+                                    {isSaved ? 'Saved to Wishlist' : 'Save to Wishlist'}
+                                </button>
+                            )}
                             <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border ${badge.cls}`}>
                                 {badge.emoji} {badge.label}
                             </div>
