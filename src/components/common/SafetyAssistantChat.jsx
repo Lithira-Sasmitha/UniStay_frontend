@@ -6,7 +6,7 @@ const SafetyAssistantChat = ({ propertyId, propertyName }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
-            text: `Hi! I'm the Safety Assistant. Ask me anything about the safety, risks, or incident history of ${propertyName || 'this property'}.`,
+            text: `Hi! I'm your AI Assistant. Ask me anything about the safety, rent, location, or facilities of ${propertyName || 'this property'}.`,
             sender: 'assistant',
             timestamp: new Date()
         }
@@ -62,8 +62,11 @@ const SafetyAssistantChat = ({ propertyId, propertyName }) => {
 
     const QUICK_QUESTIONS = [
         "Is this place safe?",
-        "Why is it under review?",
-        "What issues reported?"
+        "What is the rent cost?",
+        "What are the facilities?",
+        "What issues reported?",
+        "Where is this situated?",
+        "Why is it under review?"
     ];
 
     return (
@@ -86,11 +89,11 @@ const SafetyAssistantChat = ({ propertyId, propertyName }) => {
                     <div className="bg-emerald-600 text-white p-4 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="bg-white/20 p-1.5 rounded-lg">
-                                <ShieldAlert className="w-5 h-5 text-white" />
+                                <MessageCircle className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-sm">Safety Assistant</h3>
-                                <p className="text-xs text-emerald-100 opacity-90">Powered by Incident Data</p>
+                                <h3 className="font-bold text-sm">AI Assistant</h3>
+                                <p className="text-xs text-emerald-100 opacity-90">Live Property Info & Safety</p>
                             </div>
                         </div>
                         <button 
