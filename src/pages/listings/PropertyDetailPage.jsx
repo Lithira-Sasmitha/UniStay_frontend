@@ -6,6 +6,7 @@ import { getListingById, toggleWishlist, getWishlist } from '../../services/prop
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
+import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -303,6 +304,9 @@ const PropertyDetailPage = () => {
                         })}
                     </div>
                 </motion.div>
+                
+                {/* Floating Safety Assistant Chat */}
+                <SafetyAssistantChat propertyId={property._id} propertyName={property.name} />
             </div>
         </div>
     );
