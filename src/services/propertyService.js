@@ -72,9 +72,11 @@ export const rejectProperty = (propertyId, rejectionReason) =>
 
 // ── Property CRUD ─────────────────────────────────────────────────────
 
-/** Update property details */
+/** Update property details (data can be FormData for doc uploads or plain object) */
 export const updateProperty = (propertyId, data) =>
-    api.put(`/properties/${propertyId}`, data);
+    api.put(`/properties/${propertyId}`, data, {
+        headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
 
 /** Delete a property */
 export const deleteProperty = (propertyId) =>

@@ -20,6 +20,10 @@ export const confirmPayment = (bookingId) =>
 export const cancelBooking = (bookingId) =>
     api.patch(`/bookings/${bookingId}/cancel`);
 
+/** Get student's current confirmed boarding (room, property, roommates) */
+export const getMyBoarding = () =>
+    api.get('/bookings/my-boarding');
+
 /** Get all bookings for owner's properties */
 export const getOwnerBookings = () =>
     api.get('/bookings/owner-bookings');
