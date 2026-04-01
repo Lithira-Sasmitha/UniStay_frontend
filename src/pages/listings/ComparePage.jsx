@@ -75,7 +75,12 @@ const ComparePage = () => {
         
         // Base rating
         score += (property.averageRating || 0) * 10;
-        
+
+        // Security / Risk Issue Penalty
+        if (property.riskTrend === 'Increasing' || property.verificationStatus === 'rejected' || property.riskTrend === 'High Risk') {
+            score -= 50; 
+        }
+
         // Safety badge bonus
         if (property.trustBadge === 'gold') score += 20;
         else if (property.trustBadge === 'silver') score += 10;
@@ -178,6 +183,7 @@ const ComparePage = () => {
                         <div className="h-16 flex items-center border-b border-slate-100">Monthly Rent</div>
                         <div className="h-14 flex items-center border-b border-slate-100">Trust Badge</div>
                         <div className="h-16 flex items-center border-b border-slate-100">Location</div>
+                        <div className="h-14 flex items-center border-b border-slate-100">Security / Risk</div>
                         <div className="h-14 flex items-center border-b border-slate-100">Availability</div>
                         <div className="flex-1 min-h-[140px] pt-4">Facilities</div>
                     </div>
@@ -191,7 +197,10 @@ const ComparePage = () => {
                         const totalSlots = prop.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
                         const occupied = prop.rooms?.reduce((acc, r) => acc + (r.currentOccupants?.length || 0), 0) || 0;
                         const available = totalSlots - occupied;
-                        const facilities = prop.rooms?.[0]?.facilities || [];
+                        const facilities = prop.rooms?.[0]?.facilities || [];   
+                        
+                        const hasSecurityAlert = prop.riskTrend === 'Increasing' || prop.verificationStatus === 'rejected' || prop.riskTrend === 'High Risk';
+                        const securityMsg = hasSecurityAlert ? (prop.riskPattern || 'Safety concerns flagged') : 'Verified Safe';
 
                         return (
                             <div
@@ -257,7 +266,20 @@ const ComparePage = () => {
                                     <MapPin className="w-4 h-4 mr-2 text-slate-400 shrink-0" />
                                     {prop.address || 'Location unknown'}
                                 </div>
-
+                                {/* Security / Risk */}
+                                <div className="h-14 flex items-center border-b border-slate-100 font-medium">
+                                    {hasSecurityAlert ? (
+                                        <div className="flex items-center text-red-600 text-xs bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg w-full">
+                                            <ShieldCheck className="w-4 h-4 mr-2 shrink-0 text-red-500" />
+                                            <span className="line-clamp-1 font-bold" title={securityMsg}>{securityMsg}</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center text-emerald-700 text-xs bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg w-full">
+                                            <ShieldCheck className="w-4 h-4 mr-2 shrink-0 text-emerald-500" />
+                                            <span className="font-bold">Verified Safe</span>
+                                        </div>
+                                    )}
+                                </div>
                                 {/* Availability */}
                                 <div className="h-14 flex items-center border-b border-slate-100 font-medium whitespace-nowrap overflow-hidden">
                                     <Users className={`w-4 h-4 mr-2 shrink-0 ${available > 0 ? 'text-primary-500' : 'text-red-500'}`} />
