@@ -16,6 +16,8 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import RoommateFinder from '../pages/dashboard/RoommateFinder';
+import NoticeBoardPage from '../pages/dashboard/NoticeBoardPage';
+import StudentNoticeBoardPage from '../pages/dashboard/StudentNoticeBoardPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
@@ -141,6 +143,24 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <RoommateFinder />
+          </PrivateRoute>
+        }
+      />
+
+      {/* ── Notice Board ───────────────────────────────────────────── */}
+      <Route
+        path={ROUTES.OWNER_NOTICE_BOARD}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <NoticeBoardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_NOTICE_BOARD}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <StudentNoticeBoardPage />
           </PrivateRoute>
         }
       />

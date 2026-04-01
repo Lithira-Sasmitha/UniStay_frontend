@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap, Search, Calendar, LogOut,
-  User as UserIcon, ChevronDown, Loader2,
+  User as UserIcon, ChevronDown, ChevronRight, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
-  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap
+  ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, Bell,
+  Home, Users, MapPin, DoorOpen, Phone,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
-import { getStudentBookings, cancelBooking } from '../../services/bookingService';
+import { getStudentBookings, cancelBooking, getMyBoarding } from '../../services/bookingService';
+import { getStudentNotices } from '../../services/noticeService';
 import authService from '../../services/authService';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -32,6 +34,8 @@ const BADGE_CONFIG = {
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  // Scroll to My Boarding section when redirected from payment success
+  const location = useLocation();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(user);
@@ -39,6 +43,10 @@ const StudentDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelLoading, setCancelLoading] = useState('');
+  const [boarding, setBoarding] = useState(null);
+  const [notices, setNotices] = useState([]);
+  const [showBoarding, setShowBoarding] = useState(false);
+  const [boardingLoading, setBoardingLoading] = useState(false);
   
   // Verification State
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -59,17 +67,43 @@ const StudentDashboard = () => {
     } catch { /* silent */ }
   };
 
+  const handleShowBoarding = async () => {
+    setShowBoarding(true);
+    setBoardingLoading(true);
+    try {
+      const boardingRes = await getMyBoarding();
+      setBoarding(boardingRes.data.boarding || null);
+    } catch (e) {
+      setBoarding(null);
+    }
+    try {
+      const noticesRes = await getStudentNotices();
+      setNotices(noticesRes.data.notices || []);
+    } catch (e) {
+      setNotices([]);
+    }
+    setBoardingLoading(false);
+  };
+
   useEffect(() => {
     const fetch = async () => {
       try {
         const { data } = await getStudentBookings();
         setBookings(data.bookings || []);
-        await fetchProfile();
       } catch { /* silent */ }
-      finally { setLoading(false); }
+      await fetchProfile();
+      setLoading(false);
     };
     fetch();
   }, []);
+
+  // Scroll to My Boarding section when redirected from payment success
+  useEffect(() => {
+    if (location.state?.scrollToBoarding && !loading) {
+      const el = document.getElementById('my-boarding-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.state, loading]);
 
   const handleSendOTP = async () => {
     if (!typedEmail.toLowerCase().endsWith('@my.sliit.lk')) {
@@ -114,10 +148,16 @@ const StudentDashboard = () => {
   const hasActiveBooking = bookings.some((b) => ['pending', 'approved', 'confirmed'].includes(b.status));
 
   const handleCancel = async (bookingId) => {
+    const wasConfirmed = bookings.find(b => b._id === bookingId)?.status === 'confirmed';
     setCancelLoading(bookingId);
     try {
       await cancelBooking(bookingId);
       setBookings((prev) => prev.map((b) => b._id === bookingId ? { ...b, status: 'cancelled' } : b));
+      // If a confirmed booking is cancelled, clear boarding section immediately
+      if (wasConfirmed) {
+        setBoarding(null);
+        setNotices([]);
+      }
     } catch { /* silent */ }
     finally { setCancelLoading(''); }
   };
@@ -255,8 +295,8 @@ const StudentDashboard = () => {
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">
                 {currentUserData?.isVerified ? 'Verified Student (Gold)' : 'Email Not Verified'}
               </h3>
-              <p className="text-slate-500 font-medium leading-relaxed">
-                {currentUserData?.isVerified 
+              <div className="text-slate-500 font-medium leading-relaxed">
+                {currentUserData?.isVerified
                   ? (
                     <div className="flex flex-col gap-1 mt-1">
                       <div className="flex items-center gap-2">
@@ -271,7 +311,7 @@ const StudentDashboard = () => {
                   )
                   : 'Please verify your university email (@my.sliit.lk) to unlock all features including Roommate Finder.'
                 }
-              </p>
+              </div>
             </div>
           </div>
           
@@ -310,7 +350,7 @@ const StudentDashboard = () => {
       {/* Quick Actions */}
       <motion.div variants={itemVariants} className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm mb-10">
         <h2 className="text-xl font-black text-slate-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/listings')}
             className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-primary-50 hover:border-primary-200 border border-slate-100 transition-all group"
@@ -320,6 +360,15 @@ const StudentDashboard = () => {
             <p className="text-xs text-slate-500 mt-1">Find boarding places near your university</p>
           </button>
           
+          <button
+            onClick={handleShowBoarding}
+            className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-emerald-50 hover:border-emerald-200 border border-slate-100 transition-all group relative"
+          >
+            <Home className="w-6 h-6 text-emerald-600 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-slate-900">My Boarding</p>
+            <p className="text-xs text-slate-500 mt-1">View your room, roommates &amp; notices</p>
+          </button>
+
           <div className="relative group">
             <button
               disabled={!currentUserData?.isVerified || hasActiveBooking}
@@ -350,6 +399,293 @@ const StudentDashboard = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* ── My Boarding ─────────────────────────────────────────────── */}
+      {showBoarding && (
+        <motion.div id="my-boarding-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+
+          {/* Loading state */}
+          {boardingLoading && (
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                <p className="text-slate-500 font-semibold text-sm">Loading your boarding details…</p>
+              </div>
+            </div>
+          )}
+
+          {/* No confirmed booking */}
+          {!boardingLoading && !boarding && (
+            <div className="bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm flex flex-col items-center justify-center py-20 gap-4">
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                <Home className="w-8 h-8 text-slate-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-black text-slate-700 mb-1">No confirmed booking yet</p>
+                <p className="text-sm text-slate-400 font-medium">Complete your advance payment to unlock boarding details.</p>
+              </div>
+              <button
+                onClick={() => navigate('/listings')}
+                className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-colors shadow-lg shadow-primary-100"
+              >
+                Browse Listings
+              </button>
+            </div>
+          )}
+
+          {/* Full boarding details */}
+          {!boardingLoading && boarding && (
+            <div className="space-y-5">
+
+              {/* ── Hero property card ── */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+
+                {/* Cover photo hero */}
+                <div className="relative h-52 md:h-72 bg-gradient-to-br from-emerald-500 to-teal-600">
+                  {boarding.property?.photos?.[0]?.url ? (
+                    <img
+                      src={boarding.property.photos[0].url}
+                      alt={boarding.property.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Home className="w-16 h-16 text-white/30" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+
+                  {/* Live badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      Currently Staying
+                    </span>
+                  </div>
+
+                  {/* Trust badge */}
+                  {boarding.property?.trustBadge && boarding.property.trustBadge !== 'unverified' && (
+                    <div className="absolute top-4 right-4">
+                      <span className="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-full shadow-lg capitalize">
+                        {boarding.property.trustBadge === 'gold' ? '🥇' : boarding.property.trustBadge === 'silver' ? '🥈' : '🥉'} {boarding.property.trustBadge} Verified
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Name + address on photo */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <h2 className="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg">
+                      {boarding.property?.name}
+                    </h2>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <MapPin className="w-4 h-4 text-white/70 shrink-0" />
+                      <p className="text-sm text-white/85 font-medium">{boarding.property?.address}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Photo strip — remaining photos */}
+                {boarding.property?.photos?.length > 1 && (
+                  <div className="flex gap-2 px-5 pt-4 overflow-x-auto pb-1 scrollbar-hide">
+                    {boarding.property.photos.slice(1).map((photo, idx) => (
+                      <img
+                        key={idx}
+                        src={photo.url}
+                        alt={`Photo ${idx + 2}`}
+                        className="w-20 h-16 rounded-xl object-cover shrink-0 border border-slate-100 hover:scale-105 transition-transform cursor-pointer"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <div className="p-6 space-y-6">
+                  {/* Description */}
+                  {boarding.property?.description && (
+                    <p className="text-sm text-slate-600 font-medium leading-relaxed border-l-4 border-emerald-300 pl-4 italic">
+                      {boarding.property.description}
+                    </p>
+                  )}
+
+                  {/* Room details grid */}
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Room Details</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                        <DoorOpen className="w-5 h-5 text-emerald-600 mb-2" />
+                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide mb-0.5">Room Type</p>
+                        <p className="text-sm font-black text-slate-900 capitalize">{boarding.room?.roomType || '—'}</p>
+                      </div>
+                      <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                        <CreditCard className="w-5 h-5 text-blue-600 mb-2" />
+                        <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wide mb-0.5">Monthly Rent</p>
+                        <p className="text-sm font-black text-slate-900">LKR {boarding.room?.monthlyRent?.toLocaleString() || '—'}</p>
+                      </div>
+                      <div className="bg-violet-50 rounded-2xl p-4 border border-violet-100">
+                        <Users className="w-5 h-5 text-violet-600 mb-2" />
+                        <p className="text-[11px] font-bold text-violet-600 uppercase tracking-wide mb-0.5">Roommates</p>
+                        <p className="text-sm font-black text-slate-900">{boarding.roommates?.length || 0} sharing</p>
+                      </div>
+                      <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+                        <CheckCircle className="w-5 h-5 text-amber-600 mb-2" />
+                        <p className="text-[11px] font-bold text-amber-600 uppercase tracking-wide mb-0.5">Status</p>
+                        <p className="text-sm font-black text-emerald-700">Confirmed</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Owner contact */}
+                  {boarding.property?.owner && (
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Property Owner</p>
+                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-black text-lg shadow-md shrink-0">
+                          {boarding.property.owner.name?.[0]?.toUpperCase() || 'O'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-black text-slate-900 text-base">{boarding.property.owner.name}</p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                            {boarding.property.owner.email && (
+                              <a
+                                href={`mailto:${boarding.property.owner.email}`}
+                                className="flex items-center gap-1.5 text-sm text-primary-600 font-semibold hover:underline"
+                              >
+                                <Mail className="w-3.5 h-3.5 shrink-0" />
+                                {boarding.property.owner.email}
+                              </a>
+                            )}
+                            {boarding.property.owner.phonenumber && (
+                              <a
+                                href={`tel:${boarding.property.owner.phonenumber}`}
+                                className="flex items-center gap-1.5 text-sm text-slate-600 font-semibold hover:underline"
+                              >
+                                <Phone className="w-3.5 h-3.5 shrink-0" />
+                                {boarding.property.owner.phonenumber}
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ── Roommates ── */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center">
+                      <Users className="w-4 h-4 text-violet-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-slate-900">Roommates</h3>
+                      <p className="text-xs text-slate-400 font-medium">
+                        {boarding.roommates?.length === 0 ? 'You have the room to yourself' : `${boarding.roommates.length} person${boarding.roommates.length > 1 ? 's' : ''} sharing your room`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {boarding.roommates?.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <Users className="w-8 h-8 text-slate-300 mb-2" />
+                    <p className="text-sm font-bold text-slate-500">No roommates yet</p>
+                    <p className="text-xs text-slate-400 mt-0.5">You have the room to yourself right now.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {boarding.roommates.map((rm, i) => (
+                      <div key={i} className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-violet-200 hover:bg-violet-50/30 transition-colors">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-black text-lg shadow-md shrink-0">
+                          {rm.name?.[0]?.toUpperCase() || '?'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-black text-slate-900 text-base truncate">{rm.name}</p>
+                          {rm.university && (
+                            <p className="text-sm text-slate-500 font-medium truncate mt-0.5">{rm.university}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Recent Notices ── */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center relative">
+                      <Bell className="w-4 h-4 text-purple-600" />
+                      {notices.some(n => n.isUrgent) && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-slate-900">Notices from Owner</h3>
+                      <p className="text-xs text-slate-400 font-medium">{notices.length} active notice{notices.length !== 1 ? 's' : ''}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate('/student/notice-board')}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl font-bold text-sm transition-colors"
+                  >
+                    View all
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {notices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <Bell className="w-8 h-8 text-slate-300 mb-2" />
+                    <p className="text-sm font-bold text-slate-500">No notices yet</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Your owner hasn't posted any notices.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {notices.slice(0, 3).map((notice) => (
+                      <div key={notice._id}
+                        className={`flex items-start gap-4 p-4 rounded-2xl border transition-colors ${
+                          notice.isUrgent
+                            ? 'bg-red-50 border-red-200 hover:border-red-300'
+                            : 'bg-slate-50 border-slate-100 hover:border-slate-200'
+                        }`}
+                      >
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${notice.isUrgent ? 'bg-red-100' : 'bg-slate-100'}`}>
+                          <Bell className={`w-4 h-4 ${notice.isUrgent ? 'text-red-600' : 'text-slate-500'}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                            {notice.isUrgent && (
+                              <span className="text-[10px] font-black text-red-600 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0">
+                                Urgent
+                              </span>
+                            )}
+                            <p className={`font-black text-base truncate ${notice.isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
+                              {notice.title}
+                            </p>
+                          </div>
+                          {notice.content && (
+                            <p className={`text-sm font-medium line-clamp-2 ${notice.isUrgent ? 'text-red-700' : 'text-slate-500'}`}>
+                              {notice.content}
+                            </p>
+                          )}
+                          {notice.eventDate && (
+                            <p className="text-xs text-slate-400 font-medium mt-1">
+                              📅 {new Date(notice.eventDate).toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Bookings */}
       <motion.div variants={itemVariants} id="bookings-section" className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
