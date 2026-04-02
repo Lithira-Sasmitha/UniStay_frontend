@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import { ChevronRight } from 'lucide-react';
 
 const MainLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const location = useLocation();
+  const mainRef = useRef(null);
+
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -36,7 +44,7 @@ const MainLayout = () => {
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300">
+        <main ref={mainRef} className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300">
           <div className="max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-5 duration-700">
             <Outlet />
           </div>
