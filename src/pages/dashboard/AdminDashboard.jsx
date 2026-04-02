@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
@@ -25,7 +26,8 @@ import {
   Power,
   ShieldX,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  MapPin
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
@@ -35,7 +37,7 @@ import {
 } from '../../services/propertyService';
 import EditProfileModal from '../../components/modals/EditProfileModal';
 import AdminEditUserModal from '../../components/modals/AdminEditUserModal';
-import { ROLES } from '../../utils/constants';
+import { ROLES, ROUTES } from '../../utils/constants';
 
 
 // ── CUSTOM ROLE DROPDOWN ─────────────────────────────────────────────
@@ -113,6 +115,7 @@ const BADGE_OPTIONS = [
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('users');
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
