@@ -21,6 +21,7 @@ import SafetyDecisionHub from '../pages/dashboard/SafetyDecisionHub';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import WishlistPage from '../pages/dashboard/WishlistPage';
+import SafetyControlCenter from '../pages/dashboard/SafetyControlCenter';
 import ComparePage from '../pages/listings/ComparePage';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
@@ -83,6 +84,15 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path={ROUTES.ADMIN_SAFETY_CONTROL}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+            <SafetyControlCenter />
+          </PrivateRoute>
+        }
+      />
+      
       {/* ── Protected: Boarding Owner ──────────────────────────────── */}
       <Route
         path={ROUTES.OWNER_DASHBOARD}
