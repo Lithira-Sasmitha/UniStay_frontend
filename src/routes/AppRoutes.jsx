@@ -17,6 +17,7 @@ import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import RoommateFinder from '../pages/dashboard/RoommateFinder';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import SafetyDecisionHub from '../pages/dashboard/SafetyDecisionHub';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import WishlistPage from '../pages/dashboard/WishlistPage';
@@ -162,7 +163,10 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-
+        <Route
+          path="/safety-decision/:id"
+          element={<SafetyDecisionHub />}
+        />
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
     </Routes>

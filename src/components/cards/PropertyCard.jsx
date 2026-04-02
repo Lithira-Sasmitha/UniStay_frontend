@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign } from 'lucide-react';
+import { MapPin, Users, DollarSign, Sparkles } from 'lucide-react';
 import SafetyBadge from '../common/SafetyBadge';
 
 const BADGE_CONFIG = {
@@ -12,6 +12,11 @@ const BADGE_CONFIG = {
 
 const PropertyCard = ({ property }) => {
     const navigate = useNavigate();
+    const handleSafetyClick = (e) => {
+        e.stopPropagation();
+        navigate(`/safety-decision/${property._id}`);
+    };
+
     const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
     const coverPhoto = property.photos?.[0]?.url || null;
     const totalSlots = property.rooms?.reduce((acc, r) => acc + r.totalCapacity, 0) || 0;
@@ -39,7 +44,12 @@ const PropertyCard = ({ property }) => {
 
                 {/* Badges stacked vertically on the left */}
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                    <SafetyBadge propertyId={property._id} showDetails={false} />
+                    <div onClick={handleSafetyClick} className="cursor-help flex flex-col gap-1">
+                        <SafetyBadge propertyId={property._id} showDetails={false} />
+                        <div className="bg-indigo-600 text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase flex items-center justify-center gap-1.5 shadow-lg border border-indigo-400/30 hover:bg-indigo-700 transition-colors">
+                            <Sparkles className="w-3 h-3" /> Safety Decision Hub
+                        </div>
+                    </div>
                     <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border backdrop-blur-sm bg-white/90 w-fit ${badge.cls}`}>
                         <span>{badge.emoji}</span>
                         <span>{badge.label}</span>

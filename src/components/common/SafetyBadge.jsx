@@ -46,6 +46,13 @@ export default function SafetyBadge({ propertyId, showDetails = false }) {
         border: 'border-red-200',
         icon: <ShieldAlert className="w-4 h-4 text-red-600" />,
         label: 'Under Security Review'
+    },
+    'Under Investigation': {
+        bg: 'bg-indigo-50',
+        text: 'text-indigo-700',
+        border: 'border-indigo-200',
+        icon: <ShieldAlert className="w-4 h-4 text-indigo-600 animate-pulse" />,
+        label: 'Under Investigation'
     }
   };
 
