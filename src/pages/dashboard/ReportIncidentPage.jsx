@@ -3,7 +3,7 @@ import incidentService from '../../services/incidentService';
 import { getStudentBookings } from '../../services/bookingService';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
-import { CheckCircle, UploadCloud, X, AlertTriangle, Calendar, MapPin, Building, Hash } from 'lucide-react';
+import { CheckCircle, UploadCloud, X, AlertTriangle, Calendar, MapPin, Building, Hash, Loader2 } from 'lucide-react';
 
 export default function ReportIncidentPage() {
   const nav = useNavigate();
@@ -167,15 +167,28 @@ export default function ReportIncidentPage() {
     e.preventDefault();
     setApiError('');
     
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setApiError('Please fill in all required fields correctly before submitting.');
+      return;
+    }
+    
     if (!selectedBooking) return setApiError('No active booking found to attach to this report.');
 
     setSubmitting(true);
     
     const form = new FormData();
-    const propertyId = selectedBooking?.property?._id || selectedBooking?.property;
-    form.append('propertyId', propertyId);
-    form.append('title', formData.title);
+    // Safely extract property ID string (it might be an object or a string depending on population)
+    const propertyId = typeof selectedBooking?.property === 'object' 
+      ? selectedBooking.property._id 
+      : selectedBooking?.property;
+      
+    if (!propertyId) {
+      setSubmitting(false);
+      return setApiError('Invalid property reference. Please refresh and try again.');
+    }
+
+    form.append('propertyId', String(propertyId));
+    form.append('title', formData.title.trim());
     form.append('category', formData.category);
     form.append('severity', formData.severity);
     
@@ -252,10 +265,10 @@ export default function ReportIncidentPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Report Safety Issue</h1>
-          <p className="text-gray-500 mt-1">Report any safety concern related to your stay</p>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight">Report Safety Issue</h1>
+          <p className="text-slate-500 mt-1 font-medium">Lodge a security or maintenance concern for your stay</p>
         </div>
-        <div className="bg-blue-50 border border-blue-100 p-3 auto-cols-max rounded-lg flex flex-col gap-1 min-w-[220px]">
+        <div className="bg-white border-2 border-indigo-50 p-4 rounded-2xl flex flex-col gap-1.5 min-w-[240px] shadow-sm">
           <div className="flex justify-between items-center text-sm gap-3">
             <span className="text-blue-700 font-medium flex items-center gap-1"><Building size={14}/> Property:</span>
             <span className="text-gray-900 font-semibold truncate max-w-[160px] text-right">{propertyName}</span>
@@ -516,20 +529,27 @@ export default function ReportIncidentPage() {
           </div>
 
           {apiError && (
-            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 flex items-start gap-3 shadow-sm">
+            <div className="mb-8 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200 flex items-start gap-3 shadow-md animate-pulse">
               <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-              <span className="font-medium">{apiError}</span>
+              <div className="flex-1">
+                <p className="font-black">Submission Error</p>
+                <p className="mt-0.5 font-medium">{apiError}</p>
+              </div>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-100 mt-8">
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-slate-100 mt-8">
             <button 
               type="submit" 
               disabled={submitting} 
-              className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:bg-blue-700 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed transition-all text-sm"
+              className={`w-full sm:w-auto px-10 py-4 rounded-2xl font-black transition-all text-sm shadow-xl flex items-center justify-center gap-2 ${submitting ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 hover:-translate-y-0.5 active:translate-y-0'}`}
             >
-              {submitting ? 'Submitting Report...' : 'Submit Report'}
+              {submitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin"/> Processing...</>
+              ) : (
+                'Submit Secure Report'
+              )}
             </button>
             
             <div className="flex gap-4 w-full sm:w-auto sm:ml-auto">
