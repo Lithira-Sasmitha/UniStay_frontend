@@ -77,7 +77,7 @@ const ComparePage = () => {
         score += (property.averageRating || 0) * 10;
 
         // Security / Risk Issue Penalty
-        if (property.riskTrend === 'Increasing' || property.verificationStatus === 'rejected' || property.riskTrend === 'High Risk') {
+if (property.safetyStatus === 'Caution' || property.verificationStatus === 'rejected' || property.safetyStatus === 'Under Safety Review') {
             score -= 50; 
         }
 
@@ -199,8 +199,8 @@ const ComparePage = () => {
                         const available = totalSlots - occupied;
                         const facilities = prop.rooms?.[0]?.facilities || [];   
                         
-                        const hasSecurityAlert = prop.riskTrend === 'Increasing' || prop.verificationStatus === 'rejected' || prop.riskTrend === 'High Risk';
-                        const securityMsg = hasSecurityAlert ? (prop.riskPattern || 'Safety concerns flagged') : 'Verified Safe';
+const hasSecurityAlert = prop.safetyStatus === 'Caution' || prop.verificationStatus === 'rejected' || prop.safetyStatus === 'Under Safety Review';   
+                        const securityMsg = hasSecurityAlert ? (prop.activeAlerts?.[0] || 'Safety concerns flagged') : 'Verified Safe';
 
                         return (
                             <div

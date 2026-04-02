@@ -26,31 +26,30 @@ export default function SafetyBadge({ propertyId, showDetails = false }) {
   if (!safety) return null;
 
   const CONFIG = {
-    safe: { 
-        bg: 'bg-emerald-50', 
-        text: 'text-emerald-700', 
-        border: 'border-emerald-200', 
+    'Safe': {
+        bg: 'bg-emerald-50',
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
         icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
-        label: 'Safe Property' 
+        label: 'Safe Property'
     },
-    caution: { 
-        bg: 'bg-yellow-50', 
-        text: 'text-yellow-700', 
-        border: 'border-yellow-300', 
+    'Caution': {
+        bg: 'bg-yellow-50',
+        text: 'text-yellow-700',
+        border: 'border-yellow-300',
         icon: <AlertTriangle className="w-4 h-4 text-yellow-600" />,
-        label: 'Caution' 
+        label: 'Caution'
     },
-    review: { 
-        bg: 'bg-red-50', 
-        text: 'text-red-700', 
-        border: 'border-red-200', 
+    'Under Safety Review': {
+        bg: 'bg-red-50',
+        text: 'text-red-700',
+        border: 'border-red-200',
         icon: <ShieldAlert className="w-4 h-4 text-red-600" />,
-        label: 'Under Review' 
+        label: 'Under Security Review'
     }
   };
 
-  const meta = CONFIG[safety.level] || CONFIG.safe;
-
+  const meta = CONFIG[safety.safetyStatus] || CONFIG['Safe'];
   return (
     <div className={`inline-flex flex-col gap-1.5`}>
       <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold shadow-sm w-fit transition-all ${meta.bg} ${meta.text} ${meta.border}`}>

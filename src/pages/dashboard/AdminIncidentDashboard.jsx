@@ -515,11 +515,11 @@ export default function AdminIncidentDashboard() {
                    </div>
                  </div>
 
-                 {viewIncident.photoUrl && (
+                 {viewIncident.photos && viewIncident.photos.length > 0 && (
                    <div className="mb-8">
                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Evidence Photo</p>
-                     <a href={viewIncident.photoUrl} target="_blank" rel="noreferrer">
-                       <img src={viewIncident.photoUrl} alt="Evidence" className="rounded-xl border border-slate-200 max-h-64 object-cover hover:opacity-90 transition-opacity cursor-zoom-in" />
+                     <a href={viewIncident.photos[0]} target="_blank" rel="noreferrer">
+                       <img src={viewIncident.photos[0]} alt="Evidence" className="rounded-xl border border-slate-200 max-h-64 object-cover hover:opacity-90 transition-opacity cursor-zoom-in" />
                      </a>
                    </div>
                  )}

@@ -223,12 +223,12 @@ export default function OwnerIncidentsPage() {
                  </div>
 
                  {/* Photo Evidence */}
-                 {selectedIncident.photoUrl && (
+                 {selectedIncident.photos && selectedIncident.photos.length > 0 && (
                    <div>
                       <h3 className="text-sm font-bold text-slate-800 mb-2">Evidence Provided</h3>
                       <div className="bg-slate-100 rounded-xl p-2 border border-slate-200 inline-block">
-                        <img 
-                          src={selectedIncident.photoUrl} 
+                        <img
+                          src={selectedIncident.photos[0]}
                           alt="Incident Evidence" 
                           className="max-h-48 rounded-lg object-contain"
                         />
