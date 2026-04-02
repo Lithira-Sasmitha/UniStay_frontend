@@ -134,9 +134,9 @@ export default function MyIncidentsPage() {
 
                 {/* Right: Actions / Image */}
                 <div className="flex items-center justify-between md:justify-end gap-6 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-none border-gray-100">
-                  {inc.photoUrl && (
+                  {inc.photos && inc.photos.length > 0 && (
                     <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-gray-100 hidden sm:block">
-                      <img src={inc.photoUrl} alt="Evidence" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                      <img src={inc.photos[0]} alt="Evidence" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                     </div>
                   )}
 

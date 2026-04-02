@@ -18,8 +18,11 @@ updateStatus: (id, status, adminNotes) =>
   addOwnerResponse: (id, ownerResponse) =>
     api.patch(`/incidents/${id}/owner-response`, { ownerResponse }).then(r => r.data),
 
-  getPropertySafety: (propertyId) => 
+  getPropertySafety: (propertyId) =>
     api.get(`/properties/${propertyId}/safety`).then(r => r.data),
+
+  getAuditLog: () =>
+    api.get('/incidents/audit-log').then(r => r.data),
 };
 
 export default incidentService;
