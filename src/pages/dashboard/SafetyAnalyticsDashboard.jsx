@@ -1,31 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, FileText, ShieldAlert, TrendingUp } from 'lucide-react';
-
-const trendData = [
-  { month: 'Jan', total: 12, highSeverity: 2 },
-  { month: 'Feb', total: 19, highSeverity: 4 },
-  { month: 'Mar', total: 15, highSeverity: 3 },
-  { month: 'Apr', total: 22, highSeverity: 7 },
-  { month: 'May', total: 18, highSeverity: 2 },
-  { month: 'Jun', total: 25, highSeverity: 8 },
-  { month: 'Jul', total: 20, highSeverity: 5 },
-  { month: 'Aug', total: 14, highSeverity: 1 },
-];
-
-const riskyProperties = [
-  { id: 1, name: 'Sunset Apartment Complex', incidents: 14 },
-  { id: 2, name: 'Greenville Student Housing', incidents: 9 },
-  { id: 3, name: 'Downtown Annex', incidents: 7 },
-  { id: 4, name: 'University Edge', incidents: 6 },
-  { id: 5, name: 'Pine View Boarding', incidents: 4 },
-];
+import { AlertTriangle, FileText, ShieldAlert, TrendingUp, Loader2 } from 'lucide-react';
+import incidentService from '../../services/incidentService';
 
 export default function SafetyAnalyticsDashboard() {
+  const [data, setData] = useState({
+    stats: { total: 0, open: 0, highSeverity: 0 },
+    trendData: [],
+    riskyProperties: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    incidentService.getAnalytics()
+      .then(res => {
+        if (res.success) setData(res.data);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-500" />
+      </div>
+    );
+  }
+
+  const { stats, trendData, riskyProperties } = data;
+
   return (
     <div className="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-800">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header Section */}
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -42,7 +50,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Incidents</p>
-                <h3 className="text-4xl font-black text-slate-800">145</h3>
+                <h3 className="text-4xl font-black text-slate-800">{stats.total}</h3>
               </div>
               <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                 <FileText className="w-6 h-6" />
@@ -54,7 +62,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Open Cases</p>
-                <h3 className="text-4xl font-black text-slate-800">24</h3>
+                <h3 className="text-4xl font-black text-slate-800">{stats.open}</h3>
               </div>
               <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
                 <AlertTriangle className="w-6 h-6" />
@@ -67,7 +75,7 @@ export default function SafetyAnalyticsDashboard() {
             <div className="flex justify-between items-start z-10 relative">
               <div>
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">High Severity Incidents</p>
-                <h3 className="text-4xl font-black text-red-600">32</h3>
+                <h3 className="text-4xl font-black text-red-600">{stats.highSeverity}</h3>
               </div>
               <div className="p-3 bg-red-50 text-red-600 rounded-xl">
                 <ShieldAlert className="w-6 h-6" />

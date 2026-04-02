@@ -57,13 +57,13 @@ const ActionDropdown = ({ incident, onViewDetails, onUpdateStatus }) => {
                 <>
                   <div className="h-px bg-gray-100 my-1 font-bold"></div>
                   <button 
-                    onClick={() => { setIsOpen(false); onUpdateStatus('investigating', true); }}
+                    onClick={() => { setIsOpen(false); onUpdateStatus('Under Investigation', true); }}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-50 flex items-center gap-2"
                   >
                     <Shield className="w-4 h-4" /> Investigate
                   </button>
                   <button 
-                    onClick={() => { setIsOpen(false); onUpdateStatus('rejected', true); }}
+                    onClick={() => { setIsOpen(false); onUpdateStatus('Rejected', true); }}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
                   >
                     <XCircle className="w-4 h-4" /> Reject
@@ -71,17 +71,17 @@ const ActionDropdown = ({ incident, onViewDetails, onUpdateStatus }) => {
                 </>
               )}
 
-              {status === 'investigating' && (
+              {status === 'Under Investigation' && (
                 <>
                   <div className="h-px bg-gray-100 my-1"></div>
                   <button 
-                    onClick={() => { setIsOpen(false); onUpdateStatus('resolved', true); }}
+                    onClick={() => { setIsOpen(false); onUpdateStatus('Resolved', true); }}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-green-600 hover:bg-green-50 flex items-center gap-2"
                   >
                     <CheckCircle className="w-4 h-4" /> Resolve
                   </button>
                   <button 
-                    onClick={() => { setIsOpen(false); onUpdateStatus('rejected', true); }}
+                    onClick={() => { setIsOpen(false); onUpdateStatus('Rejected', true); }}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
                   >
                     <XCircle className="w-4 h-4" /> Reject
@@ -199,13 +199,11 @@ export default function AdminIncidentDashboard() {
       
       let matchStatus = true;
       if (statusFilter !== 'All') {
-          // our DB uses lowercase status mostly: 'open', 'investigating', 'resolved', 'rejected'
-          const filterLower = statusFilter.toLowerCase();
-          const incStatusLower = inc.status ? inc.status.toLowerCase() : '';
-          
-          if (filterLower === 'under investigation' && incStatusLower === 'investigating') {
-             matchStatus = true;
-          } else if (filterLower === incStatusLower) {
+            // our DB uses mixed status mostly: 'open', 'under investigation', 'investigating', 'resolved', 'rejected'
+            const filterLower = statusFilter.toLowerCase();
+            const incStatusLower = inc.status ? inc.status.toLowerCase() : '';
+
+            if (filterLower === 'under investigation' && (incStatusLower === 'investigating' || incStatusLower === 'under investigation')) {
              matchStatus = true;
           } else {
              matchStatus = false;
@@ -219,8 +217,8 @@ export default function AdminIncidentDashboard() {
   const stats = useMemo(() => {
     return {
       total: incidents.length,
-      open: incidents.filter(i => i.status === 'open').length,
-      investigating: incidents.filter(i => i.status === 'investigating').length,
+      open: incidents.filter(i => i.status?.toLowerCase() === 'open').length,
+      investigating: incidents.filter(i => i.status?.toLowerCase() === 'under investigation' || i.status?.toLowerCase() === 'investigating').length,
       highSeverity: incidents.filter(i => i.severity === 'High').length,
     };
   }, [incidents]);
@@ -551,16 +549,16 @@ export default function AdminIncidentDashboard() {
               {/* View Actions (Bottom Bar) */}
               {viewIncident.status !== 'resolved' && viewIncident.status !== 'rejected' && (
                 <div className="px-8 py-5 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3">
-                  {viewIncident.status === 'open' && (
-                     <button onClick={() => openActionModal(viewIncident, 'investigating', false)} className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                       Begin Investigation
-                     </button>
-                  )}
-                  {viewIncident.status === 'investigating' && (
-                     <button onClick={() => openActionModal(viewIncident, 'resolved', true)} className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                       Mark as Resolved
-                     </button>
-                  )}
+                    {viewIncident.status === 'Open' || viewIncident.status === 'open' ? (
+                       <button onClick={() => openActionModal(viewIncident, 'Under Investigation', false)} className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                         Begin Investigation
+                       </button>
+                    ) : null}
+                    {viewIncident.status === 'Under Investigation' || viewIncident.status === 'investigating' ? (
+                       <button onClick={() => openActionModal(viewIncident, 'Resolved', true)} className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                         Mark as Resolved
+                       </button>
+                    ) : null}
                   <button onClick={() => openActionModal(viewIncident, 'rejected', true)} className="px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-bold rounded-xl transition-colors">
                      Reject Report
                   </button>
@@ -583,14 +581,12 @@ export default function AdminIncidentDashboard() {
             >
               <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
                  <h3 className="text-xl font-bold text-slate-800 capitalize">
-                    {actionModal.action === 'investigating' ? 'Begin Investigation' : actionModal.action} Incident
-                 </h3>
-              </div>
-              <div className="p-6">
-                <p className="text-sm font-medium text-slate-600 mb-5">
-                  You are about to move Incident <strong className="text-slate-800">{formatId(actionModal.incident._id)}</strong> to status: <strong className="uppercase">{actionModal.action === 'investigating' ? 'UNDER INVESTIGATION' : actionModal.action}</strong>
-                </p>
-
+                      {actionModal.action === 'Under Investigation' ? 'Begin Investigation' : actionModal.action} Incident
+                   </h3>
+                </div>
+                <div className="p-6">
+                  <p className="text-sm font-medium text-slate-600 mb-5">
+                    You are about to move Incident <strong className="text-slate-800">{formatId(actionModal.incident._id)}</strong> to status: <strong className="uppercase">{actionModal.action === 'Under Investigation' ? 'UNDER INVESTIGATION' : actionModal.action}</strong>                  </p>
                 {actionModal.requireNotes && (
                    <div className="mb-2">
                      <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
