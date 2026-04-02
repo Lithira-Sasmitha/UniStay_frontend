@@ -261,20 +261,6 @@ const SafetyControlCenter = () => {
               })()}
             </div>
 
-            {/* Quick Actions Panel */}
-             <div className={glassCard}>
-               <h3 className="font-bold text-slate-900 mb-4">Quick Actions</h3>
-               <div className="space-y-3">
-                 <button className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors text-sm font-semibold text-slate-700 hover:text-indigo-700">
-                    <span className="flex items-center gap-2"><Search className="w-4 h-4 text-slate-400" /> Search Reports</span>
-                    <ChevronRight className="w-4 h-4 opacity-50" />
-                 </button>
-                 <button className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors text-sm font-semibold text-slate-700 hover:text-indigo-700">
-                    <span className="flex items-center gap-2"><Bell className="w-4 h-4 text-slate-400" /> Alert Owners</span>
-                    <ChevronRight className="w-4 h-4 opacity-50" />
-                 </button>
-               </div>
-             </div>
 
           </motion.div>
 
