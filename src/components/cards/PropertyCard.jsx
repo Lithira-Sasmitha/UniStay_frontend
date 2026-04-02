@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign, Heart } from 'lucide-react';
+import { MapPin, Users, DollarSign, Heart, Star } from 'lucide-react';
 import SafetyBadge from '../common/SafetyBadge';
 import useWishlist from '../../hooks/useWishlist';
 
@@ -103,6 +103,7 @@ const PropertyCard = ({ property }) => {
                 <p className="text-[11px] text-slate-400 font-medium mt-2 text-right">
                     by {property.owner?.name || 'Owner'}
                 </p>
+            </div>
             </div>
         </div>
     );
