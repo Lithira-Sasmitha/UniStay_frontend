@@ -67,7 +67,7 @@ export default function OwnerIncidentsPage() {
   const statusBadge = (status) => {
     const s = status?.toLowerCase() || '';
     if (s === 'open') return <span className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-semibold">Open</span>;
-    if (s === 'investigating') return <span className="bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold">Under Investigation</span>;
+    if (s === 'under investigation' || s === 'investigating') return <span className="bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold">Under Investigation</span>;
     if (s === 'resolved') return <span className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-semibold">Resolved</span>;
     if (s === 'rejected') return <span className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-xs font-semibold">Rejected</span>;
     return <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
@@ -121,7 +121,7 @@ export default function OwnerIncidentsPage() {
                     {/* Top Section */}
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">ID: {formatId(incident._id)}</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">ID: {formatId(incident._id)} • {incident.property?.name || 'Unknown Property'}</span>
                         <h3 className="text-lg font-bold text-slate-800 mt-1">{incident.category} Issue</h3>
                       </div>
                       <div className="text-right">
@@ -188,6 +188,10 @@ export default function OwnerIncidentsPage() {
               <div className="overflow-y-auto flex-1 p-6 space-y-6">
                  {/* Main Details */}
                  <div className="grid grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase">Property</p>
+                      <p className="font-semibold text-slate-700">{selectedIncident.property?.name || 'Unknown Property'}</p>
+                    </div>
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase">Category</p>
                       <p className="font-semibold text-slate-700">{selectedIncident.category}</p>
