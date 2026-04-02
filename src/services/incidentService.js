@@ -13,8 +13,8 @@ const incidentService = {
 updateStatus: (id, status, adminNotes) =>
     api.patch(`/incidents/${id}/status`, { status, adminNotes }).then(r => r.data),
 
-  addOwnerResponse: (id, ownerResponse) =>
-    api.patch(`/incidents/${id}/owner-response`, { ownerResponse }).then(r => r.data),
+  addOwnerResponse: (id, data) =>
+    api.patch(`/incidents/${id}/owner-response`, typeof data === 'string' ? { ownerResponse: data } : data).then(r => r.data),
 
   getPropertySafety: (propertyId) =>
     api.get(`/properties/${propertyId}/safety`).then(r => r.data),

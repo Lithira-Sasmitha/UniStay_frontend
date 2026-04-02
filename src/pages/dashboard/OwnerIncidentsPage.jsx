@@ -48,26 +48,28 @@ export default function OwnerIncidentsPage() {
   };
 
   const handleResponseSubmit = async () => {
-    if (!responseText.trim()) {
-      showToast('Please enter a response', 'error');
+    if (!responseText.trim() && Object.values(actionItems).every(v => !v)) {
+      showToast('Please provide a formal response or select at least one safety improvement action.', 'error');
       return;
     }
     setSubmitting(true);
     
-    // Package checkboxes into the response for record keeping.
-    let finalResponse = responseText + '\n\n---\n**Safety Actions Taken:**\n';
-    if(actionItems.investigated) finalResponse += '☑ Conducted Investigation\n';
-    if(actionItems.fixedIssue) finalResponse += '☑ Fixed Primary Issue\n';
-    if(actionItems.installedSecurity) finalResponse += '☑ Installed/Upgraded Security\n';
-    if(actionItems.monitoring) finalResponse += '☑ Initiated Active Monitoring\n';
+    const payload = {
+      ownerResponse: responseText.trim(),
+      safetyActions: actionItems,
+      safetyScore: calculateScore()
+    };
 
     try {
-      const updated = await incidentService.addOwnerResponse(selectedIncident._id, finalResponse);
-      showToast('Improvement plan submitted successfully');
-      setIncidents(prev => prev.map(inc => inc._id === selectedIncident._id ? updated.data : inc));
-      setSelectedIncident(updated.data);
+      const res = await incidentService.addOwnerResponse(selectedIncident._id, payload);
+      const updatedData = res.data || res;
+      showToast('Safety improvement plan deployed successfully!', 'success');
+      
+      // Update local state with the new database document
+      setIncidents(prev => prev.map(inc => inc._id === selectedIncident._id ? updatedData : inc));
+      setSelectedIncident(updatedData);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to submit plan', 'error');
+      showToast(err.response?.data?.message || 'Failed to sync with security governance database', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +129,7 @@ export default function OwnerIncidentsPage() {
   });
 
   const totalIncidents = incidents.length;
-  const needsActionCount = incidents.filter(i => !i.ownerResponse).length;
+  const needsActionCount = incidents.filter(i => !i.ownerResponse && !i.ownerRespondedAt).length;
   const highRiskCount = incidents.filter(i => i.severity?.toLowerCase() === 'high').length;
   const respondedRatio = totalIncidents > 0 ? Math.round(((totalIncidents - needsActionCount) / totalIncidents) * 100) : 100;
 
@@ -270,7 +272,7 @@ export default function OwnerIncidentsPage() {
             <>
               {/* SECTION: ACTION REQUIRED */}
               {(() => {
-                const activeIssues = filteredIncidents.filter(inc => !inc.ownerResponse);
+                const activeIssues = filteredIncidents.filter(inc => !inc.ownerResponse && !inc.ownerRespondedAt);
                 if (activeIssues.length === 0) return null;
                 
                 return (
@@ -322,7 +324,7 @@ export default function OwnerIncidentsPage() {
 
               {/* SECTION: RESPONDED & RESOLVED */}
               {(() => {
-                const resolvedIssues = filteredIncidents.filter(inc => !!inc.ownerResponse);
+                const resolvedIssues = filteredIncidents.filter(inc => !!inc.ownerResponse || !!inc.ownerRespondedAt);
                 if (resolvedIssues.length === 0) return null;
                 
                 return (
