@@ -236,7 +236,7 @@ export default function AdminIncidentDashboard() {
   const statusBadge = (status) => {
     const s = status?.toLowerCase() || '';
     if (s === 'open') return <span className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-semibold">Open</span>;
-    if (s === 'investigating') return <span className="bg-orange-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white"></span> Under Inv.</span>;
+      if (s === 'under investigation' || s === 'investigating') return <span className="bg-orange-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white"></span> Under Inv.</span>;
     if (s === 'resolved') return <span className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Resolved</span>;
     if (s === 'rejected') return <span className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1"><XCircle className="w-3 h-3"/> Rejected</span>;
     return <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
