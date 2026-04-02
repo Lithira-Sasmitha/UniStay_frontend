@@ -243,7 +243,8 @@ export default function ReportIncidentPage() {
     );
   }
 
-  const propertyName = selectedBooking?.property?.title || 'Your Booked Property';
+  const propertyName = selectedBooking?.property?.name || 'Your Booked Property';
+  const ownerName = selectedBooking?.property?.owner?.name || 'Registered Owner';
   const bookingRef = selectedBooking?._id ? selectedBooking._id.substring(0, 8).toUpperCase() : 'N/A';
 
   return (
@@ -254,14 +255,18 @@ export default function ReportIncidentPage() {
           <h1 className="text-3xl font-bold text-gray-900">Report Safety Issue</h1>
           <p className="text-gray-500 mt-1">Report any safety concern related to your stay</p>
         </div>
-        <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg flex flex-col gap-1 min-w-[200px]">
-          <div className="flex justify-between items-center text-sm">
+        <div className="bg-blue-50 border border-blue-100 p-3 auto-cols-max rounded-lg flex flex-col gap-1 min-w-[220px]">
+          <div className="flex justify-between items-center text-sm gap-3">
             <span className="text-blue-700 font-medium flex items-center gap-1"><Building size={14}/> Property:</span>
-            <span className="text-gray-900 font-semibold truncate max-w-[150px]">{propertyName}</span>
+            <span className="text-gray-900 font-semibold truncate max-w-[160px] text-right">{propertyName}</span>
           </div>
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-between items-center text-sm gap-3 border-b border-blue-100/50 pb-1 mb-0.5">
+            <span className="text-blue-700 font-medium flex items-center gap-1">👤 Owner:</span>
+            <span className="text-gray-700 truncate max-w-[160px] text-right">{ownerName}</span>
+          </div>
+          <div className="flex justify-between items-center text-sm gap-3">
             <span className="text-blue-700 font-medium flex items-center gap-1"><Hash size={14}/> Booking Ref:</span>
-            <span className="text-gray-700">{bookingRef}</span>
+            <span className="text-gray-700 font-mono text-right">{bookingRef}</span>
           </div>
         </div>
       </div>
