@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, X, AlertTriangle, Eye, Loader2, CheckCircle, XCircle, Calendar, Search, Filter } from 'lucide-react';
+import { Shield, X, AlertTriangle, Eye, Loader2, CheckCircle, XCircle, Calendar, Search, Filter, BarChart3, Clock, AlertOctagon } from 'lucide-react';
 import incidentService from '../../services/incidentService';
 import Toast from '../../components/common/Toast';
 
@@ -126,6 +126,11 @@ export default function OwnerIncidentsPage() {
     return matchesSearch && matchesStatus && matchesSeverity;
   });
 
+  const totalIncidents = incidents.length;
+  const needsActionCount = incidents.filter(i => !i.ownerResponse).length;
+  const highRiskCount = incidents.filter(i => i.severity?.toLowerCase() === 'high').length;
+  const respondedRatio = totalIncidents > 0 ? Math.round(((totalIncidents - needsActionCount) / totalIncidents) * 100) : 100;
+
   return (
     <div className="min-h-screen bg-slate-50 pb-12 font-sans tracking-tight">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -141,15 +146,68 @@ export default function OwnerIncidentsPage() {
               </div>
               <span className="text-xs font-black uppercase tracking-widest text-indigo-300 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-800">Safety Command Center</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">Property Safety Log</h1>
-            <p className="text-indigo-200 text-sm md:text-base mt-2 max-w-xl">
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mt-2 mb-2">Property Safety Log</h1>
+            <p className="text-indigo-200 text-sm md:text-base max-w-xl">
               Track reported incidents across your properties. Use the advanced tools below to filter, investigate, and deploy proactive safety measures.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-8 -mt-8 relative z-20 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 -mt-16 relative z-20 space-y-6">
+        
+        {/* KPI METRIC CARDS */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+           {/* Card 1 */}
+           <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center">
+                   <BarChart3 className="w-5 h-5 text-slate-500" />
+                </div>
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Reports</p>
+              <h3 className="text-3xl font-black text-slate-800">{totalIncidents}</h3>
+           </div>
+
+           {/* Card 2 */}
+           <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-center">
+                   <Clock className="w-5 h-5 text-amber-500" />
+                </div>
+              </div>
+              <p className="text-xs font-bold text-amber-600/70 uppercase tracking-wider mb-1">Needs Response</p>
+              <h3 className="text-3xl font-black text-amber-600">{needsActionCount}</h3>
+           </div>
+
+           {/* Card 3 */}
+           <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-red-50 border border-red-100 rounded-xl flex items-center justify-center">
+                   <AlertOctagon className="w-5 h-5 text-red-500" />
+                </div>
+              </div>
+              <p className="text-xs font-bold text-red-500/70 uppercase tracking-wider mb-1">High Risk Issues</p>
+              <h3 className="text-3xl font-black text-red-600">{highRiskCount}</h3>
+           </div>
+
+           {/* Card 4 */}
+           <div className="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-xl shadow-indigo-200 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-transform relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="w-10 h-10 bg-white/20 border border-white/20 rounded-xl flex items-center justify-center">
+                   <Shield className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              <div className="relative z-10">
+                <p className="text-xs font-bold text-indigo-100 uppercase tracking-wider mb-1">Avg Safety Score</p>
+                <div className="flex items-end gap-1">
+                   <h3 className="text-3xl font-black text-white">{respondedRatio}%</h3>
+                   <span className="text-indigo-200 font-bold mb-1">Health</span>
+                </div>
+              </div>
+           </div>
+        </div>
         
         {/* FILTERS & SEARCH MODULE */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-2 sm:p-4 flex flex-col md:flex-row items-center gap-3 mb-8">
