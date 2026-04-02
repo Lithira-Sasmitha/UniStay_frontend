@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3, ChevronLeft, ShieldAlert } from 'lucide-react';
 import { ROUTES, ROLES } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 import useAuth from '../../hooks/useAuth';
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, isDesktopCollapsed, toggleDesktop }) => {
   const { user } = useAuth();
   const role = user?.role;
 
@@ -15,7 +15,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     // Dashboard — role-specific
     if (role === ROLES.SUPER_ADMIN) {
       items.push({ name: 'Control Center', icon: Shield, path: ROUTES.ADMIN_DASHBOARD });
-      items.push({ name: 'Safety Monitoring', icon: Shield, path: '/admin/safety' });
+      items.push({ name: 'Safety Governance', icon: ShieldAlert, path: '/admin/safety' });
       items.push({ name: 'Safety Analytics', icon: BarChart3, path: '/admin/analytics' });
     } else if (role === ROLES.BOARDING_OWNER) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.OWNER_DASHBOARD });
@@ -104,12 +104,22 @@ const Sidebar = ({ isOpen, onClose }) => {
       <motion.aside
         variants={sidebarVariants}
         initial="closed"
-        animate={isOpen || window.innerWidth >= 1024 ? "open" : "closed"}
-        className={cn(`
-          fixed inset-y-0 left-0 z-50 w-80 h-screen bg-white transform border-r border-slate-100 shadow-2xl transition-none
-          lg:translate-x-0
-        `)}
+        animate={isDesktopCollapsed ? "closed" : (isOpen || window.innerWidth >= 1024 ? "open" : "closed")}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-80 h-screen bg-white transform border-r border-slate-100 shadow-2xl transition-transform duration-500",
+          isDesktopCollapsed ? "" : "lg:translate-x-0"
+        )}
       >
+        {/* Toggle Button for Desktop (Visible when Sidebar is open) */}
+        {toggleDesktop && (
+          <button 
+            onClick={toggleDesktop}
+            className={`hidden lg:flex absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-12 bg-white border border-slate-200 border-l-0 rounded-r-xl items-center justify-center text-slate-400 hover:text-primary-600 shadow-sm cursor-pointer z-[60] transition-colors ${isDesktopCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
+
         <div className="flex flex-col h-full px-8 py-10 relative overflow-hidden">
           {/* Decorative background shapes */}
           <div className="absolute top-0 left-0 w-32 h-32 bg-primary-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 select-none"></div>
