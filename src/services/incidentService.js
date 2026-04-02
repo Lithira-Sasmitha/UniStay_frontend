@@ -2,9 +2,7 @@ import api from './api';
 
 const incidentService = {
   createIncident: (formData) =>
-    api.post('/incidents', formData, { 
-      headers: { 'Content-Type': 'multipart/form-data' } 
-    }).then(r => r.data),
+    api.post('/incidents', formData).then(r => r.data),
 
   getMyIncidents: () => 
     api.get('/incidents/me').then(r => r.data),
