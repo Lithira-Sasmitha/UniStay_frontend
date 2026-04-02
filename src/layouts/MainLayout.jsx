@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/layout/Navbar';
 import Sidebar from '../components/layout/Sidebar';
 import { ChevronRight } from 'lucide-react';
 
@@ -14,9 +13,8 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 selection:bg-primary-100 selection:text-primary-800">
-      <Navbar onMenuClick={toggleSidebar} />
       
-      <div className="flex pt-16 h-screen overflow-hidden relative">
+      <div className="flex h-screen overflow-hidden relative">
         {/* Floating Toggle Button for when desktop sidebar is hidden */}
         <button 
           onClick={toggleDesktop}

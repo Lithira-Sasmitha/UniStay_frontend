@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, DollarSign, Heart } from 'lucide-react';
+import { MapPin, Users, DollarSign, Heart, Star } from 'lucide-react';
 import SafetyBadge from '../common/SafetyBadge';
 import useWishlist from '../../hooks/useWishlist';
 
@@ -94,9 +94,10 @@ const PropertyCard = ({ property }) => {
                             </span>
                         </div>
 
-                    <div className="flex items-center gap-1 text-slate-500">
-                        <Users className="w-3.5 h-3.5" />
-                        <span className="text-xs font-semibold">{available} slots free</span>
+                        <div className="flex items-center gap-1 text-slate-500">
+                            <Users className="w-3.5 h-3.5" />
+                            <span className="text-xs font-semibold">{available} slots free</span>
+                        </div>
                     </div>
                 </div>
 
