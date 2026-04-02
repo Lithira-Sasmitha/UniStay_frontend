@@ -7,6 +7,7 @@ import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
 import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
+import ContactModal from '../../components/modals/ContactModal';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -29,6 +30,7 @@ const PropertyDetailPage = () => {
     const [bookingMsg, setBookingMsg] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [wishlistLoading, setWishlistLoading] = useState(false);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     useEffect(() => {
         const fetch = async () => {
@@ -213,10 +215,22 @@ const PropertyDetailPage = () => {
                     )}
 
                     {/* Owner */}
-                    <p className="text-slate-500 text-sm mb-6">
-                        Listed by <span className="font-bold text-slate-700">{property.owner?.name}</span>
-                        {property.owner?.phonenumber && <> · 📞 {property.owner.phonenumber}</>}
-                    </p>
+                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <p className="text-slate-500 text-sm">Listed by</p>
+                            <p className="font-bold text-slate-700 text-lg">{property.owner?.name || 'Unknown Owner'}</p>
+                            {property.owner?.phonenumber && <p className="text-slate-500 text-sm mt-1">📞 {property.owner.phonenumber}</p>}
+                        </div>
+                        {user && user.role === 'student' && property.owner && (
+                            <button
+                                onClick={() => setIsContactModalOpen(true)}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                Contact Owner
+                            </button>
+                        )}
+                    </div>
 
                     {/* Description */}
                     {property.description && (
@@ -307,6 +321,18 @@ const PropertyDetailPage = () => {
                 
                 {/* Floating Safety Assistant Chat */}
                 <SafetyAssistantChat propertyId={property._id} propertyName={property.name} />
+
+                {/* Contact Modal */}
+                {property.owner && (
+                    <ContactModal
+                        isOpen={isContactModalOpen}
+                        onClose={() => setIsContactModalOpen(false)}
+                        receiverId={property.owner._id || property.owner}
+                        receiverName={property.owner.name || 'Owner'}
+                        receiverRole="boardingowner"
+                        propertyId={property._id}
+                    />
+                )}
             </div>
         </div>
     );
