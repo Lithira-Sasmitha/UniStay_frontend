@@ -23,6 +23,9 @@ updateStatus: (id, status, adminNotes) =>
 
   getAuditLog: () =>
     api.get('/incidents/audit-log').then(r => r.data),
+
+  getAnalytics: () =>
+    api.get('/incidents/analytics').then(r => r.data),
 };
 
 export default incidentService;
