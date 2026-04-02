@@ -8,6 +8,10 @@ export const requestBooking = (roomId) =>
 export const getStudentBookings = () =>
     api.get('/bookings/my-bookings');
 
+/** Submit review for a booking */
+export const submitBookingReview = (bookingId, payload) =>
+    api.post(`/bookings/${bookingId}/review`, payload);
+
 /** Create Stripe PaymentIntent for advance */
 export const createPaymentIntent = (bookingId) =>
     api.post(`/bookings/${bookingId}/payment-intent`);

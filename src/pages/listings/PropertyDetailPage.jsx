@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star } from 'lucide-react';
 import { getListingById } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
+import StatusBadge from '../../components/common/StatusBadge';
+import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
+import SafeRoommateSuggestion from '../../components/common/SafeRoommateSuggestion';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -78,6 +81,8 @@ const PropertyDetailPage = () => {
 
     const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
     const photos = property.photos || [];
+    const reviews = property.reviews || [];
+    const ratingSummary = property.averageRating ? `${property.averageRating}/5` : 'No ratings yet';
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -89,6 +94,65 @@ const PropertyDetailPage = () => {
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to listings
                 </button>
+
+                {/* Predictive Safety Alerts */}
+                <AnimatePresence>
+                    {property.riskTrend === 'Increasing' && (
+                        <motion.div 
+                            initial={{ height: 0, opacity: 0 }} 
+                            animate={{ height: 'auto', opacity: 1 }}
+                            className="bg-rose-600/10 border-2 border-rose-600/20 text-rose-700 rounded-3xl p-6 mb-8 flex items-start gap-4 shadow-sm relative overflow-hidden group"
+                        >
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                                <ShieldAlert className="w-24 h-24" />
+                            </div>
+                            <div className="bg-rose-600 text-white p-3 rounded-2xl shadow-lg shadow-rose-200">
+                                <AlertTriangle className="w-6 h-6 animate-pulse" />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h2 className="text-xl font-black tracking-tight">Predictive Safety Alert</h2>
+                                    <span className="bg-rose-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">Critical</span>
+                                </div>
+                                <p className="text-sm font-bold opacity-90 leading-relaxed mb-2">
+                                    ⚠ Safety risk is increasing based on an unusual spike in recent reports. 
+                                    {property.riskPattern === 'Repeated Issue Detected' && (
+                                        <span className="ml-1 text-rose-800 underline decoration-rose-300">Multiple incidences of the same category reported this week.</span>
+                                    )}
+                                </p>
+                                <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-wider text-rose-900/50">
+                                    <div className="flex items-center gap-1">
+                                        <History className="w-3.5 h-3.5" /> Trend: Rapid Increase
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <ShieldAlert className="w-3.5 h-3.5" /> Verified Risk Analysis
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {property.riskTrend === 'Stable Risk' && (
+                        <motion.div 
+                            initial={{ height: 0, opacity: 0 }} 
+                            animate={{ height: 'auto', opacity: 1 }}
+                            className="bg-amber-500/10 border-2 border-amber-500/20 text-amber-700 rounded-3xl p-6 mb-8 flex items-start gap-4 shadow-sm"
+                        >
+                            <div className="bg-amber-500 text-white p-3 rounded-2xl shadow-lg shadow-amber-200">
+                                <AlertTriangle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black tracking-tight mb-1">Ongoing Safety Concerns</h2>
+                                <p className="text-sm font-bold opacity-90 leading-relaxed">
+                                    ⚠ This property has several active incident reports. Students are advised to review safety metrics before booking.
+                                </p>
+                                <p className="text-[11px] font-black uppercase mt-2 text-amber-600/70">
+                                    Trend: Persistent Risk Pattern
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Photos */}
                 {photos.length > 0 && (
@@ -123,6 +187,15 @@ const PropertyDetailPage = () => {
                             <div className="flex items-center gap-1.5 text-slate-500 mt-2">
                                 <MapPin className="w-4 h-4" />
                                 <span className="font-medium">{property.address}</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-bold">
+                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                    {ratingSummary}
+                                </span>
+                                <span className="text-xs font-semibold text-slate-500">
+                                    {property.reviewCount || 0} review{property.reviewCount === 1 ? '' : 's'}
+                                </span>
                             </div>
                         </div>
 
@@ -255,8 +328,42 @@ const PropertyDetailPage = () => {
                             );
                         })}
                     </div>
+
+                    {/* Reviews */}
+                    <div className="mt-10 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-black text-slate-900">Student Reviews</h2>
+                            <span className="text-sm font-semibold text-slate-500">
+                                {property.reviewCount || 0} total
+                            </span>
+                        </div>
+
+                        {reviews.length === 0 ? (
+                            <p className="text-slate-500 text-sm">No reviews yet for this boarding.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {reviews.map((review) => (
+                                    <div key={review._id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                        <div className="flex items-center justify-between gap-3 mb-1.5">
+                                            <p className="font-bold text-slate-800">{review.student?.name || 'Student'}</p>
+                                            <div className="flex items-center gap-1 text-amber-600">
+                                                <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                                                <span className="text-sm font-bold">{review.rating}/5</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-slate-600 leading-relaxed">{review.reviewText}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* Safe Roommate Suggestion Widget */}
+                    <SafeRoommateSuggestion property={property} />
+
                 </motion.div>
             </div>
+            {/* AI Safety Assistant Chat */}
+            <SafetyAssistantChat propertyId={property._id} />
         </div>
     );
 };

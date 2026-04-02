@@ -29,6 +29,8 @@ export const ROUTES = {
   ROOMMATE_FINDER: '/student/roommates',
   OWNER_NOTICE_BOARD: '/owner/notice-board/:propertyId',
   STUDENT_NOTICE_BOARD: '/student/notice-board',
+  COMPARE: '/compare',
+  WISHLIST: '/wishlist',
 };
 
 // ─── Role → Dashboard Redirect Map ─────────────────────────────────
