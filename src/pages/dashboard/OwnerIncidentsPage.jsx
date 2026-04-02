@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, X, AlertTriangle, Eye, Loader2, CheckCircle, XCircle, Calendar } from 'lucide-react';
+import { Shield, X, AlertTriangle, Eye, Loader2, CheckCircle, XCircle, Calendar, Search, Filter } from 'lucide-react';
 import incidentService from '../../services/incidentService';
 import Toast from '../../components/common/Toast';
 
@@ -8,6 +8,11 @@ export default function OwnerIncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  
+  // Filters & Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [severityFilter, setSeverityFilter] = useState('all');
   
   // Modal state
   const [selectedIncident, setSelectedIncident] = useState(null);
@@ -92,99 +97,224 @@ export default function OwnerIncidentsPage() {
     if (s === 'under investigation' || s === 'investigating') return <span className="bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold">Under Investigation</span>;
     if (s === 'resolved') return <span className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-semibold">Resolved</span>;
     if (s === 'rejected') return <span className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-xs font-semibold">Rejected</span>;
-    return <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
+    return <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
   };
 
+  const filteredIncidents = incidents.filter(inc => {
+    const searchLower = searchQuery.toLowerCase();
+    const categoryStr = inc.category?.toLowerCase() || '';
+    const propertyStr = inc.property?.name?.toLowerCase() || '';
+    const idStr = inc._id?.toLowerCase() || '';
+
+    const matchesSearch = categoryStr.includes(searchLower) || 
+                          propertyStr.includes(searchLower) ||
+                          idStr.includes(searchLower);
+    
+    // Convert status to uniform matching string
+    const sStat = inc.status?.toLowerCase() || '';
+    const isResolved = sStat === 'resolved';
+    const isRejected = sStat === 'rejected';
+    const isOpenOrInvestigating = !isResolved && !isRejected;
+
+    const matchesStatus = statusFilter === 'all' ? true :
+                          statusFilter === 'active' ? isOpenOrInvestigating :
+                          statusFilter === 'resolved' ? isResolved : true;
+
+    const matchesSeverity = severityFilter === 'all' ? true : 
+                            (inc.severity?.toLowerCase() === severityFilter.toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesSeverity;
+  });
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 font-sans">
+    <div className="min-h-screen bg-slate-50 pb-12 font-sans tracking-tight">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* HEADER SECTION */}
-      <div className="bg-white border-b border-slate-200 pt-8 pb-6 px-4 sm:px-8">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Property Safety Incidents</h1>
-          <p className="text-slate-500 mt-1">View and respond to safety reports related to your property</p>
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-8 mt-6 space-y-6">
-        {/* SYSTEM NOTICE BANNER */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 text-blue-800 shadow-sm items-start">
-          <Shield className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className="bg-indigo-900 border-b border-indigo-800 pt-16 pb-16 px-4 sm:px-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl mix-blend-screen pointer-events-none"></div>
+        <div className="max-w-5xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h4 className="font-bold text-sm text-blue-900">System Notice</h4>
-            <p className="text-sm mt-0.5">
-              Owners can respond to incidents, but only Admin can update status to ensure fairness.
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-indigo-500/30 p-2 rounded-xl backdrop-blur-md">
+                  <Shield className="w-6 h-6 text-indigo-300" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest text-indigo-300 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-800">Safety Command Center</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">Property Safety Log</h1>
+            <p className="text-indigo-200 text-sm md:text-base mt-2 max-w-xl">
+              Track reported incidents across your properties. Use the advanced tools below to filter, investigate, and deploy proactive safety measures.
             </p>
           </div>
         </div>
+      </div>
 
-        {/* INCIDENT LIST */}
-        {loading ? (
-          <div className="flex justify-center items-center h-48">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-            <span className="ml-3 text-slate-600 font-medium">Loading incidents...</span>
-          </div>
-        ) : incidents.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-700">No incidents reported for your property</h3>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {incidents.map((incident) => {
-              const isHigh = incident.severity?.toLowerCase() === 'high';
-              return (
-                <div 
-                  key={incident._id} 
-                  className={`bg-white rounded-2xl shadow-sm border p-5 flex flex-col justify-between transition-all hover:shadow-md ${isHigh ? 'border-red-300 ring-1 ring-red-50' : 'border-slate-200'}`}
-                >
-                  <div>
-                    {/* Top Section */}
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">ID: {formatId(incident._id)} • {incident.property?.name || 'Unknown Property'}</span>
-                        <h3 className="text-lg font-bold text-slate-800 mt-1">{incident.category} Issue</h3>
-                      </div>
-                      <div className="text-right">
-                         <span className="text-xs text-slate-500 font-medium block mb-2">{new Date(incident.createdAt).toLocaleDateString()}</span>
-                         {statusBadge(incident.status)}
-                      </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 -mt-8 relative z-20 space-y-6">
+        
+        {/* FILTERS & SEARCH MODULE */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-2 sm:p-4 flex flex-col md:flex-row items-center gap-3 mb-8">
+           <div className="relative flex-1 w-full">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Search by ID, property, or category..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 border-0 rounded-xl pl-12 pr-4 py-3.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none placeholder:font-medium placeholder:text-slate-400"
+              />
+           </div>
+           
+           <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="relative group w-full md:w-40">
+                 <select 
+                   value={statusFilter}
+                   onChange={(e) => setStatusFilter(e.target.value)}
+                   className="w-full appearance-none bg-slate-50 border-0 border-r border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-700 cursor-pointer focus:ring-2 focus:ring-indigo-500 outline-none"
+                 >
+                    <option value="all">All Statuses</option>
+                    <option value="active">Active Issues</option>
+                    <option value="resolved">Resolved</option>
+                 </select>
+                 <Filter className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+              <div className="relative group w-full md:w-40">
+                 <select 
+                   value={severityFilter}
+                   onChange={(e) => setSeverityFilter(e.target.value)}
+                   className="w-full appearance-none bg-slate-50 border-0 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-700 cursor-pointer focus:ring-2 focus:ring-indigo-500 outline-none"
+                 >
+                    <option value="all">All Severities</option>
+                    <option value="high">High Risk</option>
+                    <option value="medium">Medium Risk</option>
+                    <option value="low">Low Risk</option>
+                 </select>
+                 <AlertTriangle className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+           </div>
+        </div>
+
+        {/* INCIDENT LISTS (DIVIDED SAAS TABLE/LIST HYBRID) */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+          {loading ? (
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-center items-center h-48 bg-slate-50/30 xl:col-span-2">
+              <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
+              <span className="text-slate-500 font-bold text-sm">Syncing security data...</span>
+            </div>
+          ) : filteredIncidents.length === 0 ? (
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden p-16 text-center bg-slate-50/30 xl:col-span-2">
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                 <Search className="w-8 h-8 text-slate-300" />
+              </div>
+              <h3 className="text-lg font-black text-slate-700">No matching incidents</h3>
+              <p className="text-sm font-medium text-slate-500 mt-1">Try adjusting your filters or search query.</p>
+            </div>
+          ) : (
+            <>
+              {/* SECTION: ACTION REQUIRED */}
+              {(() => {
+                const activeIssues = filteredIncidents.filter(inc => !inc.ownerResponse);
+                if (activeIssues.length === 0) return null;
+                
+                return (
+                  <div className="bg-white rounded-3xl shadow-sm border border-amber-200 overflow-hidden">
+                    <div className="bg-amber-50/50 border-b border-amber-100 px-6 py-4 flex items-center justify-between">
+                       <h2 className="text-sm font-bold text-amber-800 flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-amber-500" /> Action Required 
+                          <span className="bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full text-xs">{activeIssues.length}</span>
+                       </h2>
+                       <span className="text-xs font-bold text-amber-600/70 bg-white border border-amber-200 px-3 py-1 rounded-lg">High Priority</span>
                     </div>
-
-                    {/* Meta info */}
-                    <div className="flex items-center gap-2 mb-3">
-                      {severityBadge(incident.severity)}
-                      <span className="text-xs text-slate-500 flex items-center bg-slate-100 px-2 py-1 rounded">
-                         <Shield className="w-3 h-3 text-emerald-500 mr-1" /> Reported by: Verified Student
-                      </span>
+                    <div className="divide-y divide-slate-100">
+                      {activeIssues.map((incident) => {
+                        const isHigh = incident.severity?.toLowerCase() === 'high';
+                        return (
+                          <div key={incident._id} className={`p-5 lg:p-6 transition-all hover:bg-slate-50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${isHigh ? 'bg-red-50/10' : ''}`}>
+                            <div className="flex items-start gap-4 flex-1">
+                              <div className="mt-1">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isHigh ? 'bg-red-100 border-red-200' : 'bg-amber-100 border-amber-200'}`}>
+                                   <AlertTriangle className={`w-5 h-5 ${isHigh ? 'text-red-500' : 'text-amber-600'}`} />
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-xs font-black text-slate-500 uppercase tracking-wider bg-slate-100 border border-slate-200 px-2 py-0.5 rounded shadow-sm">{formatId(incident._id)}</span>
+                                   <span className="font-bold text-slate-400 text-xs">• {new Date(incident.createdAt).toLocaleDateString()}</span>
+                                   {severityBadge(incident.severity)}
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 leading-tight mb-1">{incident.category} <span className="text-slate-400 font-medium text-base">— {incident.property?.name || 'Property'}</span></h3>
+                                <p className="text-sm font-medium text-slate-500 line-clamp-1">{incident.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-row md:flex-col items-center justify-between md:items-end w-full md:w-auto gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+                               {statusBadge(incident.status)}
+                               <button 
+                                 onClick={() => setSelectedIncident(incident)}
+                                 className="w-full sm:w-auto text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border bg-indigo-600 text-white border-transparent hover:bg-indigo-700 hover:shadow-lg shadow-md hover:-translate-y-0.5"
+                               >
+                                 <Shield className="w-4 h-4 text-indigo-300" /> Improve Safety
+                               </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-
-                    {/* Desc preview */}
-                    <p className="text-sm text-slate-600 line-clamp-2 mb-4">
-                      {incident.description}
-                    </p>
                   </div>
+                );
+              })()}
 
-                  {/* Actions */}
-                  <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                    {incident.ownerResponse ? (
-                      <span className="text-xs font-bold text-green-600 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> Response Submitted</span>
-                    ) : (
-                      <span className="text-xs font-bold text-orange-500 flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5"/> Needs Response</span>
-                    )}
-                    <button 
-                      onClick={() => setSelectedIncident(incident)}
-                      className="text-sm font-bold text-indigo-700 hover:text-white bg-indigo-100 hover:bg-indigo-600 px-5 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm border border-indigo-200"
-                    >
-                      <Shield className="w-4 h-4" /> Improve Safety
-                    </button>
+              {/* SECTION: RESPONDED & RESOLVED */}
+              {(() => {
+                const resolvedIssues = filteredIncidents.filter(inc => !!inc.ownerResponse);
+                if (resolvedIssues.length === 0) return null;
+                
+                return (
+                  <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                       <h2 className="text-sm font-bold text-slate-600 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-500" /> Responded / Recorded 
+                          <span className="bg-slate-200 text-slate-700 px-2.5 py-0.5 rounded-full text-xs">{resolvedIssues.length}</span>
+                       </h2>
+                       <span className="text-xs font-bold text-slate-400 bg-white border border-slate-200 px-3 py-1 rounded-lg">Historical log</span>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {resolvedIssues.map((incident) => {
+                        return (
+                          <div key={incident._id} className="p-5 lg:p-6 transition-all hover:bg-slate-50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div className="flex items-start gap-4 flex-1">
+                              <div className="mt-1">
+                                <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center border border-emerald-200">
+                                   <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                </div>
+                              </div>
+                              <div className="flex-1 text-slate-500">
+                                <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-xs font-black text-slate-400 uppercase tracking-wider bg-slate-100 border border-slate-200 px-2 py-0.5 rounded shadow-sm opacity-80">{formatId(incident._id)}</span>
+                                   <span className="font-bold text-slate-400 text-xs opacity-80">• {new Date(incident.createdAt).toLocaleDateString()}</span>
+                                   <span className="opacity-80">{severityBadge(incident.severity)}</span>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-700 leading-tight mb-1">{incident.category} <span className="font-medium text-base">— {incident.property?.name || 'Property'}</span></h3>
+                                <p className="text-sm font-medium line-clamp-1">{incident.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-row md:flex-col items-center justify-between md:items-end w-full md:w-auto gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+                               {statusBadge(incident.status)}
+                               <button 
+                                 onClick={() => setSelectedIncident(incident)}
+                                 className="w-full sm:w-auto text-sm font-bold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 shadow-sm"
+                               >
+                                 <Eye className="w-4 h-4 text-slate-400" /> Review Plan
+                               </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })()}
+            </>
+          )}
+        </div>
       </div>
 
       {/* INCIDENT DETAILS FULL MODAL */}
