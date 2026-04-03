@@ -169,7 +169,7 @@ export default function MyIncidentsPage() {
               </div>
             ))}
           </div>
-        )}}
+        )}
 
         {selectedIncident && (
           <IncidentDetailModal 
