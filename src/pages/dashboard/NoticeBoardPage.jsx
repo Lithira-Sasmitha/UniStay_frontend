@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, Plus, ChevronLeft, Loader2, Trash2, Edit3,
   AlertTriangle, Calendar, X, CheckCircle, ChevronLeft as ChevLeft, ChevronRight as ChevRight,
-  Clock, FileText,
+  Clock, FileText, Timer,
 } from 'lucide-react';
 import {
   createNotice, getOwnerNotices, updateNotice, deleteNotice,
@@ -80,29 +80,28 @@ const NoticeForm = ({ initial, onSubmit, onCancel, loading }) => {
             Event / Deadline Date &amp; Time
           </label>
           <div className="relative">
-            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-            <Clock className="absolute left-9 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none" />
+            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
             <input
               type="datetime-local"
               value={form.eventDate}
               onChange={(e) => set('eventDate', e.target.value)}
-              className="w-full pl-14 pr-4 py-3 rounded-2xl border border-slate-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none text-slate-800 text-sm transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none text-slate-800 text-sm transition-all [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3"
             />
           </div>
           <p className="text-[11px] text-slate-400 font-medium mt-1.5 ml-1">Shown on the calendar &amp; notice card</p>
         </div>
         <div>
           <label className="flex items-center gap-1.5 text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <Timer className="w-3.5 h-3.5 text-slate-400" />
             Expires At — Date &amp; Time (optional)
           </label>
           <div className="relative">
-            <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Timer className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
             <input
               type="datetime-local"
               value={form.expiresAt}
               onChange={(e) => set('expiresAt', e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none text-slate-800 text-sm transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none text-slate-800 text-sm transition-all [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3"
             />
           </div>
           <p className="text-[11px] text-slate-400 font-medium mt-1.5 ml-1">Notice auto-hides after this date &amp; time</p>
@@ -563,7 +562,7 @@ const NoticeCard = ({ notice, onEdit, onDelete }) => {
                 )}
                 {notice.expiresAt && (
                   <span className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
-                    <Clock className="w-3 h-3" />
+                    <Timer className="w-3 h-3" />
                     Expires {new Date(notice.expiresAt).toLocaleDateString('en-US', { day:'numeric', month:'short' })}{' '}
                     {new Date(notice.expiresAt).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}
                   </span>
