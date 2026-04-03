@@ -465,6 +465,20 @@ const StudentDashboard = () => {
               )}
             </button>
           </div>
+
+          {currentUserData?.isVerified && (
+            <button
+              onClick={() => navigate('/student/questionnaire')}
+              className="p-6 bg-gradient-to-br from-primary-50 to-indigo-50 rounded-2xl text-left hover:from-primary-100 hover:to-indigo-100 border border-primary-100 transition-all group relative"
+            >
+              <Sparkles className="w-6 h-6 text-primary-600 mb-3 group-hover:scale-110 transition-transform" />
+              <p className="font-bold text-slate-900">Find My Match</p>
+              <p className="text-xs text-slate-500 mt-1">AI questionnaire to find your ideal roommate</p>
+              <div className="absolute top-4 right-4 bg-primary-100 text-primary-700 text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest border border-primary-200">
+                New
+              </div>
+            </button>
+          )}
         </div>
       </motion.div>
 

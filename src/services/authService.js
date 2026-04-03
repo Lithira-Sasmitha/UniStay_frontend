@@ -101,6 +101,27 @@ const authService = {
     return response.data;
   },
 
+  // ── Roommate Preferences & Matching ──────────────────────────────────
+  savePreferences: async (data) => {
+    const response = await api.post('/preferences', data);
+    return response.data;
+  },
+
+  getPreferences: async () => {
+    const response = await api.get('/preferences');
+    return response.data;
+  },
+
+  getMatches: async () => {
+    const response = await api.get('/preferences/matches');
+    return response.data;
+  },
+
+  getRecommendedBoardings: async () => {
+    const response = await api.get('/preferences/boardings');
+    return response.data;
+  },
+
   // ── Check if authenticated ─────────────────────────────────────────
   isAuthenticated: () => !!localStorage.getItem(AUTH_TOKEN_KEY),
 };
