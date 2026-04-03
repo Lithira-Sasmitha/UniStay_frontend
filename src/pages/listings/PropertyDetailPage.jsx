@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star, Heart } from 'lucide-react';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star, Heart, Wind, BookOpen, Shirt, Bath, Flame, WashingMachine, Car } from 'lucide-react';
+
+const FACILITY_ICONS = {
+    'WiFi': Wifi,
+    'Air Conditioning': Wind,
+    'Study Desk': BookOpen,
+    'Wardrobe': Shirt,
+    'Attached Bathroom': Bath,
+    'Hot Water': Flame,
+    'Laundry': WashingMachine,
+    'Parking': Car,
+};
 import { getListingById, toggleWishlist, getWishlist } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
@@ -362,7 +373,7 @@ const PropertyDetailPage = () => {
                                             <div className="flex flex-wrap gap-2 mt-3">
                                                 {room.facilities.map((f, i) => (
                                                     <span key={i} className="flex items-center gap-1 text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-600 px-2 py-1 rounded-lg">
-                                                        <Wifi className="w-3 h-3" /> {f}
+                                                        {(() => { const Icon = FACILITY_ICONS[f] || Wifi; return <Icon className="w-3 h-3" />; })()} {f}
                                                     </span>
                                                 ))}
                                             </div>
