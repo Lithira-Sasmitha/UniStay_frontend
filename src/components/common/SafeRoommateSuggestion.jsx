@@ -59,6 +59,9 @@ const SafeRoommateSuggestion = ({ property }) => {
 
     if (!rent) return null;
 
+    // HIDE COMPONENT AS PER USER REQUEST (DO NOT DELETE)
+    return null;
+
     return (
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mt-8 mb-8">
             <div className="flex items-center gap-2 mb-6">
