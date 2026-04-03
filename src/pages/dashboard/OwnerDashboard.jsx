@@ -253,8 +253,12 @@ const OwnerDashboard = () => {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-3 bg-white p-2 pr-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all"
             >
-            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold">
-              {currentUserData?.name?.[0] || 'O'}
+            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold overflow-hidden border-2 border-slate-50 shadow-sm">
+              {currentUserData?.profileImage ? (
+                <img src={currentUserData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                currentUserData?.name?.[0] || 'O'
+              )}
             </div>
             <div className="hidden sm:block text-left">
               <p className="text-xs font-black text-slate-900 leading-none mb-1">{currentUserData?.name || 'Owner'}</p>
@@ -576,9 +580,13 @@ const OwnerDashboard = () => {
                                             {room.currentOccupants.map((occ, idx) => (
                                               <div key={occ._id || idx} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                                                 <div className="flex items-center gap-3">
-                                                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xs">
-                                                    {occ.student?.name?.[0] || '?'}
-                                                  </div>
+                                                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xs overflow-hidden border border-white shadow-sm">
+                                                     {occ.student?.profileImage ? (
+                                                       <img src={occ.student.profileImage} alt={occ.student.name} className="w-full h-full object-cover" />
+                                                     ) : (
+                                                       occ.student?.name?.[0] || '?'
+                                                     )}
+                                                   </div>
                                                   <div>
                                                     <p className="font-bold text-sm text-slate-800">{occ.student?.name || 'Unknown'}</p>
                                                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-0.5">

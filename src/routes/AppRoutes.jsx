@@ -16,6 +16,8 @@ import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
 import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
 import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
 import RoommateFinder from '../pages/dashboard/RoommateFinder';
+import RoommateQuestionnaire from '../pages/dashboard/RoommateQuestionnaire';
+import RoommateRecommendations from '../pages/dashboard/RoommateRecommendations';
 import NoticeBoardPage from '../pages/dashboard/NoticeBoardPage';
 import StudentNoticeBoardPage from '../pages/dashboard/StudentNoticeBoardPage';
 import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
@@ -212,6 +214,22 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <RoommateFinder />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ROOMMATE_QUESTIONNAIRE}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateQuestionnaire />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ROOMMATE_RECOMMENDATIONS}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateRecommendations />
           </PrivateRoute>
         }
       />

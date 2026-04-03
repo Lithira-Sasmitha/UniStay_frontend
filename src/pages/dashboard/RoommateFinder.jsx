@@ -196,8 +196,8 @@ const RoommateFinder = () => {
                className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-3xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
             >
                <div className="w-full md:w-5/12 bg-slate-100 relative">
-                  {selectedStudent.profilePhoto ? (
-                    <img src={selectedStudent.profilePhoto} className="w-full h-full object-cover" />
+                  {selectedStudent.profileImage ? (
+                    <img src={selectedStudent.profileImage} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center min-h-[300px]">
                        <UserIcon className="w-24 h-24 text-primary-200" />
@@ -255,17 +255,10 @@ const RoommateFinder = () => {
                         <div className="flex flex-col gap-3">
                            <button 
                               onClick={() => { setContactRevealed(true); }}
-                              className="w-full py-3 bg-slate-100 text-slate-500 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 mb-2"
+                              className="w-full py-4 bg-primary-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-primary-200 hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 mb-2"
                            >
-                              <Phone className="w-4 h-4" />
-                              Unlock Direct Phone/Email
-                           </button>
-                           <button 
-                              onClick={() => setIsRequestOpen(true)}
-                              className="w-full py-4 bg-primary-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-primary-200 hover:scale-[1.02] transition-transform flex items-center justify-center gap-3"
-                           >
-                              <ShieldCheck className="w-5 h-5" />
-                              Request to Share
+                              <Phone className="w-5 h-5" />
+                              Unlock Contact Details
                            </button>
                            <button 
                               onClick={() => setIsMessageOpen(true)}

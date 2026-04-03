@@ -27,6 +27,8 @@ export const ROUTES = {
   STUDENT_PAY: '/student/pay/:bookingId',
   REPORT_SAFETY: '/student/report-safety',
   ROOMMATE_FINDER: '/student/roommates',
+  ROOMMATE_QUESTIONNAIRE: '/student/questionnaire',
+  ROOMMATE_RECOMMENDATIONS: '/student/recommendations',
   OWNER_NOTICE_BOARD: '/owner/notice-board/:propertyId',
   STUDENT_NOTICE_BOARD: '/student/notice-board',
   COMPARE: '/compare',

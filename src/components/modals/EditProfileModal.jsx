@@ -13,7 +13,9 @@ import {
   Save,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Trash2
 } from 'lucide-react';
 import authService from '../../services/authService';
 import Input from '../common/Input';
@@ -36,6 +38,7 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
     nic: '',
     phonenumber: '',
     password: '', // optional password update
+    profileImage: '',
   });
   
   const [loading, setLoading] = useState(false);
@@ -53,9 +56,30 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
         nic: userData.nic || '',
         phonenumber: userData.phonenumber || '',
         password: '',
+        profileImage: userData.profileImage || '',
       });
     }
   }, [userData, isOpen]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        setMessage({ type: 'error', text: 'Image size should be less than 2MB' });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, profileImage: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, profileImage: '' }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -179,6 +203,44 @@ const EditProfileModal = ({ isOpen, onClose, userData, onUpdate }) => {
                 <p className="font-bold text-sm">{message.text}</p>
               </motion.div>
             )}
+
+            {/* Profile Image Section */}
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-slate-50 bg-slate-100 flex items-center justify-center text-slate-400">
+                  {formData.profileImage ? (
+                    <img 
+                      src={formData.profileImage} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-16 h-16" />
+                  )}
+                </div>
+                <label className="absolute -bottom-2 -right-2 p-3 bg-amber-600 text-white rounded-2xl shadow-lg cursor-pointer hover:bg-amber-700 transition-colors">
+                  <Camera className="w-5 h-5" />
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </label>
+                {formData.profileImage && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-2 -right-2 p-2 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <p className="text-xs font-bold text-slate-400 mt-4 uppercase tracking-widest">
+                Profile Picture
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
