@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, User, LogOut, Search, Home, Heart } from 'lucide-react';
+import { Menu, Bell, User, LogOut, Search, Home, Heart, Settings } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import { ROLE_DASHBOARD_MAP, ROUTES } from '../../utils/constants';
 
@@ -105,6 +105,15 @@ const Navbar = ({ onMenuClick, onOpenProfile }) => {
                       <User className="w-4 h-4 text-gray-400" />
                       Profile Settings
                     </button>
+                    {user?.role === 'student' && (
+                      <button
+                        onClick={() => { setShowProfileMenu(false); navigate('/student/preferences'); }}
+                        className="flex items-center gap-3 p-2.5 text-sm text-gray-700 hover:bg-indigo-50 rounded-xl transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-gray-400" />
+                        Preferences
+                      </button>
+                    )}
                     <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
                     <button
                       onClick={logout}

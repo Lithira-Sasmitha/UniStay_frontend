@@ -6,7 +6,7 @@ import {
   User as UserIcon, ChevronDown, ChevronRight, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
   ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, Bell,
-  Home, Users, MapPin, DoorOpen, Phone, TrendingUp, Heart, Star, Sparkles
+  Home, Users, MapPin, DoorOpen, Phone, TrendingUp, Heart, Star, Sparkles, Settings
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
@@ -284,6 +284,13 @@ const StudentDashboard = () => {
                 >
                   <UserIcon className="w-4 h-4" />
                   <span className="text-sm font-bold">Edit Profile</span>
+                </button>
+                <button
+                  onClick={() => { navigate('/student/preferences'); setIsDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-indigo-50 transition-colors text-slate-600 hover:text-indigo-600"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm font-bold">Preferences</span>
                 </button>
                 <div className="h-px bg-slate-50 my-1" />
                 <button
