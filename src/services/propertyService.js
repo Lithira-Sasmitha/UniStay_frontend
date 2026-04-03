@@ -85,3 +85,11 @@ export const deleteProperty = (propertyId) =>
 /** Remove an occupant from a room */
 export const removeOccupant = (roomId, studentId, reason = '') =>
     api.patch(`/properties/rooms/${roomId}/remove-occupant`, { studentId, reason });
+
+// ── Wishlist ──────────────────────────────────────────────────────────
+
+/** Get user's wishlist */
+export const getWishlist = () => api.get('/users/wishlist');
+
+/** Toggle property in wishlist */
+export const toggleWishlist = (propertyId) => api.post(`/users/wishlist/${propertyId}`);

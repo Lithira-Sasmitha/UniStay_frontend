@@ -31,6 +31,7 @@ export const ROUTES = {
   STUDENT_NOTICE_BOARD: '/student/notice-board',
   COMPARE: '/compare',
   WISHLIST: '/wishlist',
+  ADMIN_SAFETY_CONTROL: '/admin/safety-control-center',
 };
 
 // ─── Role → Dashboard Redirect Map ─────────────────────────────────

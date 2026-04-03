@@ -20,11 +20,13 @@ import NoticeBoardPage from '../pages/dashboard/NoticeBoardPage';
 import StudentNoticeBoardPage from '../pages/dashboard/StudentNoticeBoardPage';
 import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import SafetyDecisionHub from '../pages/dashboard/SafetyDecisionHub';
 import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
 import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
 import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
 import WishlistPage from '../pages/dashboard/WishlistPage';
 import ComparePage from '../pages/dashboard/ComparePage';
+import SafetyControlCenter from '../pages/dashboard/SafetyControlCenter';
 import PrivateRoute from '../components/PrivateRoute';
 import { ROUTES, ROLES } from '../utils/constants';
 
@@ -42,6 +44,22 @@ const AppRoutes = () => {
         <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
         <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
         <Route path={ROUTES.REPORT_SAFETY} element={<ReportSafetyPage />} />
+        <Route
+          path={ROUTES.WISHLIST}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <WishlistPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.COMPARE}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ComparePage />
+            </PrivateRoute>
+          }
+        />
       </Route>
 
       {/* ── Protected: Super Admin ─────────────────────────────────── */}
@@ -72,6 +90,15 @@ const AppRoutes = () => {
         />
       </Route>
 
+      <Route
+        path={ROUTES.ADMIN_SAFETY_CONTROL}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+            <SafetyControlCenter />
+          </PrivateRoute>
+        }
+      />
+      
       {/* ── Protected: Boarding Owner ──────────────────────────────── */}
       <Route element={<MainLayout />}>
         <Route
@@ -188,7 +215,6 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-
       {/* ── Notice Board ───────────────────────────────────────────── */}
       <Route
         path={ROUTES.OWNER_NOTICE_BOARD}
@@ -207,6 +233,10 @@ const AppRoutes = () => {
         }
       />
 
+        <Route
+          path="/safety-decision/:id"
+          element={<SafetyDecisionHub />}
+        />
       {/* ── Fallback: Redirect to Login ────────────────────────────── */}
       <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
     </Routes>

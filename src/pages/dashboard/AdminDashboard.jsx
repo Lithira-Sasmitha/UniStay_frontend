@@ -27,7 +27,8 @@ import {
   ShieldX,
   MessageSquare,
   ShieldAlert,
-  MapPin
+  MapPin,
+  Zap
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import adminService from '../../services/adminService';
@@ -533,6 +534,15 @@ const AdminDashboard = () => {
           >
               <ShieldAlert className="w-4 h-4" />
               Safety Incidents
+          </button>
+          
+          {/* SPECIAL COMMAND CENTER BUTTON */}
+          <button
+              onClick={() => window.location.href = '/admin/safety-control-center'}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all bg-slate-900 text-emerald-400 hover:bg-black hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-emerald-500/30"
+          >
+              <Zap className="w-4 h-4 animate-pulse" />
+              COMMAND CENTER ⭐
           </button>
         </motion.div>
 
