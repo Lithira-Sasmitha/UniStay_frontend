@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Shield, Info, Loader2, Sparkles, Bot } from 'lucide-react';
 import api from '../../services/api';
 
-const SafetyAssistantChat = ({ propertyId }) => {
+const SafetyAssistantChat = ({ propertyId, propertyName }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { text: "Hello! I am your UniStay Safety Assistant. Ask me anything about this property's safety records.", sender: 'assistant' }
+        { text: `Hello! I am your UniStay Safety Assistant. Ask me anything about ${propertyName || "this property"}'s safety records and facilities.`, sender: 'assistant' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -15,7 +15,8 @@ const SafetyAssistantChat = ({ propertyId }) => {
     const suggestions = [
         "Is this property safe?",
         "Why is this under review?",
-        "What issues were reported?"
+        "What issues were reported?",
+        "What are the facilities?"
     ];
 
     useEffect(() => {
@@ -69,7 +70,7 @@ const SafetyAssistantChat = ({ propertyId }) => {
                                     <Shield className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-black text-sm tracking-tight">Safety Assistant</h3>
+                                    <h3 className="font-black text-sm tracking-tight">UniStay AI Assistant</h3>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Always Active</p>

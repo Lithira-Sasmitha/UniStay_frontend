@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, User, LogOut, Search, Home } from 'lucide-react';
+import { Menu, Bell, User, LogOut, Search, Home, Heart } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import { ROLE_DASHBOARD_MAP, ROUTES } from '../../utils/constants';
 
@@ -61,6 +61,15 @@ const Navbar = ({ onMenuClick, onOpenProfile }) => {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 md:gap-4">
+            {user?.role === 'student' && (
+              <button
+                onClick={() => navigate(ROUTES.WISHLIST)}
+                className="relative p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all hover:scale-105 active:scale-95"
+                title="Wishlist"
+              >
+                <Heart className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            )}
             <button
               className="relative p-2 text-gray-600 hover:bg-gray-100/50 rounded-xl transition-all hover:scale-105 active:scale-95"
               title="Notifications — Coming Soon"

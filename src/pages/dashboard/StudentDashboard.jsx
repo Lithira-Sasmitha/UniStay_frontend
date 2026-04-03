@@ -6,7 +6,7 @@ import {
   User as UserIcon, ChevronDown, ChevronRight, Loader2,
   CreditCard, XCircle, CheckCircle, Clock,
   ShieldCheck, ShieldAlert, Award, Mail, Key, Zap, Bell,
-  Home, Users, MapPin, DoorOpen, Phone, TrendingUp, Heart, Star,
+  Home, Users, MapPin, DoorOpen, Phone, TrendingUp, Heart, Star, Sparkles
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import EditProfileModal from '../../components/modals/EditProfileModal';
@@ -815,6 +815,16 @@ const StudentDashboard = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
+                        {/* Safety Decision Hub Access */}
+                        {booking.property?._id && (
+                          <button
+                            onClick={() => navigate(`/safety-decision/${booking.property._id}`)}
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" /> Safety Intelligence
+                          </button>
+                        )}
+
                       {/* Approved: pay advance */}
                       {booking.status === 'approved' && !booking.advancePaid && (
                         <div className="flex flex-col gap-1">

@@ -71,7 +71,7 @@ const ActionDropdown = ({ incident, onViewDetails, onUpdateStatus }) => {
                 </>
               )}
 
-              {status === 'investigating' && (
+              {status === 'Under Investigation' && (
                 <>
                   <div className="h-px bg-slate-700 my-1"></div>
                   <button 
@@ -199,13 +199,11 @@ export default function AdminIncidentDashboard() {
       
       let matchStatus = true;
       if (statusFilter !== 'All') {
-          // our DB uses lowercase status mostly: 'open', 'investigating', 'resolved', 'rejected'
-          const filterLower = statusFilter.toLowerCase();
-          const incStatusLower = inc.status ? inc.status.toLowerCase() : '';
-          
-          if (filterLower === 'under investigation' && incStatusLower === 'investigating') {
-             matchStatus = true;
-          } else if (filterLower === incStatusLower) {
+            // our DB uses mixed status mostly: 'open', 'under investigation', 'investigating', 'resolved', 'rejected'
+            const filterLower = statusFilter.toLowerCase();
+            const incStatusLower = inc.status ? inc.status.toLowerCase() : '';
+
+            if (filterLower === 'under investigation' && (incStatusLower === 'investigating' || incStatusLower === 'under investigation')) {
              matchStatus = true;
           } else {
              matchStatus = false;
@@ -219,8 +217,8 @@ export default function AdminIncidentDashboard() {
   const stats = useMemo(() => {
     return {
       total: incidents.length,
-      open: incidents.filter(i => i.status === 'open').length,
-      investigating: incidents.filter(i => i.status === 'investigating').length,
+      open: incidents.filter(i => i.status?.toLowerCase() === 'open').length,
+      investigating: incidents.filter(i => i.status?.toLowerCase() === 'under investigation' || i.status?.toLowerCase() === 'investigating').length,
       highSeverity: incidents.filter(i => i.severity === 'High').length,
     };
   }, [incidents]);
@@ -236,7 +234,7 @@ export default function AdminIncidentDashboard() {
   const statusBadge = (status) => {
     const s = status?.toLowerCase() || '';
     if (s === 'open') return <span className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-semibold">Open</span>;
-    if (s === 'investigating') return <span className="bg-orange-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white"></span> Under Inv.</span>;
+      if (s === 'under investigation' || s === 'investigating') return <span className="bg-orange-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white"></span> Under Inv.</span>;
     if (s === 'resolved') return <span className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Resolved</span>;
     if (s === 'rejected') return <span className="bg-red-100 text-red-700 px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1"><XCircle className="w-3 h-3"/> Rejected</span>;
     return <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-xs font-semibold">{status}</span>;
@@ -516,11 +514,11 @@ export default function AdminIncidentDashboard() {
                    </div>
                  </div>
 
-                 {viewIncident.photoUrl && (
+                 {viewIncident.photos && viewIncident.photos.length > 0 && (
                    <div className="mb-8">
                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Evidence Photo</p>
-                     <a href={viewIncident.photoUrl} target="_blank" rel="noreferrer">
-                       <img src={viewIncident.photoUrl} alt="Evidence" className="rounded-xl border border-slate-700 max-h-64 object-cover hover:opacity-90 transition-opacity cursor-zoom-in" />
+                     <a href={viewIncident.photoUrl || viewIncident.photos?.[0]} target="_blank" rel="noreferrer">
+                       <img src={viewIncident.photoUrl || viewIncident.photos?.[0]} alt="Evidence" className="rounded-xl border border-slate-700 max-h-64 object-cover hover:opacity-90 transition-opacity cursor-zoom-in" />
                      </a>
                    </div>
                  )}
@@ -552,17 +550,17 @@ export default function AdminIncidentDashboard() {
               {/* View Actions (Bottom Bar) */}
               {viewIncident.status !== 'resolved' && viewIncident.status !== 'rejected' && (
                 <div className="px-8 py-5 border-t border-slate-700/50 bg-slate-800/80 flex items-center justify-end gap-3">
-                  {viewIncident.status === 'open' && (
-                     <button onClick={() => openActionModal(viewIncident, 'investigating', false)} className="px-5 py-2.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/50 text-sm font-bold rounded-xl transition-colors shadow-sm">
+                  {(viewIncident.status === 'open' || viewIncident.status === 'Open') && (
+                     <button onClick={() => openActionModal(viewIncident, 'Under Investigation', false)} className="px-5 py-2.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/50 text-sm font-bold rounded-xl transition-colors shadow-sm">
                        Begin Investigation
                      </button>
                   )}
-                  {viewIncident.status === 'investigating' && (
-                     <button onClick={() => openActionModal(viewIncident, 'resolved', true)} className="px-5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/50 text-sm font-bold rounded-xl transition-colors shadow-sm">
+                  {(viewIncident.status === 'investigating' || viewIncident.status === 'Under Investigation') && (
+                     <button onClick={() => openActionModal(viewIncident, 'Resolved', true)} className="px-5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/50 text-sm font-bold rounded-xl transition-colors shadow-sm">
                        Mark as Resolved
                      </button>
                   )}
-                  <button onClick={() => openActionModal(viewIncident, 'rejected', true)} className="px-5 py-2.5 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 text-sm font-bold rounded-xl transition-colors">
+                  <button onClick={() => openActionModal(viewIncident, 'Rejected', true)} className="px-5 py-2.5 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 text-sm font-bold rounded-xl transition-colors">
                      Reject Report
                   </button>
                 </div>
@@ -584,14 +582,13 @@ export default function AdminIncidentDashboard() {
             >
               <div className="px-6 py-5 border-b border-slate-700/50 bg-slate-800/50">
                  <h3 className="text-xl font-bold text-white capitalize">
-                    {actionModal.action === 'investigating' ? 'Begin Investigation' : actionModal.action} Incident
+                    {actionModal.action === 'investigating' || actionModal.action === 'Under Investigation' ? 'Begin Investigation' : actionModal.action} Incident
                  </h3>
               </div>
               <div className="p-6 bg-slate-900/50">
                 <p className="text-sm font-medium text-slate-300 mb-5">
-                  You are about to move Incident <strong className="text-white">{formatId(actionModal.incident._id)}</strong> to status: <strong className="text-blue-400 uppercase">{actionModal.action === 'investigating' ? 'UNDER INVESTIGATION' : actionModal.action}</strong>
+                  You are about to move Incident <strong className="text-white">{formatId(actionModal.incident._id)}</strong> to status: <strong className="text-blue-400 uppercase">{actionModal.action}</strong>
                 </p>
-
                 {actionModal.requireNotes && (
                    <div className="mb-2">
                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
