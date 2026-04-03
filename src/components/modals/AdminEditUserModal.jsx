@@ -13,7 +13,8 @@ import {
   Save,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react';
 import adminService from '../../services/adminService';
 import Input from '../common/Input';
@@ -37,6 +38,7 @@ const AdminEditUserModal = ({ isOpen, onClose, userData, onUpdate }) => {
     nic: '',
     phonenumber: '',
     password: '', 
+    profileImage: '',
   });
   
   const [loading, setLoading] = useState(false);
@@ -54,9 +56,14 @@ const AdminEditUserModal = ({ isOpen, onClose, userData, onUpdate }) => {
         nic: userData.nic || '',
         phonenumber: userData.phonenumber || '',
         password: '',
+        profileImage: userData.profileImage || '',
       });
     }
   }, [userData, isOpen]);
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, profileImage: '' }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -174,6 +181,36 @@ const AdminEditUserModal = ({ isOpen, onClose, userData, onUpdate }) => {
                 <p className="font-bold text-sm">{message.text}</p>
               </motion.div>
             )}
+
+            {/* Profile Image Section */}
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-slate-50 bg-slate-100 flex items-center justify-center text-slate-400">
+                  {formData.profileImage ? (
+                    <img 
+                      src={formData.profileImage} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-12 h-12" />
+                  )}
+                </div>
+                {formData.profileImage && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-2 -right-2 p-2 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-colors"
+                    title="Remove Profile Image"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <p className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest">
+                User Profile Image
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
