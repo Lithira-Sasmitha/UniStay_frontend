@@ -84,9 +84,20 @@ const authService = {
     return response.data;
   },
 
-  // ── Roommates ─────────────────────────────────────────────────────
+   // ── Roommates ─────────────────────────────────────────────────────
   getRoommates: async (params = {}) => {
     const response = await api.get('/roommates', { params });
+    return response.data;
+  },
+
+  // ── Messages/Notifications ──────────────────────────────────────────
+  getMessages: async () => {
+    const response = await api.get('/messages');
+    return response.data;
+  },
+
+  updateMessageStatus: async (id, status) => {
+    const response = await api.patch(`/messages/${id}/status`, { status });
     return response.data;
   },
 
