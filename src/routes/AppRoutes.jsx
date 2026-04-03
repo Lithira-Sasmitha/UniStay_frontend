@@ -20,6 +20,7 @@ import RoommateQuestionnaire from '../pages/dashboard/RoommateQuestionnaire';
 import RoommateRecommendations from '../pages/dashboard/RoommateRecommendations';
 import NoticeBoardPage from '../pages/dashboard/NoticeBoardPage';
 import StudentNoticeBoardPage from '../pages/dashboard/StudentNoticeBoardPage';
+import StudentPreferencesPage from '../pages/dashboard/StudentPreferencesPage';
 import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
 import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
 import SafetyDecisionHub from '../pages/dashboard/SafetyDecisionHub';
@@ -247,6 +248,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
             <StudentNoticeBoardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_PREFERENCES}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <StudentPreferencesPage />
           </PrivateRoute>
         }
       />

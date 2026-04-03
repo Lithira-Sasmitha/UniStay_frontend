@@ -31,6 +31,7 @@ export const ROUTES = {
   ROOMMATE_RECOMMENDATIONS: '/student/recommendations',
   OWNER_NOTICE_BOARD: '/owner/notice-board/:propertyId',
   STUDENT_NOTICE_BOARD: '/student/notice-board',
+  STUDENT_PREFERENCES: '/student/preferences',
   COMPARE: '/compare',
   WISHLIST: '/wishlist',
   ADMIN_SAFETY_CONTROL: '/admin/safety-control-center',
