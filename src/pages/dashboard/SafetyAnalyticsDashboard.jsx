@@ -77,61 +77,61 @@ export default function SafetyAnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-400" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen p-4 md:p-8 font-sans text-slate-200">
+    <div className="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-700 pb-12">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Header Section */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
             Safety Analytics Dashboard
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-500 text-lg">
             Analyze incident trends and safety performance
           </p>
         </div>
 
         {/* Top Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-slate-600 transition-all">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Total Incidents</p>
-                <h3 className="text-4xl font-black text-white">{stats.total}</h3>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Incidents</p>
+                <h3 className="text-4xl font-black text-slate-900">{stats.total}</h3>
               </div>
-              <div className="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
                 <FileText className="w-6 h-6" />
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-slate-600 transition-all">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Open Cases</p>
-                <h3 className="text-4xl font-black text-white">{stats.openCases}</h3>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Open Cases</p>
+                <h3 className="text-4xl font-black text-slate-900">{stats.openCases}</h3>
               </div>
-              <div className="p-3 bg-amber-500/20 text-amber-400 rounded-xl">
+              <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
                 <AlertTriangle className="w-6 h-6" />
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-slate-700/50 hover:border-red-500/30 transition-all relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-bl-full -z-10"></div>
+          <div className="bg-rose-50 rounded-2xl p-6 shadow-sm border border-rose-200 hover:border-rose-400 hover:shadow-md transition-all relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-rose-100 rounded-bl-full -z-10"></div>
             <div className="flex justify-between items-start z-10 relative">
               <div>
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">High Severity Incidents</p>
-                <h3 className="text-4xl font-black text-red-100">{stats.highSeverity}</h3>
+                <p className="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-2">High Severity Incidents</p>
+                <h3 className="text-4xl font-black text-rose-700">{stats.highSeverity}</h3>
               </div>
-              <div className="p-3 bg-red-500/20 text-red-400 rounded-xl">
+              <div className="p-3 bg-rose-100 text-rose-600 rounded-xl">
                 <ShieldAlert className="w-6 h-6" />
               </div>
             </div>
@@ -139,63 +139,64 @@ export default function SafetyAnalyticsDashboard() {
         </div>
 
         {/* Main Chart Section */}
-        <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-700/50">
+        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="w-6 h-6 text-blue-400" />
-              <h2 className="text-2xl font-bold text-white tracking-tight">Incident Trend Over Time</h2>
+              <TrendingUp className="w-6 h-6 text-indigo-600" />
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Incident Trend Over Time</h2>
            </div>
            
            <div className="w-full h-[450px]">
              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="month" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#94a3b8', fontSize: 13, fontWeight: 500 }} 
+                    tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} 
                     dy={15} 
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#94a3b8', fontSize: 13, fontWeight: 500 }} 
+                    tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} 
                     dx={-10} 
                   />
                   <Tooltip 
                      contentStyle={{ 
                        borderRadius: '12px', 
-                       border: '1px solid #334155', 
-                       backgroundColor: '#1e293b',
-                       color: '#f8fafc',
+                       border: '1px solid #e2e8f0', 
+                       backgroundColor: '#ffffff',
+                       color: '#0f172a',
                        padding: '12px 16px',
-                       fontWeight: 'bold'
+                       fontWeight: 'bold',
+                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
                      }}
-                     itemStyle={{ color: '#e2e8f0' }}
-                     cursor={{ stroke: '#475569', strokeWidth: 2, strokeDasharray: '4 4' }}
+                     itemStyle={{ color: '#475569' }}
+                     cursor={{ stroke: '#cbd5e1', strokeWidth: 2, strokeDasharray: '4 4' }}
                   />
                   <Legend 
                      iconType="circle" 
-                     wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }} 
+                     wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600, color: '#475569' }} 
                   />
                   <Line 
                     type="monotone" 
                     dataKey="total" 
                     name="Total Incidents" 
-                    stroke="#60a5fa" 
+                    stroke="#4f46e5" 
                     strokeWidth={4}
-                    dot={{ r: 5, strokeWidth: 2, fill: '#1e293b' }}
-                    activeDot={{ r: 8, stroke: '#60a5fa', strokeWidth: 2 }}
+                    dot={{ r: 5, strokeWidth: 2, fill: '#ffffff' }}
+                    activeDot={{ r: 8, stroke: '#4f46e5', strokeWidth: 2 }}
                     animationDuration={1500}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="highSeverity" 
                     name="High Severity" 
-                    stroke="#f87171" 
+                    stroke="#f43f5e" 
                     strokeWidth={4}
-                    dot={{ r: 5, strokeWidth: 2, fill: '#1e293b' }}
-                    activeDot={{ r: 8, stroke: '#f87171', strokeWidth: 2 }}
+                    dot={{ r: 5, strokeWidth: 2, fill: '#ffffff' }}
+                    activeDot={{ r: 8, stroke: '#f43f5e', strokeWidth: 2 }}
                     animationDuration={1500}
                   />
                 </LineChart>
@@ -204,28 +205,28 @@ export default function SafetyAnalyticsDashboard() {
         </div>
 
         {/* Bottom Section - Risky Properties */}
-        <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-xl border border-slate-700/50">
-           <h2 className="text-xl font-bold text-white mb-6">Top Risky Properties</h2>
+        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+           <h2 className="text-xl font-bold text-slate-900 mb-6">Top Risky Properties</h2>
            <div className="flex flex-col space-y-3">
               {riskyProperties.length === 0 ? (
-                 <div className="text-center py-8 text-slate-400 font-medium bg-slate-800/50 rounded-xl border border-slate-700/50">
+                 <div className="text-center py-8 text-slate-500 font-medium bg-slate-50 rounded-xl border border-slate-200">
                    No incidents reported yet.
                  </div>
               ) : (
                 riskyProperties.map((property, index) => (
                  <div 
                    key={property.id} 
-                   className="flex items-center justify-between p-4 rounded-xl bg-slate-700/30 hover:bg-slate-700/60 transition-colors border border-slate-700/50"
+                   className="flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100"
                  >
                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-extrabold text-sm shadow-inner border border-slate-600">
+                       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-700 font-extrabold text-sm shadow-sm border border-slate-200">
                           #{index + 1}
                        </div>
-                       <h4 className="font-semibold text-slate-200 text-lg">{property.name}</h4>
+                       <h4 className="font-semibold text-slate-800 text-lg">{property.name}</h4>
                     </div>
-                    <div className="flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-600/50">
-                       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Incidents</span>
-                       <span className={`font-black text-xl ${property.incidents >= 10 ? 'text-red-400' : property.incidents >= 6 ? 'text-amber-400' : 'text-blue-400'}`}>
+                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                       <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Incidents</span>
+                       <span className={`font-black text-xl ${property.incidents >= 10 ? 'text-rose-600' : property.incidents >= 6 ? 'text-amber-600' : 'text-indigo-600'}`}>
                           {property.incidents}
                        </span>
                     </div>
