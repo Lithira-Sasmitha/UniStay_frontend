@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, ChevronLeft, Loader2, AlertTriangle, Calendar,
-  Clock, FileText, ChevronLeft as ChevLeft, ChevronRight as ChevRight,
+  Clock, FileText, ChevronLeft as ChevLeft, ChevronRight as ChevRight, Timer,
 } from 'lucide-react';
 import { getStudentNotices } from '../../services/noticeService';
 
@@ -171,7 +171,7 @@ const StudentNoticeCard = ({ notice }) => {
               )}
               {notice.expiresAt && (
                 <span className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
-                  <Clock className="w-3 h-3" />
+                  <Timer className="w-3 h-3" />
                   Expires {new Date(notice.expiresAt).toLocaleDateString('en-US', { day:'numeric', month:'short' })}{' '}
                   {new Date(notice.expiresAt).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}
                 </span>

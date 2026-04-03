@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Plus, Trash2, ArrowLeft, Loader2, CheckCircle, FileText, X, DoorOpen, Copy } from 'lucide-react';
+import { Upload, Plus, Trash2, ArrowLeft, Loader2, CheckCircle, FileText, X, DoorOpen, Copy, Wifi, Wind, BookOpen, Shirt, Bath, Flame, WashingMachine, Car } from 'lucide-react';
+
+const FACILITY_ICONS = {
+    'WiFi': Wifi,
+    'Air Conditioning': Wind,
+    'Study Desk': BookOpen,
+    'Wardrobe': Shirt,
+    'Attached Bathroom': Bath,
+    'Hot Water': Flame,
+    'Laundry': WashingMachine,
+    'Parking': Car,
+};
 import { createProperty } from '../../services/propertyService';
 
 const ADVANCE_TYPES = ['fixed', 'half-month'];
@@ -438,11 +449,12 @@ const CreateListingPage = () => {
                                                     <button
                                                         key={f} type="button"
                                                         onClick={() => toggleRoomFacility(room.id, f)}
-                                                        className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all ${room.facilities.includes(f)
+                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold border transition-all ${room.facilities.includes(f)
                                                             ? 'bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-200'
                                                             : 'bg-white text-slate-600 border-slate-200 hover:border-primary-300'
                                                             }`}
                                                     >
+                                                        {(() => { const Icon = FACILITY_ICONS[f]; return Icon ? <Icon className="w-3.5 h-3.5" /> : null; })()}
                                                         {f}
                                                     </button>
                                                 ))}
