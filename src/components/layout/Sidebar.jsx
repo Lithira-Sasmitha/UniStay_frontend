@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3, ChevronLeft, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, List, X, ChevronRight, Sparkles, Building, PlusCircle, Shield, BarChart3, ChevronLeft, ShieldAlert, Heart } from 'lucide-react';
 import { ROUTES, ROLES } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 import useAuth from '../../hooks/useAuth';
@@ -23,6 +23,7 @@ const Sidebar = ({ isOpen, onClose, isDesktopCollapsed, toggleDesktop }) => {
     } else if (role === ROLES.STUDENT) {
       items.push({ name: 'Dashboard', icon: LayoutDashboard, path: ROUTES.STUDENT_DASHBOARD });
       items.push({ name: 'My Incidents', icon: Shield, path: '/student/incidents' });
+      items.push({ name: 'Find My Match', icon: Heart, path: ROUTES.ROOMMATE_QUESTIONNAIRE });
     }
 
     // Browse Listings — everyone

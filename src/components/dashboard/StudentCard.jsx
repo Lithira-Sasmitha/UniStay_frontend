@@ -10,8 +10,8 @@ const StudentCard = ({ student, onOpenProfile }) => {
       className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all overflow-hidden group flex flex-col h-full"
     >
       <div className="relative h-44 bg-slate-100 flex items-center justify-center overflow-hidden">
-        {student.profilePhoto ? (
-          <img src={student.profilePhoto} alt={student.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        {student.profileImage ? (
+          <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
             <User className="w-16 h-16 text-primary-200" />

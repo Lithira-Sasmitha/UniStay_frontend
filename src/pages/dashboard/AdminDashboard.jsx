@@ -380,8 +380,12 @@ const AdminDashboard = () => {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-3 bg-white/60 backdrop-blur-xl p-2.5 pr-5 rounded-2xl border border-white max-w-[240px] shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-300"
             >
-              <div className="w-11 h-11 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-slate-700 font-bold border border-white shadow-inner">
-                {currentUserData?.name?.[0] || 'A'}
+              <div className="w-11 h-11 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-slate-700 font-bold border border-white shadow-inner overflow-hidden">
+                {currentUserData?.profileImage ? (
+                  <img src={currentUserData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  currentUserData?.name?.[0] || 'A'
+                )}
               </div>
               <div className="hidden sm:block text-left overflow-hidden">
                 <p className="text-sm font-bold text-slate-900 leading-none mb-1.5 truncate">{currentUserData?.name || 'Admin'}</p>
