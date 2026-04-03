@@ -91,11 +91,42 @@ export default function IncidentDetailModal({ incident, onClose }) {
             </div>
           </div>
 
-          {incident.photoUrl && (
+          {incident.photos && incident.photos.length > 0 && (
             <div>
               <h3 className="text-lg font-bold text-slate-900 mb-3">Attached Evidence</h3>
               <div className="rounded-2xl overflow-hidden border border-slate-200">
-                <img src={incident.photoUrl} alt="Evidence" className="w-full h-auto object-contain max-h-[300px] bg-slate-50" />
+                <img src={incident.photos[0]} alt="Evidence" className="w-full h-auto object-contain max-h-[300px] bg-slate-50" />
+              </div>
+            </div>
+          )}
+
+          {incident.auditLog && incident.auditLog.length > 0 && (
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 mb-3">Audit Log</h3>
+              <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden text-sm">
+                <table className="w-full">
+                  <thead className="bg-slate-100/50">
+                    <tr>
+                      <th className="px-4 py-2 text-left font-medium text-slate-500">Action</th>
+                      <th className="px-4 py-2 text-left font-medium text-slate-500">User Role</th>
+                      <th className="px-4 py-2 text-left font-medium text-slate-500">Date/Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {incident.auditLog.map((log, i) => (
+                      <tr key={i}>
+                        <td className="px-4 py-3 text-slate-800">
+                          <span className="font-semibold block">{log.action}</span>
+                          <span className="text-xs text-slate-500">{log.details}</span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 capitalize">{log.role || 'System'}</td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {new Date(log.timestamp).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

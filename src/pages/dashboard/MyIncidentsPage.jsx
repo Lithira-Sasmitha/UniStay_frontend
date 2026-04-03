@@ -20,9 +20,9 @@ export default function MyIncidentsPage() {
 
   const getSeverityStyle = (severity) => {
     switch(severity) {
-      case 'High': return 'text-rose-400 bg-rose-500/10 border-rose-500/30 ring-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]';
-      case 'Medium': return 'text-amber-400 bg-amber-500/10 border-amber-500/30 ring-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]';   
-      default: return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30 ring-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
+      case 'High': return 'text-rose-400 bg-rose-500/10 border-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]';
+      case 'Medium': return 'text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]';   
+      default: return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
     }
   };
 
@@ -151,16 +151,16 @@ export default function MyIncidentsPage() {
 
                   {/* Right: Actions / Image */}
                   <div className="flex items-center justify-between md:justify-end gap-6 mt-6 md:mt-0 pt-6 md:pt-0 border-t md:border-none border-white/10 shrink-0">
-                    {inc.photoUrl && (
+                    {(inc.photoUrl || (inc.photos && inc.photos[0])) && (
                       <div className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-white/10 hidden sm:block relative">
                         <div className="absolute inset-0 bg-indigo-500/20 mix-blend-overlay group-hover:opacity-0 transition-opacity z-10 pointer-events-none"></div>
-                        <img src={inc.photoUrl} alt="Evidence" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <img src={inc.photoUrl || inc.photos[0]} alt="Evidence" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       </div>
                     )}
 
                     <button
                       onClick={() => setSelectedIncident(inc)}
-                      className="flex items-center gap-2 px-6 py-3.5 bg-slate-700/50 hover:bg-slate-700 border border-white/10 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 text-sm group/btn"
+                      className="flex items-center gap-2 px-6 py-3.5 bg-slate-700/50 hover:bg-slate-700 border border-white/10 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-[0.98] text-sm group/btn"
                     >
                       <Eye size={18} className="text-indigo-400 group-hover/btn:text-indigo-300 transition-colors" />
                       View Details
