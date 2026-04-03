@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star } from 'lucide-react';
-import { getListingById } from '../../services/propertyService';
+import { MapPin, ArrowLeft, Users, Wifi, DollarSign, Loader2, CheckCircle, ShieldX, MessageSquare, AlertTriangle, ShieldAlert, History, Star, Heart } from 'lucide-react';
+import { getListingById, toggleWishlist, getWishlist } from '../../services/propertyService';
 import { requestBooking } from '../../services/bookingService';
 import useAuth from '../../hooks/useAuth';
 import SafetyBadge from '../../components/common/SafetyBadge';
 import StatusBadge from '../../components/common/StatusBadge';
 import SafetyAssistantChat from '../../components/common/SafetyAssistantChat';
 import SafeRoommateSuggestion from '../../components/common/SafeRoommateSuggestion';
+import ContactModal from '../../components/modals/ContactModal';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -29,6 +30,9 @@ const PropertyDetailPage = () => {
     const [bookingRoomId, setBookingRoomId] = useState(null);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [bookingMsg, setBookingMsg] = useState('');
+    const [isSaved, setIsSaved] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     useEffect(() => {
         const fetch = async () => {
@@ -37,12 +41,44 @@ const PropertyDetailPage = () => {
                 setProperty(data.property);
             } catch {
                 setError('Property not found.');
+                setLoading(false);
+                return;
+            }
+            
+            // Check if already in wishlist - separate try/catch so it doesn't break the page
+            try {
+                if (user && user.role === 'student') {
+                    const wishRes = await getWishlist();
+                    if (wishRes?.data?.success && Array.isArray(wishRes.data.wishlist)) {
+                        const isInWishlist = wishRes.data.wishlist.some(item => item && item._id === propertyId);
+                        setIsSaved(isInWishlist);
+                    }
+                }
+            } catch (wishlistErr) {
+                console.error('Failed to load wishlist status', wishlistErr);
             } finally {
                 setLoading(false);
             }
         };
         fetch();
-    }, [propertyId]);
+    }, [propertyId, user]);
+
+    const handleToggleWishlist = async () => {
+        if (!user) return navigate('/login');
+        if (user.role !== 'student') return;
+        
+        setWishlistLoading(true);
+        try {
+            const response = await toggleWishlist(propertyId);
+            if (response.data.success) {
+                setIsSaved(response.data.isSaved);
+            }
+        } catch (error) {
+            console.error('Failed to update wishlist:', error);
+        } finally {
+            setWishlistLoading(false);
+        }
+    };
 
     const handleBook = async (roomId) => {
         if (!user) return navigate('/login');
@@ -200,6 +236,19 @@ const PropertyDetailPage = () => {
                         </div>
 
                         <div className="text-right flex flex-col items-end gap-2">
+                            {user?.role === 'student' && (
+                                <button
+                                    onClick={handleToggleWishlist}
+                                    disabled={wishlistLoading}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 shadow-sm border mb-4 ${isSaved
+                                            ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`} />
+                                    {isSaved ? 'Saved to Wishlist' : 'Save to Wishlist'}
+                                </button>
+                            )}
                             <div className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border ${badge.cls}`}>
                                 {badge.emoji} {badge.label}
                             </div>
@@ -238,10 +287,22 @@ const PropertyDetailPage = () => {
                     )}
 
                     {/* Owner */}
-                    <p className="text-slate-500 text-sm mb-6">
-                        Listed by <span className="font-bold text-slate-700">{property.owner?.name}</span>
-                        {property.owner?.phonenumber && <> · 📞 {property.owner.phonenumber}</>}
-                    </p>
+                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <p className="text-slate-500 text-sm">Listed by</p>
+                            <p className="font-bold text-slate-700 text-lg">{property.owner?.name || 'Unknown Owner'}</p>
+                            {property.owner?.phonenumber && <p className="text-slate-500 text-sm mt-1">📞 {property.owner.phonenumber}</p>}
+                        </div>
+                        {user && user.role === 'student' && property.owner && (
+                            <button
+                                onClick={() => setIsContactModalOpen(true)}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                Contact Owner
+                            </button>
+                        )}
+                    </div>
 
                     {/* Description */}
                     {property.description && (
@@ -361,9 +422,21 @@ const PropertyDetailPage = () => {
                     <SafeRoommateSuggestion property={property} />
 
                 </motion.div>
+                
+                <SafetyAssistantChat propertyId={property._id} propertyName={property.name} />
+
+                {/* Contact Modal */}
+                {property.owner && (
+                    <ContactModal
+                        isOpen={isContactModalOpen}
+                        onClose={() => setIsContactModalOpen(false)}
+                        receiverId={property.owner._id || property.owner}
+                        receiverName={property.owner.name || 'Owner'}
+                        receiverRole="boardingowner"
+                        propertyId={property._id}
+                    />
+                )}
             </div>
-            {/* AI Safety Assistant Chat */}
-            <SafetyAssistantChat propertyId={property._id} />
         </div>
     );
 };

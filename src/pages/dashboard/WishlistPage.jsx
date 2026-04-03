@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Search, Scale, MapPin, DollarSign, Star, Ghost } from 'lucide-react';
+import { 
+  Heart, 
+  Search, 
+  Scale, 
+  MapPin, 
+  DollarSign, 
+  Star, 
+  Ghost, 
+  ArrowUpDown, 
+  Trash2, 
+  Loader2,
+  HeartOff,
+  CheckSquare,
+  Square,
+  Maximize2
+} from 'lucide-react';
 import { ROUTES } from '../../utils/constants';
 import useWishlist from '../../hooks/useWishlist';
 import SafetyBadge from '../../components/common/SafetyBadge';
+import PropertyCard from '../../components/cards/PropertyCard';
 
 const BADGE_CONFIG = {
     gold: { emoji: '🥇', label: 'Gold Verified', cls: 'bg-yellow-50 text-yellow-700 border-yellow-300' },
@@ -15,53 +31,111 @@ const BADGE_CONFIG = {
 
 const WishlistPage = () => {
     const navigate = useNavigate();
-    const { wishlist, removeFromWishlist } = useWishlist();
+    const { wishlist, removeFromWishlist, loading } = useWishlist();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('newest');
     const [compareList, setCompareList] = useState([]);
 
     const toggleCompare = (propertyId) => {
         if (compareList.includes(propertyId)) {
             setCompareList(compareList.filter(id => id !== propertyId));
         } else {
-            if (compareList.length >= 3) {
-                alert("You can only compare up to 3 properties at a time.");
+            if (compareList.length >= 4) {
+                alert("You can only compare up to 4 properties at a time.");
                 return;
             }
             setCompareList([...compareList, propertyId]);
         }
     };
 
+    const handleCompare = () => {
+        if (compareList.length >= 2) {
+            navigate(`${ROUTES.COMPARE}?ids=${compareList.join(',')}`);
+        }
+    };
+
+    const filteredWishlist = useMemo(() => {
+        return (Array.isArray(wishlist) ? wishlist : [])
+            .filter(item => 
+                item && item.name && (
+                    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (item.address && item.address.toLowerCase().includes(searchTerm.toLowerCase()))
+                )
+            )
+            .sort((a, b) => {
+                if (!a || !b) return 0;
+                const priceA = a.rooms?.[0]?.monthlyRent || 0;
+                const priceB = b.rooms?.[0]?.monthlyRent || 0;
+                const ratingA = a.averageRating || 0;
+                const ratingB = b.averageRating || 0;
+
+                if (sortBy === 'price-low') return priceA - priceB;
+                if (sortBy === 'price-high') return priceB - priceA;
+                if (sortBy === 'rating') return ratingB - ratingA;
+                return 0;
+            });
+    }, [wishlist, searchTerm, sortBy]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+                <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" />
+                <p className="text-slate-500 font-black uppercase tracking-widest text-xs">Accessing Favorites...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 p-6 md:p-10">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                     <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 shadow-sm">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 shadow-sm shadow-rose-200">
                                 <Heart className="w-6 h-6 fill-rose-500 text-rose-500" />
                             </div>
                             <span className="text-xs font-black uppercase tracking-[0.3em] text-rose-600 bg-rose-50 px-3 py-1 rounded-full">
                                 Favorites
                             </span>
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
                             My Wishlist
                         </h1>
-                        <p className="text-slate-500 font-medium mt-1">
-                            Saved ({wishlist.length})
+                        <p className="text-slate-500 font-medium mt-2">
+                             {wishlist.length} {wishlist.length === 1 ? 'property' : 'properties'} saved for consideration
                         </p>
                     </div>
 
-                    {compareList.length > 0 && (
-                        <motion.button
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            onClick={() => navigate(`${ROUTES.COMPARE}?ids=${compareList.join(',')}`)}
-                            className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:scale-105 transition-transform flex items-center gap-2"
-                        >
-                            <Scale className="w-5 h-5" />
-                            Compare Selected ({compareList.length})
-                        </motion.button>
+                    {wishlist.length > 0 && (
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            {/* Search */}
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search favorites..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-400 w-full sm:w-64 transition-all shadow-sm"
+                                />
+                            </div>
+
+                            {/* Sort */}
+                            <div className="relative">
+                                <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="pl-11 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold appearance-none focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-400 w-full transition-all cursor-pointer shadow-sm"
+                                >
+                                    <option value="newest">Newest Added</option>
+                                    <option value="price-low">Price: Low to High</option>
+                                    <option value="price-high">Price: High to Low</option>
+                                    <option value="rating">Top Rated</option>
+                                </select>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -69,29 +143,34 @@ const WishlistPage = () => {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm"
+                        className="bg-white rounded-[3rem] p-16 text-center border border-slate-200 shadow-xl shadow-slate-200/50"
                     >
-                        <Ghost className="w-20 h-20 text-slate-300 mx-auto mb-4" />
-                        <h2 className="text-2xl font-black text-slate-800 mb-2">No saved properties yet</h2>
-                        <p className="text-slate-500 mb-8 max-w-sm mx-auto">
-                            Start adding boarding places to your wishlist by clicking the heart icon on any property.
+                        <div className="bg-rose-50 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-3">
+                            <HeartOff className="w-12 h-12 text-rose-400" />
+                        </div>
+                        <h2 className="text-3xl font-black text-slate-900 mb-3">Your wishlist is empty</h2>
+                        <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium leading-relaxed">
+                            Explore available boarding places and save your favorites to compare and book later.
                         </p>
                         <button
                             onClick={() => navigate(ROUTES.LISTINGS)}
-                            className="bg-primary-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200 inline-flex items-center gap-2"
+                            className="bg-primary-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-primary-700 transition-all shadow-xl shadow-primary-200 flex items-center gap-3 mx-auto hover:scale-105 active:scale-95"
                         >
                             <Search className="w-5 h-5" />
-                            Browse Listings
+                            Explore Listings
                         </button>
                     </motion.div>
+                ) : filteredWishlist.length === 0 ? (
+                    <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-slate-200">
+                        <Ghost className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                        <p className="text-slate-500 font-bold">No properties match your search.</p>
+                        <button onClick={() => setSearchTerm('')} className="text-primary-600 text-sm font-black mt-2 underline">Clear Search</button>
+                    </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
                         <AnimatePresence>
-                            {wishlist.map((property) => {
-                                const badge = BADGE_CONFIG[property.trustBadge] || BADGE_CONFIG.unverified;
-                                const isComparing = compareList.includes(property._id);
-                                const rating = property.rating || "4.8"; // Mocked if not present
-
+                            {filteredWishlist.map((property) => {
+                                const isSelected = compareList.includes(property._id);
                                 return (
                                     <motion.div
                                         layout
@@ -99,88 +178,43 @@ const WishlistPage = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         key={property._id}
-                                        className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-shadow flex flex-col"
+                                        className="relative group h-full"
                                     >
-                                        {/* Cover Image */}
-                                        <div className="relative h-56 bg-slate-100">
-                                            {property.coverPhoto ? (
-                                                <img
-                                                    src={property.coverPhoto}
-                                                    alt={property.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                    <span className="text-5xl">🏠</span>
-                                                </div>
-                                            )}
+                                        <div className={`h-full rounded-3xl transition-all duration-300 border-2 overflow-hidden flex flex-col shadow-sm hover:shadow-2xl ${
+                                            isSelected 
+                                            ? 'border-primary-500 ring-4 ring-primary-50' 
+                                            : 'border-transparent hover:border-slate-200 bg-white'
+                                        }`}>
+                                            {/* Selection Overlay */}
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleCompare(property._id); }}
+                                                className={`absolute top-4 right-4 z-40 p-2.5 rounded-2xl backdrop-blur-md shadow-lg transition-all sm:opacity-0 group-hover:opacity-100 ${
+                                                    isSelected 
+                                                        ? 'bg-primary-600 text-white opacity-100 scale-110' 
+                                                        : 'bg-white/90 text-slate-500 hover:bg-white hover:text-primary-600 border border-slate-200/50'
+                                                }`}
+                                            >
+                                                {isSelected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                                            </button>
 
-                                            {/* Trust Badge */}
-                                            <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-sm bg-white/90 ${badge.cls}`}>
-                                                <span>{badge.emoji}</span>
-                                                <span>{badge.label}</span>
-                                            </div>
-
-                                            {/* Safety Badge */}
-                                            <div className="absolute top-3 left-3 z-10 w-fit">
-                                                <SafetyBadge propertyId={property._id} showDetails={false} />
-                                            </div>
-                                        </div>
-
-                                        {/* Body */}
-                                        <div className="p-5 flex-1 flex flex-col">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="font-black text-slate-900 text-lg leading-tight line-clamp-1 flex-1">
-                                                    {property.name}
-                                                </h3>
-                                                <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-1 rounded-lg text-xs font-bold ml-3 border border-amber-100 shrink-0">
-                                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                                    {rating}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-1.5 text-slate-500 mb-4">
-                                                <MapPin className="w-4 h-4 shrink-0" />
-                                                <span className="text-sm font-medium line-clamp-1">{property.address}</span>
-                                            </div>
-
-                                            <div className="flex items-center gap-1 text-slate-700 bg-slate-50 w-fit px-3 py-1.5 rounded-xl border border-slate-100 mb-6">
-                                                <DollarSign className="w-4 h-4 text-emerald-600" />
-                                                <span className="text-base font-bold text-emerald-700">
-                                                    LKR {property.price ? property.price.toLocaleString() : 'N/A'}
-                                                    <span className="text-xs font-normal text-slate-500">/mo</span>
-                                                </span>
-                                            </div>
-
-                                            <div className="mt-auto grid grid-cols-2 gap-3 pb-3">
-                                                <button
-                                                    onClick={() => toggleCompare(property._id)}
-                                                    className={`py-2.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2 border transition-colors ${
-                                                        isComparing 
-                                                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700' 
-                                                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                                                    }`}
-                                                >
-                                                    <Scale className="w-4 h-4" />
-                                                    {isComparing ? 'Comparing' : 'Compare'}
-                                                </button>
-                                                
+                                            <PropertyCard property={property} />
+                                            
+                                            <div className="p-5 pt-0 mt-auto grid grid-cols-2 gap-3">
                                                 <button
                                                     onClick={() => removeFromWishlist(property._id)}
-                                                    className="py-2.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2 bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-100 transition-colors"
+                                                    className="flex items-center justify-center gap-2 py-3 px-4 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl border border-rose-100 transition-all font-black text-xs uppercase tracking-wider"
                                                 >
-                                                    <Heart className="w-4 h-4 fill-rose-500" />
+                                                    <Trash2 className="w-4 h-4" />
                                                     Remove
                                                 </button>
+                                                <button
+                                                    onClick={() => navigate(ROUTES.LISTING_DETAIL.replace(':propertyId', property._id))}
+                                                    className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-slate-200"
+                                                >
+                                                    <Maximize2 className="w-4 h-4" />
+                                                    Explore
+                                                </button>
                                             </div>
-                                            
-                                            <button
-                                                onClick={() => navigate(ROUTES.LISTING_DETAIL.replace(':propertyId', property._id))}
-                                                className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex justify-center items-center gap-2"
-                                            >
-                                                <Search className="w-4 h-4" />
-                                                View Details
-                                            </button>
                                         </div>
                                     </motion.div>
                                 );
@@ -189,6 +223,49 @@ const WishlistPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* Floating Compare Bar */}
+            <AnimatePresence>
+                {compareList.length > 0 && (
+                    <motion.div 
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 100, opacity: 0 }}
+                        className="fixed bottom-0 left-0 right-0 p-6 z-[60] pointer-events-none"
+                    >
+                        <div className="max-w-4xl mx-auto bg-slate-900 rounded-[2.5rem] p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 pointer-events-auto">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-primary-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
+                                    <Scale className="w-7 h-7" />
+                                </div>
+                                <div className="text-left">
+                                    <h3 className="text-white font-black text-lg leading-none">Compare Selection</h3>
+                                    <p className="text-slate-400 text-sm font-bold mt-1">
+                                        {compareList.length} of 4 properties selected
+                                        {compareList.length < 2 && <span className="text-primary-400 ml-2">(Select 2+ to compare)</span>}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <button 
+                                    onClick={() => setCompareList([])}
+                                    className="flex-1 md:flex-none px-6 py-3.5 text-sm font-black text-slate-400 hover:text-white transition-colors"
+                                >
+                                    Clear Selection
+                                </button>
+                                <button 
+                                    disabled={compareList.length < 2}
+                                    onClick={handleCompare}
+                                    className="flex-1 md:flex-none px-8 py-3.5 bg-primary-600 text-white rounded-2xl font-black text-sm hover:bg-primary-500 transition-all shadow-xl shadow-primary-700/20 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
+                                >
+                                    Compare Now
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -10,6 +10,7 @@ import {
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/authService';
 import StudentCard from '../../components/dashboard/StudentCard';
+import ContactModal from '../../components/modals/ContactModal';
 
 const RoommateFinder = () => {
   const { user } = useAuth();
@@ -18,6 +19,8 @@ const RoommateFinder = () => {
   const [error, setError] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [contactRevealed, setContactRevealed] = useState(false);
+  const [isMessageOpen, setIsMessageOpen] = useState(false);
+  const [isRequestOpen, setIsRequestOpen] = useState(false);
   
   // Filters
   const [filters, setFilters] = useState({
@@ -249,17 +252,52 @@ const RoommateFinder = () => {
                            <p className="text-[10px] font-bold text-primary-400 uppercase tracking-widest pt-2">Contact revealed from verification data</p>
                         </div>
                      ) : (
-                        <button 
-                           onClick={() => setContactRevealed(true)}
-                           className="w-full py-6 bg-primary-600 text-white rounded-[2rem] font-black text-lg shadow-2xl shadow-primary-100 hover:scale-[1.02] transition-transform flex items-center justify-center gap-3"
-                        >
-                           <Phone className="w-6 h-6" />
-                           Unlock Contact Details
-                        </button>
+                        <div className="flex flex-col gap-3">
+                           <button 
+                              onClick={() => { setContactRevealed(true); }}
+                              className="w-full py-3 bg-slate-100 text-slate-500 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 mb-2"
+                           >
+                              <Phone className="w-4 h-4" />
+                              Unlock Direct Phone/Email
+                           </button>
+                           <button 
+                              onClick={() => setIsRequestOpen(true)}
+                              className="w-full py-4 bg-primary-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-primary-200 hover:scale-[1.02] transition-transform flex items-center justify-center gap-3"
+                           >
+                              <ShieldCheck className="w-5 h-5" />
+                              Request to Share
+                           </button>
+                           <button 
+                              onClick={() => setIsMessageOpen(true)}
+                              className="w-full py-4 bg-primary-50 text-primary-700 border border-primary-200 rounded-[2rem] font-black text-lg shadow-sm hover:bg-primary-100 transition-colors flex items-center justify-center gap-3"
+                           >
+                              <Mail className="w-5 h-5" />
+                              Message Student
+                           </button>
+                        </div>
                      )}
                   </div>
                </div>
             </motion.div>
+
+            {/* Modals for inside the profile view */}
+            <ContactModal
+                isOpen={isMessageOpen}
+                onClose={() => setIsMessageOpen(false)}
+                receiverId={selectedStudent._id}
+                receiverName={selectedStudent.name}
+                receiverRole="student"
+                isShareRequest={false}
+            />
+            <ContactModal
+                isOpen={isRequestOpen}
+                onClose={() => setIsRequestOpen(false)}
+                receiverId={selectedStudent._id}
+                receiverName={selectedStudent.name}
+                receiverRole="student"
+                isShareRequest={true}
+            />
+
           </div>
         )}
       </AnimatePresence>

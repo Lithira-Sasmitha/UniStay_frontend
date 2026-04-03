@@ -362,7 +362,7 @@ const OwnerDashboard = () => {
               {/* Quick Actions */}
               <motion.div variants={itemVariants} className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
                 <h2 className="text-xl font-black text-slate-900 mb-6">Quick Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <button
                     onClick={() => navigate('/owner/create-listing')}
                     className="p-6 bg-slate-50 rounded-2xl text-left hover:bg-amber-50 hover:border-amber-200 border border-slate-100 transition-all group"
@@ -394,6 +394,14 @@ const OwnerDashboard = () => {
                       Use the <span className="font-black text-purple-600">Notices</span> button on each property below to manage notices per boarding house.
                     </p>
                   </div>
+                  <button
+                    onClick={() => navigate('/owner/incidents')}
+                    className="p-6 bg-indigo-50 rounded-2xl text-left hover:bg-indigo-100 border border-indigo-200 transition-all group shadow-sm"
+                  >
+                    <AlertTriangle className="w-6 h-6 text-indigo-600 mb-3 group-hover:scale-110 transition-transform" />
+                    <p className="font-bold text-indigo-900">Safety Incidents</p>
+                    <p className="text-xs text-indigo-700 mt-1">Deploy action plans & improve score</p>
+                  </button>
                 </div>
               </motion.div>
 
