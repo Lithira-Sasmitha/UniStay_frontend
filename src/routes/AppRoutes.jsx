@@ -1,0 +1,274 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthLayout from '../layouts/AuthLayout';
+import MainLayout from '../layouts/MainLayout';
+import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
+import AdminDashboard from '../pages/dashboard/AdminDashboard';
+import OwnerDashboard from '../pages/dashboard/OwnerDashboard';
+import StudentDashboard from '../pages/dashboard/StudentDashboard';
+import ListingsPage from '../pages/listings/ListingsPage';
+import PropertyDetailPage from '../pages/listings/PropertyDetailPage';
+import CreateListingPage from '../pages/listings/CreateListingPage';
+import EditListingPage from '../pages/listings/EditListingPage';
+import PaymentPage from '../pages/payment/PaymentPage';
+import ReportSafetyPage from '../pages/dashboard/ReportSafetyPage';
+import ReportIncidentPage from '../pages/dashboard/ReportIncidentPage';
+import MyIncidentsPage from '../pages/dashboard/MyIncidentsPage';
+import RoommateFinder from '../pages/dashboard/RoommateFinder';
+import RoommateQuestionnaire from '../pages/dashboard/RoommateQuestionnaire';
+import RoommateRecommendations from '../pages/dashboard/RoommateRecommendations';
+import NoticeBoardPage from '../pages/dashboard/NoticeBoardPage';
+import StudentNoticeBoardPage from '../pages/dashboard/StudentNoticeBoardPage';
+import StudentPreferencesPage from '../pages/dashboard/StudentPreferencesPage';
+import IncidentDetailPage from '../pages/dashboard/IncidentDetailPage';
+import AdminIncidentDashboard from '../pages/dashboard/AdminIncidentDashboard';
+import SafetyDecisionHub from '../pages/dashboard/SafetyDecisionHub';
+import SafetyAnalyticsDashboard from '../pages/dashboard/SafetyAnalyticsDashboard';
+import OwnerIncidentsPage from '../pages/dashboard/OwnerIncidentsPage';
+import BookingAnalyticsPage from '../pages/dashboard/BookingAnalyticsPage';  
+import WishlistPage from '../pages/dashboard/WishlistPage';
+import ComparePage from '../pages/dashboard/ComparePage';
+import SafetyControlCenter from '../pages/dashboard/SafetyControlCenter';
+import PrivateRoute from '../components/PrivateRoute';
+import { ROUTES, ROLES } from '../utils/constants';
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* ── Public Auth Routes ─────────────────────────────────────── */}
+      <Route element={<AuthLayout />}>
+        <Route path={ROUTES.LOGIN} element={<Login />} />
+        <Route path={ROUTES.REGISTER} element={<Register />} />
+      </Route>
+
+      {/* ── Public Listing Routes (wrapped in MainLayout) ────────── */}
+      <Route element={<MainLayout />}>
+        <Route path={ROUTES.LISTINGS} element={<ListingsPage />} />
+        <Route path={ROUTES.LISTING_DETAIL} element={<PropertyDetailPage />} />
+        <Route path={ROUTES.REPORT_SAFETY} element={<ReportSafetyPage />} />
+        <Route
+          path={ROUTES.WISHLIST}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <WishlistPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.COMPARE}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ComparePage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      {/* ── Protected: Super Admin ─────────────────────────────────── */}
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.ADMIN_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/safety"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <AdminIncidentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <SafetyAnalyticsDashboard />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      <Route
+        path={ROUTES.ADMIN_SAFETY_CONTROL}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+            <SafetyControlCenter />
+          </PrivateRoute>
+        }
+      />
+      
+      {/* ── Protected: Boarding Owner ──────────────────────────────── */}
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.OWNER_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/owner/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <OwnerIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <CreateListingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_LISTING}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+              <EditListingPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      {/* ── Protected: Student ─────────────────────────────────────── */}
+      <Route element={<MainLayout />}>
+        <Route
+          path={ROUTES.STUDENT_DASHBOARD}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <StudentDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={ROUTES.STUDENT_PAY}
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      {/* Pages needing MainLayout wrapper */}
+      <Route element={<MainLayout />}>
+        <Route
+          path="/student/report-incident"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <ReportIncidentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student/incidents"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <MyIncidentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT, ROLES.SUPER_ADMIN, ROLES.BOARDING_OWNER]}>
+              <IncidentDetailPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-bookings/analytics"
+          element={
+            <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+              <BookingAnalyticsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+            path={ROUTES.COMPARE}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <ComparePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={ROUTES.WISHLIST}
+            element={
+              <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+                <WishlistPage />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+
+      <Route
+        path={ROUTES.ROOMMATE_FINDER}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateFinder />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ROOMMATE_QUESTIONNAIRE}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateQuestionnaire />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ROOMMATE_RECOMMENDATIONS}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <RoommateRecommendations />
+          </PrivateRoute>
+        }
+      />
+      {/* ── Notice Board ───────────────────────────────────────────── */}
+      <Route
+        path={ROUTES.OWNER_NOTICE_BOARD}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.BOARDING_OWNER]}>
+            <NoticeBoardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_NOTICE_BOARD}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <StudentNoticeBoardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={ROUTES.STUDENT_PREFERENCES}
+        element={
+          <PrivateRoute allowedRoles={[ROLES.STUDENT]}>
+            <StudentPreferencesPage />
+          </PrivateRoute>
+        }
+      />
+
+        <Route
+          path="/safety-decision/:id"
+          element={<SafetyDecisionHub />}
+        />
+      {/* ── Fallback: Redirect to Login ────────────────────────────── */}
+      <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
+
